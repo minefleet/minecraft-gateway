@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	gatewaynetworkingv1 "dev.minefleet/minecraft-gateway/api/v1"
+	gatewaynetworkingv1 "minefleet.dev/minecraft-gateway/api/v1"
 )
 
 // MinecraftServerDiscoveryReconciler reconciles a MinecraftServerDiscovery object
@@ -33,9 +33,9 @@ type MinecraftServerDiscoveryReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftserverdiscoveries,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftserverdiscoveries/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftserverdiscoveries/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftserverdiscoveries,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftserverdiscoveries/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftserverdiscoveries/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

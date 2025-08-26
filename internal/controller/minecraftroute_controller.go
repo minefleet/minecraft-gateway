@@ -23,24 +23,22 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-
-	gatewaynetworkingv1 "dev.minefleet/minecraft-gateway/api/v1"
 )
 
-// MinecraftRouteReconciler reconciles a MinecraftFallbackRoute object
+// MinecraftRouteReconciler reconciles a MinecraftFallbackRoute or MinecraftJoinRoute object
 type MinecraftRouteReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftfallbackroutes,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftfallbackroutes/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftfallbackroutes/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftroutes,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftroutes/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftroutes/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the MinecraftFallbackRoute object against the actual cluster state, and then
+// the MinecraftRoute object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
@@ -57,7 +55,8 @@ func (r *MinecraftRouteReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 // SetupWithManager sets up the controller with the Manager.
 func (r *MinecraftRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&gatewaynetworkingv1.MinecraftFallbackRoute{}).
-		Named("minecraftfallbackroute").
+		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
+		// For().
+		Named("minecraftroute").
 		Complete(r)
 }

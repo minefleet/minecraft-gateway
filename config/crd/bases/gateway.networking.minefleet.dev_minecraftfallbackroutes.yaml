@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  name: minecraftjoinroutes.gateway.networking.dev.minefleet
+  name: minecraftfallbackroutes.gateway.networking.minefleet.dev
 spec:
-  group: gateway.networking.dev.minefleet
+  group: gateway.networking.minefleet.dev
   names:
-    kind: MinecraftJoinRoute
-    listKind: MinecraftJoinRouteList
-    plural: minecraftjoinroutes
-    singular: minecraftjoinroute
+    kind: MinecraftFallbackRoute
+    listKind: MinecraftFallbackRouteList
+    plural: minecraftfallbackroutes
+    singular: minecraftfallbackroute
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: MinecraftJoinRoute is the Schema for the minecraftjoinroutes
+        description: MinecraftFallbackRoute is the Schema for the minecraftfallbackroutes
           API
         properties:
           apiVersion:
@@ -38,7 +38,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: spec defines the desired state of MinecraftJoinRoute
+            description: spec defines the desired state of MinecraftFallbackRoute
             properties:
               filterRules:
                 properties:
@@ -383,7 +383,7 @@ spec:
             - labelSelector
             type: object
           status:
-            description: status defines the observed state of MinecraftJoinRoute
+            description: status defines the observed state of MinecraftFallbackRoute
             properties:
               parents:
                 description: |-

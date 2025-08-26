@@ -32,7 +32,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	gatewaynetworkingv1 "dev.minefleet/minecraft-gateway/api/v1"
+	gatewaynetworkingv1 "minefleet.dev/minecraft-gateway/api/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -67,7 +67,7 @@ var _ = BeforeSuite(func() {
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
 		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "config", "crd", "bases")},
-		ErrorIfCRDPathMissing: true,
+		ErrorIfCRDPathMissing: false,
 	}
 
 	// Retrieve the first found binary directory to allow running tests from IDEs

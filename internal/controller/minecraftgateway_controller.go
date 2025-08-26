@@ -31,9 +31,9 @@ type MinecraftGatewayReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftgateways,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftgateways/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.dev.minefleet,resources=minecraftgateways/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftgateways,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftgateways/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftgateways/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

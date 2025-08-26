@@ -3,41 +3,45 @@
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
 cliVersion: 4.7.1
-domain: dev.minefleet
+domain: minefleet.dev
 layout:
 - go.kubebuilder.io/v4
 projectName: minecraft-gateway
-repo: dev.minefleet/minecraft-gateway
+repo: minefleet.dev/minecraft-gateway
 resources:
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: dev.minefleet
-  group: gateway.networking
-  kind: MinecraftFallbackRoute
-  path: dev.minefleet/minecraft-gateway/api/v1
-  version: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  domain: dev.minefleet
-  group: gateway.networking
-  kind: MinecraftJoinRoute
-  path: dev.minefleet/minecraft-gateway/api/v1
-  version: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: dev.minefleet
-  group: gateway.networking
-  kind: MinecraftServerDiscovery
-  path: dev.minefleet/minecraft-gateway/api/v1
-  version: v1
 - controller: true
-  domain: dev.minefleet
+  domain: minefleet.dev
   group: gateway.networking
   kind: MinecraftGateway
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: minefleet.dev
+  group: gateway.networking
+  kind: MinecraftFallbackRoute
+  path: minefleet.dev/minecraft-gateway/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: minefleet.dev
+  group: gateway.networking
+  kind: MinecraftServerDiscovery
+  path: minefleet.dev/minecraft-gateway/api/v1
+  version: v1
+- controller: true
+  domain: minefleet.dev
+  group: gateway.networking
+  kind: MinecraftRoute
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: minefleet.dev
+  group: gateway.networking
+  kind: MinecraftJoinRoute
+  path: minefleet.dev/minecraft-gateway/api/v1
   version: v1
 version: "3"

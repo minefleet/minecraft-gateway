@@ -5,10 +5,10 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - gateway.networking.dev.minefleet
+  - gateway.networking.minefleet.dev
   resources:
-  - minecraftfallbackroutes
   - minecraftgateways
+  - minecraftroutes
   - minecraftserverdiscoveries
   verbs:
   - create
@@ -19,18 +19,18 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gateway.networking.dev.minefleet
+  - gateway.networking.minefleet.dev
   resources:
-  - minecraftfallbackroutes/finalizers
   - minecraftgateways/finalizers
+  - minecraftroutes/finalizers
   - minecraftserverdiscoveries/finalizers
   verbs:
   - update
 - apiGroups:
-  - gateway.networking.dev.minefleet
+  - gateway.networking.minefleet.dev
   resources:
-  - minecraftfallbackroutes/status
   - minecraftgateways/status
+  - minecraftroutes/status
   - minecraftserverdiscoveries/status
   verbs:
   - get

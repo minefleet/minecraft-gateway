@@ -27,7 +27,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"dev.minefleet/minecraft-gateway/test/utils"
+	"minefleet.dev/minecraft-gateway/test/utils"
 )
 
 // namespace where the project is deployed in
