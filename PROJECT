@@ -35,4 +35,9 @@ resources:
   kind: MinecraftServerDiscovery
   path: dev.minefleet/minecraft-gateway/api/v1
   version: v1
+- controller: true
+  domain: dev.minefleet
+  group: gateway.networking
+  kind: MinecraftGateway
+  version: v1
 version: "3"

@@ -68,7 +68,7 @@ var _ = Describe("MinecraftFallbackRoute Controller", func() {
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &MinecraftFallbackRouteReconciler{
+			controllerReconciler := &MinecraftRouteReconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}
