@@ -3,35 +3,36 @@
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
 cliVersion: 4.7.1
-domain: minefleet.dev
+domain: dev.minefleet
 layout:
 - go.kubebuilder.io/v4
 projectName: minecraft-gateway
-repo: minefleet.dev/minecraft-gateway
+repo: dev.minefleet/minecraft-gateway
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: minefleet.dev
-  group: gateway
-  kind: MinecraftRoute
-  path: minefleet.dev/minecraft-gateway/api/v1
+  domain: dev.minefleet
+  group: gateway.networking
+  kind: MinecraftFallbackRoute
+  path: dev.minefleet/minecraft-gateway/api/v1
   version: v1
 - api:
     crdVersion: v1
     namespaced: true
-  domain: minefleet.dev
-  group: gateway
-  kind: LoginPolicy
-  path: minefleet.dev/minecraft-gateway/api/v1
+  domain: dev.minefleet
+  group: gateway.networking
+  kind: MinecraftJoinRoute
+  path: dev.minefleet/minecraft-gateway/api/v1
   version: v1
 - api:
     crdVersion: v1
     namespaced: true
-  domain: minefleet.dev
-  group: gateway
-  kind: FallbackPolicy
-  path: minefleet.dev/minecraft-gateway/api/v1
+  controller: true
+  domain: dev.minefleet
+  group: gateway.networking
+  kind: MinecraftServerDiscovery
+  path: dev.minefleet/minecraft-gateway/api/v1
   version: v1
 version: "3"

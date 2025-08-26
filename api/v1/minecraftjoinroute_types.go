@@ -18,28 +18,25 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// MinecraftRouteSpec defines the desired state of MinecraftRoute
-type MinecraftRouteSpec struct {
-	gatewayv1.RouteStatus     `json:",inline"`
-	gatewayv1.CommonRouteSpec `json:",inline"`
+// MinecraftJoinRouteSpec defines the desired state of MinecraftJoinRoute
+type MinecraftJoinRouteSpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+	// The following markers will use OpenAPI v3 schema to validate the value
+	// More info: https://book.kubebuilder.io/reference/markers/crd-validation.html
 
-	// LabelSelector
-	LabelSelector metav1.LabelSelector `json:"labelSelector"`
-
+	// foo is an example field of MinecraftJoinRoute. Edit minecraftjoinroute_types.go to remove/update
 	// +optional
-	FallbackPolicy FallbackPolicySpec `json:"fallbackPolicy"`
-	// +optional
-	LoginPolicy LoginPolicySpec `json:"loginPolicy"`
+	Foo *string `json:"foo,omitempty"`
 }
 
-// MinecraftRouteStatus defines the observed state of MinecraftRoute.
-type MinecraftRouteStatus struct {
+// MinecraftJoinRouteStatus defines the observed state of MinecraftJoinRoute.
+type MinecraftJoinRouteStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
@@ -47,32 +44,32 @@ type MinecraftRouteStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// MinecraftRoute is the Schema for the minecraftroutes API
-type MinecraftRoute struct {
+// MinecraftJoinRoute is the Schema for the minecraftjoinroutes API
+type MinecraftJoinRoute struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// metadata is a standard object metadata
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty,omitzero"`
 
-	// spec defines the desired state of MinecraftRoute
+	// spec defines the desired state of MinecraftJoinRoute
 	// +required
-	Spec MinecraftRouteSpec `json:"spec"`
+	Spec MinecraftJoinRouteSpec `json:"spec"`
 
-	// status defines the observed state of MinecraftRoute
+	// status defines the observed state of MinecraftJoinRoute
 	// +optional
-	Status MinecraftRouteStatus `json:"status,omitempty,omitzero"`
+	Status MinecraftJoinRouteStatus `json:"status,omitempty,omitzero"`
 }
 
 // +kubebuilder:object:root=true
 
-// MinecraftRouteList contains a list of MinecraftRoute
-type MinecraftRouteList struct {
+// MinecraftJoinRouteList contains a list of MinecraftJoinRoute
+type MinecraftJoinRouteList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []MinecraftRoute `json:"items"`
+	Items           []MinecraftJoinRoute `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&MinecraftRoute{}, &MinecraftRouteList{})
+	SchemeBuilder.Register(&MinecraftJoinRoute{}, &MinecraftJoinRouteList{})
 }

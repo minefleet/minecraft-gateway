@@ -22,13 +22,13 @@ resources:
 # default, aiding admins in cluster management. Those roles are
 # not used by the minecraft-gateway itself. You can comment the following lines
 # if you do not want those helpers be installed with your Project.
-- fallbackpolicy_admin_role.yaml
-- fallbackpolicy_editor_role.yaml
-- fallbackpolicy_viewer_role.yaml
-- loginpolicy_admin_role.yaml
-- loginpolicy_editor_role.yaml
-- loginpolicy_viewer_role.yaml
-- minecraftroute_admin_role.yaml
-- minecraftroute_editor_role.yaml
-- minecraftroute_viewer_role.yaml
+- minecraftserverdiscovery_admin_role.yaml
+- minecraftserverdiscovery_editor_role.yaml
+- minecraftserverdiscovery_viewer_role.yaml
+- minecraftjoinroute_admin_role.yaml
+- minecraftjoinroute_editor_role.yaml
+- minecraftjoinroute_viewer_role.yaml
+- minecraftfallbackroute_admin_role.yaml
+- minecraftfallbackroute_editor_role.yaml
+- minecraftfallbackroute_viewer_role.yaml
 

@@ -27,10 +27,10 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	gatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	gatewaynetworkingv1 "dev.minefleet/minecraft-gateway/api/v1"
 )
 
-var _ = Describe("MinecraftRoute Controller", func() {
+var _ = Describe("MinecraftFallbackRoute Controller", func() {
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,13 +40,13 @@ var _ = Describe("MinecraftRoute Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		minecraftroute := &gatewayv1.MinecraftRoute{}
+		minecraftfallbackroute := &gatewaynetworkingv1.MinecraftFallbackRoute{}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind MinecraftRoute")
-			err := k8sClient.Get(ctx, typeNamespacedName, minecraftroute)
+			By("creating the custom resource for the Kind MinecraftFallbackRoute")
+			err := k8sClient.Get(ctx, typeNamespacedName, minecraftfallbackroute)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &gatewayv1.MinecraftRoute{
+				resource := &gatewaynetworkingv1.MinecraftFallbackRoute{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
@@ -59,16 +59,16 @@ var _ = Describe("MinecraftRoute Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &gatewayv1.MinecraftRoute{}
+			resource := &gatewaynetworkingv1.MinecraftFallbackRoute{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Cleanup the specific resource instance MinecraftRoute")
+			By("Cleanup the specific resource instance MinecraftFallbackRoute")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &MinecraftRouteReconciler{
+			controllerReconciler := &MinecraftFallbackRouteReconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}

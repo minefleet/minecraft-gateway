@@ -37,8 +37,8 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	gatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
-	"minefleet.dev/minecraft-gateway/internal/controller"
+	gatewaynetworkingv1 "dev.minefleet/minecraft-gateway/api/v1"
+	"dev.minefleet/minecraft-gateway/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -50,7 +50,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(gatewayv1.AddToScheme(scheme))
+	utilruntime.Must(gatewaynetworkingv1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -184,7 +184,7 @@ func main() {
 		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "6468141c.minefleet.dev",
+		LeaderElectionID:       "502bec38.dev.minefleet",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -202,11 +202,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := (&controller.MinecraftRouteReconciler{
+	if err := (&controller.MinecraftFallbackRouteReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MinecraftRoute")
+		setupLog.Error(err, "unable to create controller", "controller", "MinecraftFallbackRoute")
+		os.Exit(1)
+	}
+	if err := (&controller.MinecraftServerDiscoveryReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MinecraftServerDiscovery")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

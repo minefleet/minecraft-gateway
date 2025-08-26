@@ -2,9 +2,9 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/gateway.minefleet.dev_minecraftroutes.yaml
-- bases/gateway.minefleet.dev_loginpolicies.yaml
-- bases/gateway.minefleet.dev_fallbackpolicies.yaml
+- bases/gateway.networking.dev.minefleet_minecraftfallbackroutes.yaml
+- bases/gateway.networking.dev.minefleet_minecraftjoinroutes.yaml
+- bases/gateway.networking.dev.minefleet_minecraftserverdiscoveries.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:

@@ -1,9 +1,9 @@
-apiVersion: gateway.minefleet.dev/v1
-kind: LoginPolicy
+apiVersion: gateway.networking.dev.minefleet/v1
+kind: MinecraftFallbackRoute
 metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-  name: loginpolicy-sample
+  name: minecraftfallbackroute-sample
 spec:
   # TODO(user): Add fields here

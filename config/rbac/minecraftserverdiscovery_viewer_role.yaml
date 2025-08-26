@@ -1,7 +1,7 @@
 # This rule is not used by the project minecraft-gateway itself.
 # It is provided to allow the cluster admin to help manage permissions for users.
 #
-# Grants read-only access to gateway.minefleet.dev resources.
+# Grants read-only access to gateway.networking.dev.minefleet resources.
 # This role is intended for users who need visibility into these resources
 # without permissions to modify them. It is ideal for monitoring purposes and limited-access viewing.
 
@@ -11,19 +11,19 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-  name: fallbackpolicy-viewer-role
+  name: minecraftserverdiscovery-viewer-role
 rules:
 - apiGroups:
-  - gateway.minefleet.dev
+  - gateway.networking.dev.minefleet
   resources:
-  - fallbackpolicies
+  - minecraftserverdiscoveries
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - gateway.minefleet.dev
+  - gateway.networking.dev.minefleet
   resources:
-  - fallbackpolicies/status
+  - minecraftserverdiscoveries/status
   verbs:
   - get

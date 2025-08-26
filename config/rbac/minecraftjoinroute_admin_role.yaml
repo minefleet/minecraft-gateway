@@ -1,7 +1,7 @@
 # This rule is not used by the project minecraft-gateway itself.
 # It is provided to allow the cluster admin to help manage permissions for users.
 #
-# Grants full permissions ('*') over gateway.minefleet.dev.
+# Grants full permissions ('*') over gateway.networking.dev.minefleet.
 # This role is intended for users authorized to modify roles and bindings within the cluster,
 # enabling them to delegate specific permissions to other users or groups as needed.
 
@@ -11,17 +11,17 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-  name: minecraftroute-admin-role
+  name: minecraftjoinroute-admin-role
 rules:
 - apiGroups:
-  - gateway.minefleet.dev
+  - gateway.networking.dev.minefleet
   resources:
-  - minecraftroutes
+  - minecraftjoinroutes
   verbs:
   - '*'
 - apiGroups:
-  - gateway.minefleet.dev
+  - gateway.networking.dev.minefleet
   resources:
-  - minecraftroutes/status
+  - minecraftjoinroutes/status
   verbs:
   - get

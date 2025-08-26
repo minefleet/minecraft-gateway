@@ -1,6 +1,6 @@
 ## Append samples of your project ##
 resources:
-- gateway_v1_minecraftroute.yaml
-- gateway_v1_loginpolicy.yaml
-- gateway_v1_fallbackpolicy.yaml
+- gateway.networking_v1_minecraftfallbackroute.yaml
+- gateway.networking_v1_minecraftjoinroute.yaml
+- gateway.networking_v1_minecraftserverdiscovery.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples
