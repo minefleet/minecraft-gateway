@@ -1,0 +1,9 @@
+apiVersion: gateway.minefleet.dev/v1
+kind: LoginPolicy
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+  name: loginpolicy-sample
+spec:
+  # TODO(user): Add fields here
