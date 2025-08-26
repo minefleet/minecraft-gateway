@@ -18,6 +18,7 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -25,20 +26,12 @@ import (
 
 // MinecraftFallbackRouteSpec defines the desired state of MinecraftFallbackRoute
 type MinecraftFallbackRouteSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-	// The following markers will use OpenAPI v3 schema to validate the value
-	// More info: https://book.kubebuilder.io/reference/markers/crd-validation.html
-
-	// foo is an example field of MinecraftFallbackRoute. Edit minecraftfallbackroute_types.go to remove/update
-	// +optional
-	Foo *string `json:"foo,omitempty"`
+	MinecraftRoute `json:",inline"`
 }
 
 // MinecraftFallbackRouteStatus defines the observed state of MinecraftFallbackRoute.
 type MinecraftFallbackRouteStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	gatewayv1.RouteStatus `json:",inline"`
 }
 
 // +kubebuilder:object:root=true
