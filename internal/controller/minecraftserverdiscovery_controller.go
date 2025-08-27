@@ -97,7 +97,7 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 }
 
 func (r *MinecraftServerDiscoveryReconciler) getServicesByDiscovery(ctx context.Context, discovery mcgatewayv1.MinecraftServerDiscovery) ([]corev1.Service, error) {
-	allNs, err := util.SelectNamespace(r, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
+	allNs, err := util.SelectNamespace(r.Client, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
 	if err != nil {
 		return nil, err
 	}
