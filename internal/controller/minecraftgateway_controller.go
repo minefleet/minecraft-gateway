@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -47,7 +48,10 @@ type MinecraftGatewayReconciler struct {
 func (r *MinecraftGatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
 
-	// TODO(user): your logic here
+	var gateway gatewayv1.Gateway
+	if err := r.Get(ctx, req.NamespacedName, &gateway); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -55,8 +59,7 @@ func (r *MinecraftGatewayReconciler) Reconcile(ctx context.Context, req ctrl.Req
 // SetupWithManager sets up the controller with the Manager.
 func (r *MinecraftGatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
-		// For().
+		For(&gatewayv1.Gateway{}).
 		Named("minecraftgateway").
 		Complete(r)
 }

@@ -18,13 +18,19 @@ package controller
 
 import (
 	"context"
-
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"minefleet.dev/minecraft-gateway/internal/util"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	gatewaynetworkingv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 )
 
 // MinecraftServerDiscoveryReconciler reconciles a MinecraftServerDiscovery object
@@ -49,15 +55,112 @@ type MinecraftServerDiscoveryReconciler struct {
 func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
 
-	// TODO(user): your logic here
+	var discovery mcgatewayv1.MinecraftServerDiscovery
+	if err := r.Get(ctx, req.NamespacedName, &discovery); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
+	services, err := r.getServicesByDiscovery(ctx, discovery)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	result := make([]mcgatewayv1.MinecraftServerService, 0)
+	for _, svc := range services {
+		mcSvc := mcgatewayv1.MinecraftServerService{
+			Name: svc.Name,
+			Pods: make([]corev1.Pod, 0),
+		}
+		labelSelector := metav1.LabelSelector{
+			MatchLabels: svc.Spec.Selector,
+		}
+		selector, err := metav1.LabelSelectorAsSelector(&labelSelector)
+		if err != nil {
+			//TODO: check what to do later
+			continue
+		}
+		var pods corev1.PodList
+		err = r.List(ctx, &pods, selector.(client.MatchingLabelsSelector))
+		if err != nil {
+			//TODO: check what to do later
+			continue
+		}
+		for _, po := range pods.Items {
+			if po.Status.Phase == corev1.PodRunning {
+				mcSvc.Pods = append(mcSvc.Pods, po)
+			}
+		}
+		result = append(result, mcSvc)
+	}
+	//TODO: save into status
+	_ = result
 	return ctrl.Result{}, nil
+}
+
+func (r *MinecraftServerDiscoveryReconciler) getServicesByDiscovery(ctx context.Context, discovery mcgatewayv1.MinecraftServerDiscovery) ([]corev1.Service, error) {
+	allNs, err := util.SelectNamespace(r, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
+	if err != nil {
+		return nil, err
+	}
+
+	selector, err := metav1.LabelSelectorAsSelector(&discovery.Spec.LabelSelector)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]corev1.Service, 0)
+	for _, ns := range allNs {
+		var services corev1.ServiceList
+		err = r.List(ctx, &services, client.InNamespace(ns), selector.(client.MatchingLabelsSelector))
+		if err != nil {
+			return nil, err
+		}
+		for _, svc := range services.Items {
+			result = append(result, svc)
+		}
+	}
+	return result, nil
+}
+
+func (r *MinecraftServerDiscoveryReconciler) watchPodsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
+	pod := obj.(*corev1.Pod)
+
+	var discoveries mcgatewayv1.MinecraftServerDiscoveryList
+	if err := r.List(ctx, &discoveries); err != nil {
+		return nil
+	}
+
+	reqs := make([]reconcile.Request, 0)
+	for _, disc := range discoveries.Items {
+		services, err := r.getServicesByDiscovery(ctx, disc)
+		if err != nil {
+			//TODO: find out what to throw/print here as this is unexpected
+			continue
+		}
+		for _, svc := range services {
+			labelSelector := metav1.LabelSelector{MatchLabels: svc.Spec.Selector}
+			selector, err := metav1.LabelSelectorAsSelector(&labelSelector)
+			if err != nil {
+				//TODO: find out what to throw/print here as this is unexpected
+				continue
+			}
+			if selector.Matches(labels.Set(pod.Labels)) {
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: types.NamespacedName{
+						Namespace: disc.Namespace,
+						Name:      disc.Name,
+					},
+				})
+				break
+			}
+		}
+	}
+	return reqs
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *MinecraftServerDiscoveryReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&gatewaynetworkingv1.MinecraftServerDiscovery{}).
+		For(&mcgatewayv1.MinecraftServerDiscovery{}).
+		Watches(&corev1.Pod{}, handler.EnqueueRequestsFromMapFunc(r.watchPodsForDiscovery)).
 		Named("minecraftserverdiscovery").
 		Complete(r)
 }

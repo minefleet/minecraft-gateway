@@ -7,8 +7,8 @@ import (
 
 type MinecraftRoute struct {
 	gatewayv1.CommonRouteSpec `json:",inline"`
-
-	LabelSelector metav1.LabelSelector `json:"labelSelector"`
+	NamespaceSelector         gatewayv1.RouteNamespaces `json:"namespaceSelector"`
+	LabelSelector             metav1.LabelSelector      `json:"labelSelector"`
 	// +optional
 	Strategy MinecraftRouteStrategy `json:"strategy,omitempty"`
 	// +optional

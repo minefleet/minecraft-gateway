@@ -17,7 +17,9 @@ limitations under the License.
 package v1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -25,13 +27,21 @@ import (
 
 // MinecraftServerDiscoverySpec defines the desired state of MinecraftServerDiscovery
 type MinecraftServerDiscoverySpec struct {
-	LabelSelector metav1.LabelSelector `json:"labelSelector"`
+	NamespaceSelector *gatewayv1.RouteNamespaces `json:"namespaceSelector"`
+	LabelSelector     metav1.LabelSelector       `json:"labelSelector"`
 }
 
 // MinecraftServerDiscoveryStatus defines the observed state of MinecraftServerDiscovery.
 type MinecraftServerDiscoveryStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// +optional
+	Services []corev1.Service `json:"services,omitempty"`
+}
+
+type MinecraftServerService struct {
+	// +required
+	Name string `json:"name"`
+	// +optional
+	Pods []corev1.Pod `json:"pods,omitempty"`
 }
 
 // +kubebuilder:object:root=true
