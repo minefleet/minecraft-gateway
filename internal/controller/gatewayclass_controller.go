@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"minefleet.dev/minecraft-gateway/internal/gateway"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -26,40 +27,47 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-// MinecraftGatewayReconciler reconciles a MinecraftGateway object
-type MinecraftGatewayReconciler struct {
+// GatewayClassReconciler reconciles a GatewayClass object
+type GatewayClassReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftgateways,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftgateways/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftgateways/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gatewayclasses,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gatewayclasses/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gatewayclasses/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the MinecraftGateway object against the actual cluster state, and then
+// the GatewayClass object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
-func (r *MinecraftGatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *GatewayClassReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
 
-	var gateway gatewayv1.Gateway
-	if err := r.Get(ctx, req.NamespacedName, &gateway); err != nil {
+	var gwClass gatewayv1.GatewayClass
+	if err := r.Get(ctx, req.NamespacedName, &gwClass); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	verifier := gateway.NewClassVerifier(gwClass)
+	if newClass := verifier.Verify(); newClass != nil {
+		err := r.Patch(ctx, newClass, client.MergeFrom(gwClass.DeepCopy()))
+		if err != nil {
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		}
 	}
 
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *MinecraftGatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *GatewayClassReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&gatewayv1.Gateway{}).
-		Named("minecraftgateway").
+		For(&gatewayv1.GatewayClass{}).
+		Named("gatewayclass").
 		Complete(r)
 }

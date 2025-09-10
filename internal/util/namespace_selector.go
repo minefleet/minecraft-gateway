@@ -24,16 +24,7 @@ func SelectNamespace(c client.Client, ctx context.Context, currentNs string, nam
 	} else if from == gatewayv1.NamespacesFromSame {
 		return []string{currentNs}, nil
 	} else if from == gatewayv1.NamespacesFromAll {
-		var list corev1.NamespaceList
-		err := c.List(ctx, &list)
-		if err != nil {
-			return nil, err
-		}
-		result := make([]string, 0)
-		for _, ns := range list.Items {
-			result = append(result, ns.Name)
-		}
-		return result, nil
+		return []string{}, nil
 	} else if from == gatewayv1.NamespacesFromSelector {
 		if namespaces.Selector == nil {
 			return nil, errors.New("invalid RouteNamespaces definition: no selector was specified")

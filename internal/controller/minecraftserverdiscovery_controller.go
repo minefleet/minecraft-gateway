@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	corev1 "k8s.io/api/core/v1"
+	discoveryv1 "k8s.io/api/discovery/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,6 +33,8 @@ import (
 
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 )
+
+const serviceNameLabel = "kubernetes.io/service-name"
 
 // MinecraftServerDiscoveryReconciler reconciles a MinecraftServerDiscovery object
 type MinecraftServerDiscoveryReconciler struct {
@@ -60,15 +63,15 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	services, err := r.getServicesByDiscovery(ctx, discovery)
+	services, err := r.getServices(ctx, discovery)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	result := make([]mcgatewayv1.MinecraftServerService, 0)
+	result := make([]mcgatewayv1.Minecraft, 0)
 	for _, svc := range services {
-		mcSvc := mcgatewayv1.MinecraftServerService{
-			Name: svc.Name,
-			Pods: make([]corev1.Pod, 0),
+		mcSvc := mcgatewayv1.MinecraftServ{
+			controllerName: svc.Name,
+			Pods:           make([]corev1.Pod, 0),
 		}
 		labelSelector := metav1.LabelSelector{
 			MatchLabels: svc.Spec.Selector,
@@ -79,7 +82,7 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 			continue
 		}
 		var pods corev1.PodList
-		err = r.List(ctx, &pods, selector.(client.MatchingLabelsSelector))
+		err = r.List(ctx, &pods, client.InNamespace(svc.Namespace), selector.(client.MatchingLabelsSelector))
 		if err != nil {
 			//TODO: check what to do later
 			continue
@@ -96,7 +99,7 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 	return ctrl.Result{}, nil
 }
 
-func (r *MinecraftServerDiscoveryReconciler) getServicesByDiscovery(ctx context.Context, discovery mcgatewayv1.MinecraftServerDiscovery) ([]corev1.Service, error) {
+func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, discovery mcgatewayv1.MinecraftServerDiscovery) ([]corev1.Service, error) {
 	allNs, err := util.SelectNamespace(r.Client, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
 	if err != nil {
 		return nil, err
@@ -120,37 +123,49 @@ func (r *MinecraftServerDiscoveryReconciler) getServicesByDiscovery(ctx context.
 	return result, nil
 }
 
-func (r *MinecraftServerDiscoveryReconciler) watchPodsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
-	pod := obj.(*corev1.Pod)
+func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
+	slice := obj.(*discoveryv1.EndpointSlice)
 
 	var discoveries mcgatewayv1.MinecraftServerDiscoveryList
 	if err := r.List(ctx, &discoveries); err != nil {
 		return nil
 	}
+	svcName := slice.Labels[serviceNameLabel]
+	if svcName == "" {
+		return nil
+	}
+	var svc corev1.Service
+	if err := r.Get(ctx, types.NamespacedName{
+		Namespace: slice.Namespace,
+		Name:      svc.Name,
+	}, &svc); err != nil {
+		return nil
+	}
 
 	reqs := make([]reconcile.Request, 0)
 	for _, disc := range discoveries.Items {
-		services, err := r.getServicesByDiscovery(ctx, disc)
+		namespaces, err := util.SelectNamespace(r.Client, ctx, disc.Namespace, disc.Spec.NamespaceSelector)
 		if err != nil {
-			//TODO: find out what to throw/print here as this is unexpected
 			continue
 		}
-		for _, svc := range services {
-			labelSelector := metav1.LabelSelector{MatchLabels: svc.Spec.Selector}
-			selector, err := metav1.LabelSelectorAsSelector(&labelSelector)
-			if err != nil {
-				//TODO: find out what to throw/print here as this is unexpected
+		for _, ns := range namespaces {
+			if svc.Namespace != ns {
 				continue
 			}
-			if selector.Matches(labels.Set(pod.Labels)) {
-				reqs = append(reqs, reconcile.Request{
-					NamespacedName: types.NamespacedName{
-						Namespace: disc.Namespace,
-						Name:      disc.Name,
-					},
-				})
-				break
+			selector, err := metav1.LabelSelectorAsSelector(&disc.Spec.LabelSelector)
+			if err != nil {
+				continue
 			}
+			if !selector.Matches(labels.Set(svc.Labels)) {
+				continue
+			}
+			reqs = append(reqs, reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Namespace: disc.Namespace,
+					Name:      disc.Name,
+				},
+			})
+			break
 		}
 	}
 	return reqs
@@ -160,7 +175,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchPodsForDiscovery(ctx context.C
 func (r *MinecraftServerDiscoveryReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mcgatewayv1.MinecraftServerDiscovery{}).
-		Watches(&corev1.Pod{}, handler.EnqueueRequestsFromMapFunc(r.watchPodsForDiscovery)).
+		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.watchEndpointsForDiscovery)).
 		Named("minecraftserverdiscovery").
 		Complete(r)
 }

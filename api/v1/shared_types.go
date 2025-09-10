@@ -51,3 +51,29 @@ type MinecraftFilterRule struct {
 	// +optional
 	FallbackFor metav1.LabelSelector `json:"fallbackFor,omitempty"`
 }
+
+type MinecraftService struct {
+	// +required
+	Name string `json:"name"`
+	// +optional
+	Servers map[string]MinecraftServer `json:",omitempty"`
+	// +optional
+	Strategy MinecraftRouteStrategyType `json:"strategy,omitempty"`
+	// +optional
+	FilterRuleType MinecraftFilterRuleType `json:"filterRuleType,omitempty"`
+	// +optional
+	FilterRuleFallbackFor []string `json:"filterRuleFallbackFor,omitempty"`
+	// +optional
+	FilterRuleDomain []string `json:"filterRuleDomain,omitempty"`
+	// +optional
+	FilterRulePermission []string `json:"filterRulePermission,omitempty"`
+}
+
+type MinecraftServer struct {
+	// +optional
+	Endpoint string `json:"endpoint,omitempty"`
+	// +optional
+	MaxPlayers int `json:"maxPlayers,omitempty"`
+	// +optional
+	CurrentPlayers int `json:"currentPlayers,omitempty"`
+}
