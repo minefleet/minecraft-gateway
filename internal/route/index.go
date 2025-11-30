@@ -2,6 +2,7 @@ package route
 
 import (
 	"context"
+
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -9,7 +10,7 @@ import (
 )
 
 type Bag struct {
-	Login    []mcgatewayv1.MinecraftJoinRoute
+	Join     []mcgatewayv1.MinecraftJoinRoute
 	Fallback []mcgatewayv1.MinecraftFallbackRoute
 }
 
@@ -54,9 +55,9 @@ func indexRouteParents[T client.Object](mgr ctrl.Manager, zero T) error {
 
 func extractGatewayParentKeys(o client.Object, withListener bool) []string {
 	switch r := o.(type) {
-	case *mcgatewayv1.MinecraftFallbackRoute:
-		return parentKeysFromRefs(o.GetNamespace(), r.Spec.ParentRefs, withListener)
 	case *mcgatewayv1.MinecraftJoinRoute:
+		return parentKeysFromRefs(o.GetNamespace(), r.Spec.ParentRefs, withListener)
+	case *mcgatewayv1.MinecraftFallbackRoute:
 		return parentKeysFromRefs(o.GetNamespace(), r.Spec.ParentRefs, withListener)
 	default:
 		return nil
@@ -130,6 +131,7 @@ func stringPtrTo(p *gatewayv1.Group) string {
 	}
 	return string(*p)
 }
+
 func stringPtrToKind(p *gatewayv1.Kind) string {
 	if p == nil {
 		return ""
@@ -137,36 +139,25 @@ func stringPtrToKind(p *gatewayv1.Kind) string {
 	return string(*p)
 }
 
-func ListJoinRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *[]mcgatewayv1.MinecraftJoinRoute) error {
-	var list mcgatewayv1.MinecraftJoinRouteList
-	if err := c.List(ctx, &list, client.MatchingFields{IndexRouteByGateway: keyGW(gw.Namespace, gw.Name)}); err != nil {
+func ListRoutes[T client.ObjectList](c client.Client, ctx context.Context, gw gatewayv1.Gateway, zero T) error {
+	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByGateway: keyGW(gw.Namespace, gw.Name)}); err != nil {
 		return err
 	}
-	*into = list.Items
 	return nil
 }
 
-func ListFallbackRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *[]mcgatewayv1.MinecraftFallbackRoute) error {
-	var list mcgatewayv1.MinecraftFallbackRouteList
-	if err := c.List(ctx, &list, client.MatchingFields{IndexRouteByGateway: keyGW(gw.Namespace, gw.Name)}); err != nil {
+func ListAllRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *Bag) error {
+	var join mcgatewayv1.MinecraftJoinRouteList
+	var fallback mcgatewayv1.MinecraftFallbackRouteList
+	if err := ListRoutes(c, ctx, gw, &join); err != nil {
 		return err
 	}
-	*into = list.Items
-	return nil
-}
-
-func ListRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *Bag) error {
-	login := make([]mcgatewayv1.MinecraftJoinRoute, 0)
-	fallback := make([]mcgatewayv1.MinecraftFallbackRoute, 0)
-	if err := ListJoinRoutes(c, ctx, gw, &login); err != nil {
-		return err
-	}
-	if err := ListFallbackRoutes(c, ctx, gw, &fallback); err != nil {
+	if err := ListRoutes(c, ctx, gw, &fallback); err != nil {
 		return err
 	}
 	*into = Bag{
-		Login:    login,
-		Fallback: fallback,
+		Join:     join.Items,
+		Fallback: fallback.Items,
 	}
 	return nil
 }

@@ -7,25 +7,29 @@ import (
 
 type MinecraftRoute struct {
 	gatewayv1.CommonRouteSpec `json:",inline"`
-	NamespaceSelector         gatewayv1.RouteNamespaces `json:"namespaceSelector"`
-	LabelSelector             metav1.LabelSelector      `json:"labelSelector"`
 	// +optional
-	Strategy MinecraftRouteStrategy `json:"strategy,omitempty"`
+	BackendRefs []MinecraftBackendRef `json:"backendRefs,omitempty"`
 	// +optional
-	FilterRules MinecraftFilterRules `json:"filterRules,omitempty"`
+	FilterRules []MinecraftFilterRules `json:"filterRules,omitempty"`
 	// +optional
 	Priority int `json:"priority,omitempty"`
 }
 
-type MinecraftRouteStrategy struct {
-	Type MinecraftRouteStrategyType `json:"type,omitempty"`
+type MinecraftBackendRef struct {
+	gatewayv1.BackendRef `json:",inline"`
+	// +optional
+	DistributionStrategy MinecraftDistributionStrategy `json:"distributionStrategy,omitempty"`
 }
 
-type MinecraftRouteStrategyType string
+type MinecraftDistributionStrategy struct {
+	Type MinecraftDistributionStrategyType `json:"type,omitempty"`
+}
+
+type MinecraftDistributionStrategyType string
 
 const (
-	MinecraftRouteStrategyRandom       = "random"
-	MinecraftRouteStrategyLeastPlayers = "least-players"
+	MinecraftDistributionStrategyRandom       = "random"
+	MinecraftDistributionStrategyLeastPlayers = "least-players"
 )
 
 type MinecraftFilterRules struct {
@@ -58,15 +62,9 @@ type MinecraftService struct {
 	// +optional
 	Servers map[string]MinecraftServer `json:",omitempty"`
 	// +optional
-	Strategy MinecraftRouteStrategyType `json:"strategy,omitempty"`
+	DistributionStrategy MinecraftDistributionStrategy `json:"distributionStrategy,omitempty"`
 	// +optional
-	FilterRuleType MinecraftFilterRuleType `json:"filterRuleType,omitempty"`
-	// +optional
-	FilterRuleFallbackFor []string `json:"filterRuleFallbackFor,omitempty"`
-	// +optional
-	FilterRuleDomain []string `json:"filterRuleDomain,omitempty"`
-	// +optional
-	FilterRulePermission []string `json:"filterRulePermission,omitempty"`
+	FilterRules []MinecraftFilterRules `json:"filterRules,omitempty"`
 }
 
 type MinecraftServer struct {

@@ -22,19 +22,17 @@ import (
 	discoveryv1 "k8s.io/api/discovery/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	"minefleet.dev/minecraft-gateway/internal/util"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
-
-const serviceNameLabel = "kubernetes.io/service-name"
 
 // MinecraftServerDiscoveryReconciler reconciles a MinecraftServerDiscovery object
 type MinecraftServerDiscoveryReconciler struct {

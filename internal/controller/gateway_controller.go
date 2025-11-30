@@ -18,6 +18,8 @@ package controller
 
 import (
 	"context"
+
+	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
@@ -66,22 +68,29 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	//TODO: actually reconcile the gateway as it is "locked and loaded"
+	// TODO: actually reconcile the gateway as it is "locked and loaded"
 	// [] Make sure there are daemon sets, proxy services for each listener (and gate instances)
 	//    Generally speaking: One daemon set and gate service for each port generally common across all gateways,
 	//    Then proxy services for each listener
 	// [X] List routes for each consecutive listener
 	// [] Regenerate config map per listener
-	//TODO: copy infrastructure stuff from the gwclass via mutating admission webhook
+	// TODO: copy infrastructure stuff from the gwclass via mutating admission webhook
 
 	var bag route.Bag
-	if err := route.ListRoutes(r.Client, ctx, gw, &bag); err != nil {
+	if err := route.ListAllRoutes(r.Client, ctx, gw, &bag); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
 	for listener, routes := range network {
-		//TODO: do something with listener route mapping
+		// TODO: edit the gate daemonset to provide
+		for i, joinRoute := range routes.Join {
+			_ = i
+			_ = listener
+			_ = joinRoute
+		}
 	}
+
+	// TODO: regenerate config map
 
 	return ctrl.Result{}, nil
 }
@@ -135,6 +144,20 @@ func (r *GatewayReconciler) mapRoute(_ context.Context, obj client.Object) []rec
 	return result
 }
 
+func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object) []reconcile.Request {
+	slice, ok := obj.(*discoveryv1.EndpointSlice)
+
+	svcName, ok := slice.Labels[discoveryv1.LabelServiceName]
+	if !ok || svcName == "" {
+		return nil
+	}
+
+	// TODO: requeue if the slices service is being targeted by infrastructure config
+	// TODO: requeue if the slices service is being targeted by either Join or Fallback routes
+
+	return nil
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := gateway.IndexGatewayByClassName(mgr); err != nil {
@@ -149,6 +172,6 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Watches(&gatewayv1.GatewayClass{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayClass)).
 		Watches(&mcgatewayv1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
-		//TODO: watch endpoint slices
+		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
 		Complete(r)
 }

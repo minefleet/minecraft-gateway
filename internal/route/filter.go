@@ -18,12 +18,12 @@ func FilterAllowedRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gate
 			continue
 		}
 		localBag := Bag{
-			Login:    make([]mcgatewayv1.MinecraftJoinRoute, 0),
+			Join:     make([]mcgatewayv1.MinecraftJoinRoute, 0),
 			Fallback: make([]mcgatewayv1.MinecraftFallbackRoute, 0),
 		}
-		for _, login := range routes.Login {
+		for _, login := range routes.Join {
 			if IsRouteAllowed(&login, l.AllowedRoutes.Kinds, namespaces) {
-				localBag.Login = append(localBag.Login, login)
+				localBag.Join = append(localBag.Join, login)
 			}
 		}
 
@@ -82,8 +82,8 @@ func IsRouteAllowed(obj client.Object, allowedKinds []gatewayv1.RouteGroupKind, 
 func dedupeRoutes(in Bag) Bag {
 	seen := map[string]struct{}{}
 	out := Bag{
+		Join:     make([]mcgatewayv1.MinecraftJoinRoute, 0),
 		Fallback: make([]mcgatewayv1.MinecraftFallbackRoute, 0),
-		Login:    make([]mcgatewayv1.MinecraftJoinRoute, 0),
 	}
 
 	dedupe := func(ns, name, kind string) bool {
@@ -95,9 +95,9 @@ func dedupeRoutes(in Bag) Bag {
 		return true
 	}
 
-	for _, r := range in.Login {
-		if dedupe(r.Namespace, r.Name, "Login") {
-			out.Login = append(out.Login, r)
+	for _, r := range in.Join {
+		if dedupe(r.Namespace, r.Name, "Join") {
+			out.Join = append(out.Join, r)
 		}
 	}
 	for _, r := range in.Fallback {

@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -25,26 +26,26 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-// MinecraftRouteReconciler reconciles a MinecraftFallbackRoute or MinecraftJoinRoute object
-type MinecraftRouteReconciler struct {
+// MinecraftJoinRouteReconciler reconciles a MinecraftJoinRoute object
+type MinecraftJoinRouteReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftroutes,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftroutes/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftroutes/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftjoinroutes,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftjoinroutes/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftjoinroutes/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the MinecraftRoute object against the actual cluster state, and then
+// the MinecraftJoinRoute object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
-func (r *MinecraftRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *MinecraftJoinRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
 
 	// TODO(user): your logic here
@@ -53,10 +54,10 @@ func (r *MinecraftRouteReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *MinecraftRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *MinecraftJoinRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For().
-		For().
-		Named("minecraftroute").
+		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
+		For(&mcgatewayv1.MinecraftJoinRoute{}).
+		Named("minecraftjoinroute").
 		Complete(r)
 }

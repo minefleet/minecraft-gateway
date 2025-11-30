@@ -202,32 +202,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := (&controller.MinecraftGatewayReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MinecraftGateway")
-		os.Exit(1)
-	}
-	if err := (&controller.MinecraftServerDiscoveryReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MinecraftServerDiscovery")
-		os.Exit(1)
-	}
 	if err := (&controller.MinecraftRouteReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "MinecraftRoute")
-		os.Exit(1)
-	}
-	if err := (&controller.EndpointSliceReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "EndpointSlice")
 		os.Exit(1)
 	}
 	if err := (&controller.GatewayClassReconciler{
@@ -242,6 +221,27 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Gateway")
+		os.Exit(1)
+	}
+	if err := (&controller.MinecraftFallbackRouteReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MinecraftFallbackRoute")
+		os.Exit(1)
+	}
+	if err := (&controller.MinecraftJoinRouteReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MinecraftJoinRoute")
+		os.Exit(1)
+	}
+	if err := (&controller.MinecraftServerDiscoveryReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MinecraftServerDiscovery")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

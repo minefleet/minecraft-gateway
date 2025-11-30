@@ -7,7 +7,10 @@ rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - minecraftgateways
+  - gatewayclasses
+  - gateways
+  - minecraftfallbackroutes
+  - minecraftjoinroutes
   - minecraftroutes
   - minecraftserverdiscoveries
   verbs:
@@ -21,7 +24,10 @@ rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - minecraftgateways/finalizers
+  - gatewayclasses/finalizers
+  - gateways/finalizers
+  - minecraftfallbackroutes/finalizers
+  - minecraftjoinroutes/finalizers
   - minecraftroutes/finalizers
   - minecraftserverdiscoveries/finalizers
   verbs:
@@ -29,7 +35,10 @@ rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - minecraftgateways/status
+  - gatewayclasses/status
+  - gateways/status
+  - minecraftfallbackroutes/status
+  - minecraftjoinroutes/status
   - minecraftroutes/status
   - minecraftserverdiscoveries/status
   verbs:
