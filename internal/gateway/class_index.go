@@ -25,7 +25,7 @@ func IndexGatewayByClassName(mgr ctrl.Manager) error {
 	return nil
 }
 
-func ListGatewaysByClassName(c client.Client, ctx context.Context, gwClass gatewayv1.GatewayClass) (gatewayv1.GatewayList, error) {
+func ListGatewaysByClass(c client.Client, ctx context.Context, gwClass gatewayv1.GatewayClass) (gatewayv1.GatewayList, error) {
 	var list gatewayv1.GatewayList
 	if err := c.List(ctx, &list, client.MatchingFields{gatewayByClassNameKey: gwClass.Name}); err != nil {
 		return gatewayv1.GatewayList{}, err

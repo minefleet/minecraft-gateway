@@ -2,7 +2,10 @@ package route
 
 import (
 	"context"
-
+	"fmt"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/utils/ptr"
+	"log"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -17,8 +20,10 @@ type Bag struct {
 const (
 	IndexRouteByGateway         = "route.byGateway"
 	IndexRouteByGatewayListener = "route.byGatewayListener"
+	IndexRouteByService         = "route.byListener"
 )
 
+func keySvc(ns, name string) string            { return ns + "/" + name }
 func keyGW(ns, name string) string             { return ns + "/" + name }
 func keyGWListener(ns, name, ln string) string { return ns + "/" + name + "#" + ln }
 
@@ -50,17 +55,54 @@ func indexRouteParents[T client.Object](mgr ctrl.Manager, zero T) error {
 	); err != nil {
 		return err
 	}
+	// by svc (ns/name)
+	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, IndexRouteByService,
+		func(o client.Object) []string {
+			return extractServiceKeys(o)
+		},
+	); err != nil {
+		return err
+	}
 	return nil
 }
 
+func extractServiceKeys(o client.Object) []string {
+	route, ns, err := extractRouteAndNamespace(o)
+	if err != nil {
+		return nil
+	}
+	result := make([]string, 0)
+	for _, ref := range route.BackendRefs {
+		// Skip if kind is not a service, only service backends are supported
+		if ref.Kind != nil && *ref.Kind != "Service" {
+			continue
+		}
+		usedNs := ref.Namespace
+		if usedNs == nil {
+			usedNs = ptr.To(gatewayv1.Namespace(ns))
+		}
+		result = append(result, keySvc(string(*usedNs), string(ref.Name)))
+	}
+	return result
+}
+
 func extractGatewayParentKeys(o client.Object, withListener bool) []string {
+	route, ns, err := extractRouteAndNamespace(o)
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	return parentKeysFromRefs(ns, route.ParentRefs, withListener)
+}
+
+func extractRouteAndNamespace(o client.Object) (mcgatewayv1.MinecraftRoute, string, error) {
 	switch r := o.(type) {
 	case *mcgatewayv1.MinecraftJoinRoute:
-		return parentKeysFromRefs(o.GetNamespace(), r.Spec.ParentRefs, withListener)
+		return r.Spec.MinecraftRoute, o.GetNamespace(), nil
 	case *mcgatewayv1.MinecraftFallbackRoute:
-		return parentKeysFromRefs(o.GetNamespace(), r.Spec.ParentRefs, withListener)
+		return r.Spec.MinecraftRoute, o.GetNamespace(), nil
 	default:
-		return nil
+		return mcgatewayv1.MinecraftRoute{}, "", fmt.Errorf("no such minecraft route: %T", r)
 	}
 }
 
@@ -139,25 +181,45 @@ func stringPtrToKind(p *gatewayv1.Kind) string {
 	return string(*p)
 }
 
-func ListRoutes[T client.ObjectList](c client.Client, ctx context.Context, gw gatewayv1.Gateway, zero T) error {
+func ListRoutesByGateway[T client.ObjectList](c client.Client, ctx context.Context, gw gatewayv1.Gateway, zero T) error {
 	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByGateway: keyGW(gw.Namespace, gw.Name)}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListAllRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *Bag) error {
+func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *Bag) error {
 	var join mcgatewayv1.MinecraftJoinRouteList
 	var fallback mcgatewayv1.MinecraftFallbackRouteList
-	if err := ListRoutes(c, ctx, gw, &join); err != nil {
+	if err := ListRoutesByGateway(c, ctx, gw, &join); err != nil {
 		return err
 	}
-	if err := ListRoutes(c, ctx, gw, &fallback); err != nil {
+	if err := ListRoutesByGateway(c, ctx, gw, &fallback); err != nil {
 		return err
 	}
 	*into = Bag{
 		Join:     join.Items,
 		Fallback: fallback.Items,
 	}
+	return nil
+}
+
+func ListRoutesByService[T client.ObjectList](c client.Client, ctx context.Context, svc corev1.Service, zero T) error {
+	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByService: keySvc(svc.Namespace, svc.Name)}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Service, into *Bag) error {
+	var join mcgatewayv1.MinecraftJoinRouteList
+	var fallback mcgatewayv1.MinecraftFallbackRouteList
+	if err := ListRoutesByService(c, ctx, svc, &join); err != nil {
+		return err
+	}
+	if err := ListRoutesByService(c, ctx, svc, &fallback); err != nil {
+		return err
+	}
+
 	return nil
 }

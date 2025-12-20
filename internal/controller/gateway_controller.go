@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"minefleet.dev/minecraft-gateway/internal/endpoint"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -69,20 +70,22 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	// TODO: actually reconcile the gateway as it is "locked and loaded"
-	// [] Make sure there are daemon sets, proxy services for each listener (and gate instances)
-	//    Generally speaking: One daemon set and gate service for each port generally common across all gateways,
+	// [] Make sure there are daemon sets, proxy services for each listener (and gate lite instances)
+	//    Generally speaking: One daemon set and gate lite service for each port generally common across all gateways,
 	//    Then proxy services for each listener
 	// [X] List routes for each consecutive listener
-	// [] Regenerate config map per listener
-	// TODO: copy infrastructure stuff from the gwclass via mutating admission webhook
+	// [] Regenerate config map per listener (proxy level)
+	// [] Regenerate config map for listeners (gate lite level)
+	// TODO: copy infrastructure stuff from the gwclass via mutating admission webhook (maybe)
 
 	var bag route.Bag
-	if err := route.ListAllRoutes(r.Client, ctx, gw, &bag); err != nil {
+	if err := route.ListAllRoutesByGateway(r.Client, ctx, gw, &bag); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
 	for listener, routes := range network {
-		// TODO: edit the gate daemonset to provide
+		// TODO: create proxy
+		// TODO: edit the gate daemonset to provide listener
 		for i, joinRoute := range routes.Join {
 			_ = i
 			_ = listener
@@ -98,9 +101,9 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 func (r *GatewayReconciler) mapGatewayClass(ctx context.Context, obj client.Object) []reconcile.Request {
 	gc := obj.(*gatewayv1.GatewayClass)
 
-	gws, err := gateway.ListGatewaysByClassName(r.Client, ctx, *gc)
+	gws, err := gateway.ListGatewaysByClass(r.Client, ctx, *gc)
 	if err != nil {
-		return make([]reconcile.Request, 0)
+		return nil
 	}
 	reqs := make([]reconcile.Request, 0, len(gws.Items))
 	for i := range gws.Items {
@@ -145,15 +148,20 @@ func (r *GatewayReconciler) mapRoute(_ context.Context, obj client.Object) []rec
 }
 
 func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object) []reconcile.Request {
-	slice, ok := obj.(*discoveryv1.EndpointSlice)
+	slice := obj.(*discoveryv1.EndpointSlice)
+	svc, err := endpoint.GetServiceByEndpointSlice(r.Client, ctx, *slice)
+	if err != nil {
+		return nil
+	}
+	// TODO: requeue if the slices service is being targeted by infrastructure config
 
-	svcName, ok := slice.Labels[discoveryv1.LabelServiceName]
-	if !ok || svcName == "" {
+	// requeue if the slices service is being targeted by either Join or Fallback routes
+	var bag route.Bag
+	if err := route.ListAllRoutesByService(r.Client, ctx, svc, &bag); err != nil {
 		return nil
 	}
 
-	// TODO: requeue if the slices service is being targeted by infrastructure config
-	// TODO: requeue if the slices service is being targeted by either Join or Fallback routes
+	//TODO: actually requeue
 
 	return nil
 }
@@ -166,12 +174,16 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := route.IndexRoutes(mgr); err != nil {
 		return err
 	}
+	if err := endpoint.IndexServiceByName(mgr); err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&gatewayv1.Gateway{}).
 		Named("gateway").
 		Watches(&gatewayv1.GatewayClass{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayClass)).
+		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
 		Watches(&mcgatewayv1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
-		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
 		Complete(r)
 }
