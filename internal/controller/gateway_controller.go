@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -41,9 +42,9 @@ type GatewayReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gateways,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gateways/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gateways/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gateways,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gateways/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gateways/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -55,7 +56,7 @@ type GatewayReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+	log := logf.FromContext(ctx)
 
 	var gw gatewayv1.Gateway
 	if err := r.Get(ctx, req.NamespacedName, &gw); err != nil {
@@ -66,8 +67,15 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	if !verifier.IsVerified() {
+		log.Info("Gateway Class was not verified or rejected", "gateway", fmt.Sprintf("%s/%s", gw.Namespace, gw.Name), "class", gw.Spec.GatewayClassName)
 		return ctrl.Result{}, nil
 	}
+
+	infrastructure, err := gateway.GetInfrastructureByGateway(r.Client, ctx, gw)
+	if err != nil {
+		return ctrl.Result{}, nil
+	}
+	log.Info("infrastructure test log", "infrastructure", infrastructure)
 
 	// TODO: actually reconcile the gateway as it is "locked and loaded"
 	// [] Make sure there are daemon sets, proxy services for each listener (and gate lite instances)
@@ -174,7 +182,7 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := route.IndexRoutes(mgr); err != nil {
 		return err
 	}
-	if err := endpoint.IndexServiceByName(mgr); err != nil {
+	if err := gateway.IndexGatewayByInfrastructure(mgr); err != nil {
 		return err
 	}
 

@@ -31,7 +31,10 @@ type MinecraftServerDiscoverySpec struct {
 }
 
 // MinecraftServerDiscoveryStatus defines the observed state of MinecraftServerDiscovery.
-type MinecraftServerDiscoveryStatus struct{}
+type MinecraftServerDiscoveryStatus struct {
+	BackendRefs []gatewayv1.BackendObjectReference `json:"backendRefs"`
+	Conditions  []metav1.Condition                 `json:"conditions"`
+}
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status

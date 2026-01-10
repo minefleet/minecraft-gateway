@@ -18,15 +18,21 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
+	"minefleet.dev/minecraft-gateway/internal/endpoint"
+	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/util"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -54,46 +60,42 @@ type MinecraftServerDiscoveryReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+	log := logf.FromContext(ctx)
 
 	var discovery mcgatewayv1.MinecraftServerDiscovery
 	if err := r.Get(ctx, req.NamespacedName, &discovery); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	var gws gatewayv1.GatewayList
+	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, discovery); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	if gws.Items == nil || len(gws.Items) == 0 {
+		log.Info("will not reconcile because no gateways are connected", "discovery", fmt.Sprintf("%s/%s", discovery.Namespace, discovery.Name))
+		return ctrl.Result{}, nil
 	}
 
 	services, err := r.getServices(ctx, discovery)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	result := make([]mcgatewayv1.Minecraft, 0)
+	backends := make([]gatewayv1.BackendObjectReference, 0)
 	for _, svc := range services {
-		mcSvc := mcgatewayv1.MinecraftServ{
-			controllerName: svc.Name,
-			Pods:           make([]corev1.Pod, 0),
-		}
-		labelSelector := metav1.LabelSelector{
-			MatchLabels: svc.Spec.Selector,
-		}
-		selector, err := metav1.LabelSelectorAsSelector(&labelSelector)
-		if err != nil {
-			//TODO: check what to do later
+		port := minecraftPort(svc)
+		if port == nil {
+			log.Info("will not discover service due to no matching minecraft port", "service", fmt.Sprintf("%s/%s", svc.Namespace, svc.Name))
 			continue
 		}
-		var pods corev1.PodList
-		err = r.List(ctx, &pods, client.InNamespace(svc.Namespace), selector.(client.MatchingLabelsSelector))
-		if err != nil {
-			//TODO: check what to do later
-			continue
-		}
-		for _, po := range pods.Items {
-			if po.Status.Phase == corev1.PodRunning {
-				mcSvc.Pods = append(mcSvc.Pods, po)
-			}
-		}
-		result = append(result, mcSvc)
+		backends = append(backends, gatewayv1.BackendObjectReference{
+			Group:     (*gatewayv1.Group)(ptr.To(svc.GroupVersionKind().Group)),
+			Kind:      (*gatewayv1.Kind)(ptr.To(svc.GroupVersionKind().Kind)),
+			Name:      gatewayv1.ObjectName(svc.Name),
+			Namespace: (*gatewayv1.Namespace)(ptr.To(svc.Namespace)),
+			Port:      port,
+		})
 	}
 	//TODO: save into status
-	_ = result
+	_ = backends
 	return ctrl.Result{}, nil
 }
 
@@ -121,22 +123,52 @@ func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, di
 	return result, nil
 }
 
-func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
-	slice := obj.(*discoveryv1.EndpointSlice)
+func minecraftPort(svc corev1.Service) *gatewayv1.PortNumber {
+	var fallback *gatewayv1.PortNumber
 
+	for _, port := range svc.Spec.Ports {
+		if port.Protocol != corev1.ProtocolTCP {
+			continue
+		}
+		if port.Name == "minecraft" || port.Port == 25565 {
+			return ptr.To(gatewayv1.PortNumber(port.Port))
+		}
+		if fallback == nil {
+			fallback = ptr.To(gatewayv1.PortNumber(port.Port))
+		}
+	}
+
+	return fallback
+}
+
+func (r *MinecraftServerDiscoveryReconciler) watchGateways(ctx context.Context, obj client.Object) []reconcile.Request {
+	log := logf.FromContext(ctx)
+	gw := obj.(*gatewayv1.Gateway)
+	discovery, err := mfdiscovery.GetMinecraftServerDiscoveryByGateway(r.Client, ctx, *gw)
+	if err != nil {
+		log.Error(err, "can not get MinecraftServerDiscovery from gateway", "gateway", gw)
+		return nil
+	}
+	result := make([]reconcile.Request, 0)
+	result = append(result, reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Namespace: discovery.Namespace,
+			Name:      discovery.Name,
+		},
+	})
+	return result
+}
+
+func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
+	log := logf.FromContext(ctx)
+	slice := obj.(*discoveryv1.EndpointSlice)
+	svc, err := endpoint.GetServiceByEndpointSlice(r.Client, ctx, *slice)
+	if err != nil {
+		log.Error(err, "failed to get services for endpoint slice", "EndpointSlice", slice)
+		return nil
+	}
 	var discoveries mcgatewayv1.MinecraftServerDiscoveryList
 	if err := r.List(ctx, &discoveries); err != nil {
-		return nil
-	}
-	svcName := slice.Labels[serviceNameLabel]
-	if svcName == "" {
-		return nil
-	}
-	var svc corev1.Service
-	if err := r.Get(ctx, types.NamespacedName{
-		Namespace: slice.Namespace,
-		Name:      svc.Name,
-	}, &svc); err != nil {
 		return nil
 	}
 
@@ -152,6 +184,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 			}
 			selector, err := metav1.LabelSelectorAsSelector(&disc.Spec.LabelSelector)
 			if err != nil {
+				log.Error(err, "can not create label selector", "selector", selector)
 				continue
 			}
 			if !selector.Matches(labels.Set(svc.Labels)) {
@@ -174,6 +207,7 @@ func (r *MinecraftServerDiscoveryReconciler) SetupWithManager(mgr ctrl.Manager) 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mcgatewayv1.MinecraftServerDiscovery{}).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.watchEndpointsForDiscovery)).
+		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.watchGateways)).
 		Named("minecraftserverdiscovery").
 		Complete(r)
 }

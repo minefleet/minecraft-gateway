@@ -28,8 +28,8 @@ type MinecraftDistributionStrategy struct {
 type MinecraftDistributionStrategyType string
 
 const (
-	MinecraftDistributionStrategyRandom       = "random"
-	MinecraftDistributionStrategyLeastPlayers = "least-players"
+	MinecraftDistributionStrategyRandom       MinecraftDistributionStrategyType = "random"
+	MinecraftDistributionStrategyLeastPlayers MinecraftDistributionStrategyType = "least-players"
 )
 
 type MinecraftFilterRules struct {
@@ -42,9 +42,9 @@ type MinecraftFilterRules struct {
 type MinecraftFilterRuleType string
 
 const (
-	MinecraftFilterRuleAll  = "all"
-	MinecraftFilterRuleAny  = "any"
-	MinecraftFilterRuleNone = "none"
+	MinecraftFilterRuleAll  MinecraftFilterRuleType = "all"
+	MinecraftFilterRuleAny  MinecraftFilterRuleType = "any"
+	MinecraftFilterRuleNone MinecraftFilterRuleType = "none"
 )
 
 type MinecraftFilterRule struct {

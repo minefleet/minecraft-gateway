@@ -33,9 +33,9 @@ type GatewayClassReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gatewayclasses,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gatewayclasses/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=gatewayclasses/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gatewayclasses,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gatewayclasses/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gatewayclasses/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -47,7 +47,7 @@ type GatewayClassReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *GatewayClassReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+	log := logf.FromContext(ctx)
 
 	var gwClass gatewayv1.GatewayClass
 	if err := r.Get(ctx, req.NamespacedName, &gwClass); err != nil {
@@ -59,6 +59,7 @@ func (r *GatewayClassReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			return ctrl.Result{}, client.IgnoreNotFound(err)
 		}
+		log.Info("Gateway Class accepted", "class", gwClass.Name)
 	}
 
 	return ctrl.Result{}, nil

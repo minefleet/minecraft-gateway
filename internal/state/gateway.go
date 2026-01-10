@@ -15,13 +15,13 @@ type GatewayState struct {
 }
 
 func NewGatewayState(c client.Client, ctx context.Context, gw types.NamespacedName, lastVersion uint64) GatewayState {
-
+	return GatewayState{}
 }
 
 func (r *GatewayState) fetchJoinRoutes(gw gatewayv1.Gateway) ([]mcgatewayv1.MinecraftRoute, error) {
-	namespaces, err := gw.Spec
+	return nil, nil
 }
 
 func (r *GatewayState) fetchServices(disc mcgatewayv1.MinecraftServerDiscovery) []mcgatewayv1.MinecraftService {
-
+	return nil
 }

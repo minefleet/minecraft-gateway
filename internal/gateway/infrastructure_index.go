@@ -1,0 +1,35 @@
+package gateway
+
+import (
+	"context"
+	"fmt"
+	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+)
+
+const gatewayByInfrastructure = "gateway.byInfrastructure"
+
+func keyGWByInfrastructure(group, kind, name string) string {
+	return fmt.Sprintf("%s/%s/%s", group, kind, name)
+}
+
+func IndexGatewayByInfrastructure(mgr manager.Manager) error {
+	return mgr.GetFieldIndexer().IndexField(context.Background(), &gatewayv1.Gateway{}, gatewayByInfrastructure, func(object client.Object) []string {
+		gw := object.(*gatewayv1.Gateway)
+		if gw.Spec.Infrastructure == nil || gw.Spec.Infrastructure.ParametersRef == nil {
+			return nil
+		}
+		ref := *gw.Spec.Infrastructure.ParametersRef
+		key := keyGWByInfrastructure(string(ref.Group), string(ref.Kind), ref.Name)
+		return []string{key}
+	})
+}
+
+func ListGatewaysByInfrastructure(c client.Client, ctx context.Context, list *gatewayv1.GatewayList, infra mcgatewayv1.MinecraftServerDiscovery) error {
+	key := keyGWByInfrastructure(infra.GetObjectKind().GroupVersionKind().Group, infra.GetObjectKind().GroupVersionKind().Kind, infra.GetName())
+	return c.List(ctx, list, client.InNamespace(infra.Namespace), client.MatchingFields{
+		gatewayByInfrastructure: key,
+	})
+}

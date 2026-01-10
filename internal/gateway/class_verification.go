@@ -2,9 +2,10 @@ package gateway
 
 import (
 	"context"
+	"fmt"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"minefleet.dev/minecraft-gateway/internal/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
@@ -36,8 +37,7 @@ func (v *ClassVerifier) IsVerified() bool {
 	if v.gwClass.Spec.ControllerName != ControllerName {
 		return false
 	}
-	accepted := util.GetCondition(v.gwClass.Status.Conditions, string(gatewayv1.GatewayClassConditionStatusAccepted))
-	return accepted != nil && accepted.Status == metav1.ConditionTrue
+	return meta.IsStatusConditionTrue(v.gwClass.Status.Conditions, string(gatewayv1.GatewayClassConditionStatusAccepted))
 }
 
 func (v *ClassVerifier) Verify() *gatewayv1.GatewayClass {
@@ -47,11 +47,11 @@ func (v *ClassVerifier) Verify() *gatewayv1.GatewayClass {
 	class := v.gwClass.DeepCopy()
 	//TODO: filter supported stuff only and else dont accept this class
 	//TODO: check valid parentRef (if parent ref is provided)
-	if changed := util.UpsertCondition(&class.Status.Conditions, metav1.Condition{
+	if changed := meta.SetStatusCondition(&class.Status.Conditions, metav1.Condition{
 		Type:    string(gatewayv1.GatewayClassConditionStatusAccepted),
 		Status:  metav1.ConditionTrue,
 		Reason:  string(gatewayv1.GatewayClassReasonAccepted),
-		Message: "Gateway Class accepted.",
+		Message: fmt.Sprintf("Gateway Class accepted by %s.", ControllerName),
 	}); !changed {
 		return nil
 	}

@@ -7,11 +7,8 @@ rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - gatewayclasses
-  - gateways
   - minecraftfallbackroutes
   - minecraftjoinroutes
-  - minecraftroutes
   - minecraftserverdiscoveries
   verbs:
   - create
@@ -24,23 +21,46 @@ rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - gatewayclasses/finalizers
-  - gateways/finalizers
   - minecraftfallbackroutes/finalizers
   - minecraftjoinroutes/finalizers
-  - minecraftroutes/finalizers
   - minecraftserverdiscoveries/finalizers
   verbs:
   - update
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - gatewayclasses/status
-  - gateways/status
   - minecraftfallbackroutes/status
   - minecraftjoinroutes/status
-  - minecraftroutes/status
   - minecraftserverdiscoveries/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - gateway.networking.sigs.k8s.io
+  resources:
+  - gatewayclasses
+  - gateways
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - gateway.networking.sigs.k8s.io
+  resources:
+  - gatewayclasses/finalizers
+  - gateways/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - gateway.networking.sigs.k8s.io
+  resources:
+  - gatewayclasses/status
+  - gateways/status
   verbs:
   - get
   - patch

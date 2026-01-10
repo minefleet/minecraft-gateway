@@ -22,9 +22,6 @@ resources:
 # default, aiding admins in cluster management. Those roles are
 # not used by the minecraft-gateway itself. You can comment the following lines
 # if you do not want those helpers be installed with your Project.
-- minecraftproxyconfig_admin_role.yaml
-- minecraftproxyconfig_editor_role.yaml
-- minecraftproxyconfig_viewer_role.yaml
 - minecraftjoinroute_admin_role.yaml
 - minecraftjoinroute_editor_role.yaml
 - minecraftjoinroute_viewer_role.yaml
