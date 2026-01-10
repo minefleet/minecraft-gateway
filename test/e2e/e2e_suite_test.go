@@ -34,12 +34,19 @@ var (
 	// These variables are useful if CertManager is already installed, avoiding
 	// re-installation and conflicts.
 	skipCertManagerInstall = os.Getenv("CERT_MANAGER_INSTALL_SKIP") == "true"
+	// Optional Environment Variables:
+	// - GATEWAY_API_INSTALL_SKIP=true: Skips Gateway API installation during test setup.
+	// These variables are useful if Gateway API is already installed, avoiding
+	// re-installation and conflicts.
+	skipGatewayAPIInstall = os.Getenv("GATEWAY_API_INSTALL_SKIP") == "true"
 	// isCertManagerAlreadyInstalled will be set true when CertManager CRDs be found on the cluster
 	isCertManagerAlreadyInstalled = false
+	// isGatewayAPIAlreadyInstalled will be set true when Gateway API CRDs be found on the cluster
+	isGatewayAPIAlreadyInstalled = false
 
 	// projectImage is the name of the image which will be build and loaded
 	// with the code source changes to be tested.
-	projectImage = "example.com/minecraft-gateway:v0.0.1"
+	projectImage = "minefleet.dev/minecraft-gateway:v0.0.1"
 )
 
 // TestE2E runs the end-to-end (e2e) test suite for the project. These tests execute in an isolated,
@@ -76,6 +83,17 @@ var _ = BeforeSuite(func() {
 			Expect(utils.InstallCertManager()).To(Succeed(), "Failed to install CertManager")
 		} else {
 			_, _ = fmt.Fprintf(GinkgoWriter, "WARNING: CertManager is already installed. Skipping installation...\n")
+		}
+	}
+	// Setup Gateway API before the suite if not skipped and if not already installed
+	if !skipGatewayAPIInstall {
+		By("checking if gateway api is installed already")
+		isGatewayAPIAlreadyInstalled = utils.IsGatewayAPICRDsInstalled()
+		if !isGatewayAPIAlreadyInstalled {
+			_, _ = fmt.Fprintf(GinkgoWriter, "Installing Gateway API...\n")
+			Expect(utils.InstallGatewayAPI()).To(Succeed(), "Failed to install Gateway API")
+		} else {
+			_, _ = fmt.Fprintf(GinkgoWriter, "WARNING: Gateway API is already installed. Skipping installation...\n")
 		}
 	}
 })

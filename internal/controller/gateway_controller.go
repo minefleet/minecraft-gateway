@@ -43,9 +43,14 @@ type GatewayReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gateways,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gateways/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.sigs.k8s.io,resources=gateways/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways;gatewayclasses,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/status;gatewayclasses/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/finalizers;gatewayclasses/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes;minecraftjoinroutes;minecraftserverdiscoveries,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/status;minecraftjoinroutes/status;minecraftserverdiscoveries/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/finalizers;minecraftjoinroutes/finalizers;minecraftserverdiscoveries/finalizers,verbs=update
+// +kubebuilder:rbac:groups=discovery.k8s.io,resources=endpointslices,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=services,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

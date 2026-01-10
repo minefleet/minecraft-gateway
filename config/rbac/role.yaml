@@ -5,6 +5,51 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - apps
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - gatewayclasses
+  - gateways
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - gatewayclasses/finalizers
+  - gateways/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - gatewayclasses/status
+  - gateways/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - gateway.networking.minefleet.dev
   resources:
   - minecraftfallbackroutes
@@ -32,35 +77,6 @@ rules:
   - minecraftfallbackroutes/status
   - minecraftjoinroutes/status
   - minecraftserverdiscoveries/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - gateway.networking.sigs.k8s.io
-  resources:
-  - gatewayclasses
-  - gateways
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - gateway.networking.sigs.k8s.io
-  resources:
-  - gatewayclasses/finalizers
-  - gateways/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - gateway.networking.sigs.k8s.io
-  resources:
-  - gatewayclasses/status
-  - gateways/status
   verbs:
   - get
   - patch
