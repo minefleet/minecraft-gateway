@@ -21,6 +21,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -52,7 +53,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(gatewaynetworkingv1.AddToScheme(scheme))
-	utilruntime.Must(gatewayv1.AddToScheme(scheme))
+	utilruntime.Must(gatewayv1.Install(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
