@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -66,6 +67,6 @@ func merge(first *mcgatewayv1.MinecraftServerDiscovery, second *mcgatewayv1.Mine
 	if first == nil {
 		return second.Status, nil
 	}
-	//TODO: code actual merging
+	// TODO: code actual merging
 	return mcgatewayv1.MinecraftServerDiscoveryStatus{}, nil
 }

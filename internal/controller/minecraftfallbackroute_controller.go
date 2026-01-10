@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -48,7 +49,7 @@ type MinecraftFallbackRouteReconciler struct {
 func (r *MinecraftFallbackRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
 	var route mcgatewayv1.MinecraftFallbackRoute
-	if err := r.Client.Get(ctx, req.NamespacedName, &route); err != nil {
+	if err := r.Get(ctx, req.NamespacedName, &route); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	// TODO(user): your logic here

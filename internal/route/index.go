@@ -3,9 +3,10 @@ package route
 import (
 	"context"
 	"fmt"
+	"log"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
-	"log"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -205,7 +206,7 @@ func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.G
 }
 
 func ListRoutesByService[T client.ObjectList](c client.Client, ctx context.Context, svc corev1.Service, zero T) error {
-	//TODO: reference verification
+	// TODO: reference verification
 	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByService: keySvc(svc.Namespace, svc.Name)}); err != nil {
 		return err
 	}

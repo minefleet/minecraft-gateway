@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"

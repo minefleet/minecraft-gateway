@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"

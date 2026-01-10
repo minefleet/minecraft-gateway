@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+
 	"k8s.io/apimachinery/pkg/labels"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"

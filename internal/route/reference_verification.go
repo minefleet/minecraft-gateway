@@ -2,21 +2,22 @@ package route
 
 import (
 	"context"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1beta1"
 )
 
 type ReferenceVerifier struct {
-	route   client.Object
-	client  client.Client
-	context context.Context
+	route client.Object
+	c     client.Client
+	ctx   context.Context
 }
 
-func NewReferenceVerifier(route client.Object, client client.Client, context context.Context) ReferenceVerifier {
+func NewReferenceVerifier(route client.Object, c client.Client, ctx context.Context) ReferenceVerifier {
 	return ReferenceVerifier{
-		route:   route,
-		client:  client,
-		context: context,
+		route: route,
+		c:     c,
+		ctx:   ctx,
 	}
 }
 
@@ -25,7 +26,7 @@ func (v ReferenceVerifier) IsGranted(obj client.Object) (bool, error) {
 		return true, nil
 	}
 	var grants gatewayv1.ReferenceGrantList
-	if err := v.client.List(v.context, &grants, client.InNamespace(obj.GetNamespace())); err != nil {
+	if err := v.c.List(v.ctx, &grants, client.InNamespace(obj.GetNamespace())); err != nil {
 		return false, err
 	}
 	for _, grant := range grants.Items {

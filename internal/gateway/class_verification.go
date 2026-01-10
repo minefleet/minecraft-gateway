@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -45,8 +46,8 @@ func (v *ClassVerifier) Verify() *gatewayv1.GatewayClass {
 		return nil
 	}
 	class := v.gwClass.DeepCopy()
-	//TODO: filter supported stuff only and else dont accept this class
-	//TODO: check valid parentRef (if parent ref is provided)
+	// TODO: filter supported stuff only and else dont accept this class
+	// TODO: check valid parentRef (if parent ref is provided)
 	if changed := meta.SetStatusCondition(&class.Status.Conditions, metav1.Condition{
 		Type:    string(gatewayv1.GatewayClassConditionStatusAccepted),
 		Status:  metav1.ConditionTrue,

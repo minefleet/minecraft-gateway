@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"errors"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -19,13 +20,14 @@ func SelectNamespace(c client.Client, ctx context.Context, currentNs string, nam
 		from = *namespaces.From
 	}
 
-	if from == gatewayv1.NamespacesFromNone {
+	switch from {
+	case gatewayv1.NamespacesFromNone:
 		return nil, nil
-	} else if from == gatewayv1.NamespacesFromSame {
+	case gatewayv1.NamespacesFromSame:
 		return []string{currentNs}, nil
-	} else if from == gatewayv1.NamespacesFromAll {
+	case gatewayv1.NamespacesFromAll:
 		return []string{}, nil
-	} else if from == gatewayv1.NamespacesFromSelector {
+	case gatewayv1.NamespacesFromSelector:
 		if namespaces.Selector == nil {
 			return nil, errors.New("invalid RouteNamespaces definition: no selector was specified")
 		}

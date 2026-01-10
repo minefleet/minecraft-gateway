@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -70,7 +71,7 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, discovery); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	if gws.Items == nil || len(gws.Items) == 0 {
+	if len(gws.Items) == 0 {
 		log.Info("will not reconcile because no gateways are connected", "discovery", fmt.Sprintf("%s/%s", discovery.Namespace, discovery.Name))
 		return ctrl.Result{}, nil
 	}
@@ -94,7 +95,7 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 			Port:      port,
 		})
 	}
-	//TODO: save into status
+	// TODO: save into status
 	_ = backends
 	return ctrl.Result{}, nil
 }
@@ -116,9 +117,7 @@ func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, di
 		if err != nil {
 			return nil, err
 		}
-		for _, svc := range services.Items {
-			result = append(result, svc)
-		}
+		result = append(result, services.Items...)
 	}
 	return result, nil
 }

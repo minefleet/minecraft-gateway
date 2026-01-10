@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -169,7 +170,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		return nil
 	}
 
-	//TODO: actually requeue
+	// TODO: actually requeue
 
 	return nil
 }

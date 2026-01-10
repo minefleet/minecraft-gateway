@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+
 	"minefleet.dev/minecraft-gateway/internal/gateway"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 

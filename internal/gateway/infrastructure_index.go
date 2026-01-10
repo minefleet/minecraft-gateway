@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"fmt"
+
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"

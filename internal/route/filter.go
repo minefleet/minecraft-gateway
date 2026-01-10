@@ -2,12 +2,13 @@ package route
 
 import (
 	"context"
+	"strings"
+
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	"minefleet.dev/minecraft-gateway/internal/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 	v1 "sigs.k8s.io/gateway-api/conformance/apis/v1"
-	"strings"
 )
 
 func FilterAllowedRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, routes Bag) map[gatewayv1.Listener]Bag {
