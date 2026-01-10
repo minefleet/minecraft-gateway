@@ -34,7 +34,7 @@ func GetInfrastructureByGateway(c client.Client, ctx context.Context, gw gateway
 	if config, err := mfdiscovery.GetMinecraftServerDiscoveryByRef(c, ctx, class.Spec.ParametersRef); err == nil {
 		classConfig = &config
 	} else {
-		log.Info(fmt.Sprintf("%e: no (valid) class infrastructure config found", err))
+		log.Info(fmt.Sprintf("%s: no (valid) class infrastructure config found", err.Error()))
 	}
 	status, err := merge(classConfig, gwConfig)
 	if err != nil {

@@ -3,4 +3,7 @@ resources:
 - gateway.networking_v1_minecraftfallbackroute.yaml
 - gateway.networking_v1_minecraftserverdiscovery.yaml
 - gateway.networking_v1_minecraftjoinroute.yaml
+- gateway.networking_v1_gateway.yaml
+- minecraft_deployment.yaml
+- minecraft_service.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

@@ -11,7 +11,7 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-const ControllerName = "minefleet.dev/minecraft-gateway"
+const ControllerName = "minefleet.dev/gateway-controller"
 
 type ClassVerifier struct {
 	gwClass gatewayv1.GatewayClass

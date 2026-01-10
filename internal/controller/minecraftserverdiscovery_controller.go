@@ -99,8 +99,14 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 			Port:      port,
 		})
 	}
-	// TODO: save into status
-	_ = backends
+	before := discovery.DeepCopy()
+	if discovery.Status.Conditions == nil {
+		discovery.Status.Conditions = make([]metav1.Condition, 0)
+	}
+	discovery.Status.BackendRefs = backends
+	if err := r.Status().Patch(ctx, &discovery, client.MergeFrom(before)); err != nil {
+		return ctrl.Result{}, err
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -117,7 +123,9 @@ func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, di
 	result := make([]corev1.Service, 0)
 	for _, ns := range allNs {
 		var services corev1.ServiceList
-		err = r.List(ctx, &services, client.InNamespace(ns), selector.(client.MatchingLabelsSelector))
+		err = r.List(ctx, &services, client.InNamespace(ns), client.MatchingLabelsSelector{
+			Selector: selector,
+		})
 		if err != nil {
 			return nil, err
 		}

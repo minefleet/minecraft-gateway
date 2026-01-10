@@ -81,8 +81,7 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if err != nil {
 		return ctrl.Result{}, nil
 	}
-	log.Info("infrastructure test log", "infrastructure", infrastructure)
-
+	_ = infrastructure
 	// TODO: actually reconcile the gateway as it is "locked and loaded"
 	// [] Make sure there are daemon sets, proxy services for each listener (and gate lite instances)
 	//    Generally speaking: One daemon set and gate lite service for each port generally common across all gateways,
