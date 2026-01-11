@@ -10,13 +10,18 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-const gatewayByInfrastructure = "gateway.byInfrastructure"
+const (
+	gatewayByInfrastructure = "gateway.byInfrastructure"
+	// TODO: add this when gateway class infrastructure becomes standard channel
+	// gatewayClassByInfrastructure = "gatewayclass.byInfrastructure"
+)
 
 func keyGWByInfrastructure(group, kind, name string) string {
 	return fmt.Sprintf("%s/%s/%s", group, kind, name)
 }
 
 func IndexGatewayByInfrastructure(mgr manager.Manager) error {
+
 	return mgr.GetFieldIndexer().IndexField(context.Background(), &gatewayv1.Gateway{}, gatewayByInfrastructure, func(object client.Object) []string {
 		gw := object.(*gatewayv1.Gateway)
 		if gw.Spec.Infrastructure == nil || gw.Spec.Infrastructure.ParametersRef == nil {

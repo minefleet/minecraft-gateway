@@ -75,6 +75,7 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, discovery); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+	// TODO: add gateway class validation when this becomes standard channel
 	if len(gws.Items) == 0 {
 		log.Info("will not reconcile because no gateways are connected", "discovery", fmt.Sprintf("%s/%s", discovery.Namespace, discovery.Name))
 		return ctrl.Result{}, nil
@@ -91,13 +92,20 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 			log.Info("will not discover service due to no matching minecraft port", "service", fmt.Sprintf("%s/%s", svc.Namespace, svc.Name))
 			continue
 		}
-		backends = append(backends, gatewayv1.BackendObjectReference{
+		ref := gatewayv1.BackendObjectReference{
 			Group:     (*gatewayv1.Group)(ptr.To(svc.GroupVersionKind().Group)),
 			Kind:      (*gatewayv1.Kind)(ptr.To(svc.GroupVersionKind().Kind)),
 			Name:      gatewayv1.ObjectName(svc.Name),
 			Namespace: (*gatewayv1.Namespace)(ptr.To(svc.Namespace)),
 			Port:      port,
-		})
+		}
+		if !includesBackendRef(discovery.Status.BackendRefs, ref) {
+			log.Info("Discovered new Backend Reference", "backendRef", ref)
+		}
+		backends = append(backends, ref)
+	}
+	for _, missing := range missingBackendRefs(discovery.Status.BackendRefs, backends) {
+		log.Error(nil, "previously discovered BackendReference unavailable", "backendRef", missing)
 	}
 	before := discovery.DeepCopy()
 	if discovery.Status.Conditions == nil {
@@ -108,6 +116,18 @@ func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req 
 		return ctrl.Result{}, err
 	}
 	return ctrl.Result{}, nil
+}
+
+func includesBackendRef(arr []gatewayv1.BackendObjectReference, obj gatewayv1.BackendObjectReference) bool {
+	return util.ListIncludes(arr, obj, backendRefCompareFunc)
+}
+
+func missingBackendRefs(old, new []gatewayv1.BackendObjectReference) []gatewayv1.BackendObjectReference {
+	return util.ListMissing(old, new, backendRefCompareFunc)
+}
+
+func backendRefCompareFunc(first gatewayv1.BackendObjectReference, second gatewayv1.BackendObjectReference) bool {
+	return string(*first.Kind) == string(*second.Kind) && string(*first.Group) == string(*second.Group) && string(*first.Namespace) == string(*second.Namespace) && first.Name == second.Name
 }
 
 func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, discovery mcgatewayv1.MinecraftServerDiscovery) ([]corev1.Service, error) {
@@ -219,6 +239,7 @@ func (r *MinecraftServerDiscoveryReconciler) SetupWithManager(mgr ctrl.Manager) 
 		For(&mcgatewayv1.MinecraftServerDiscovery{}).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.watchEndpointsForDiscovery)).
 		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.watchGateways)).
+		// TODO: add gateway class verification when this becomes standard channel
 		Named("minecraftserverdiscovery").
 		Complete(r)
 }
