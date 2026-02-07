@@ -199,6 +199,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 		return nil
 	}
 	var discoveries mcgatewayv1.MinecraftServerDiscoveryList
+	//TODO: discoveries by label index
 	if err := r.List(ctx, &discoveries); err != nil {
 		return nil
 	}
@@ -227,7 +228,6 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 					Name:      disc.Name,
 				},
 			})
-			break
 		}
 	}
 	return reqs
