@@ -162,10 +162,10 @@ func minecraftPort(svc corev1.Service) *gatewayv1.PortNumber {
 			continue
 		}
 		if port.Name == "minecraft" || port.Port == 25565 {
-			return ptr.To(gatewayv1.PortNumber(port.Port))
+			return ptr.To(port.Port)
 		}
 		if fallback == nil {
-			fallback = ptr.To(gatewayv1.PortNumber(port.Port))
+			fallback = ptr.To(port.Port)
 		}
 	}
 
