@@ -180,14 +180,14 @@ func (r *MinecraftServerDiscoveryReconciler) watchGateways(ctx context.Context, 
 		log.Error(err, "can not get MinecraftServerDiscovery from gateway", "gateway", gw)
 		return nil
 	}
-	result := make([]reconcile.Request, 0)
-	result = append(result, reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Namespace: discovery.Namespace,
-			Name:      discovery.Name,
+	return []reconcile.Request{
+		{
+			NamespacedName: types.NamespacedName{
+				Namespace: discovery.Namespace,
+				Name:      discovery.Name,
+			},
 		},
-	})
-	return result
+	}
 }
 
 func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
@@ -199,6 +199,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 		return nil
 	}
 	var discoveries mcgatewayv1.MinecraftServerDiscoveryList
+	// TODO: discoveries by label index
 	if err := r.List(ctx, &discoveries); err != nil {
 		return nil
 	}
@@ -227,7 +228,6 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 					Name:      disc.Name,
 				},
 			})
-			break
 		}
 	}
 	return reqs
