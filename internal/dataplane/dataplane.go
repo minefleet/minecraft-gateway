@@ -1,22 +1,35 @@
 package dataplane
 
 import (
-	corev1 "k8s.io/api/core/v1"
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	"context"
+	discoveryv1 "k8s.io/api/discovery/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"minefleet.dev/minecraft-gateway/internal/route"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type Dataplane struct {
-	Data []mcgatewayv1.MinecraftService
+type Dataplane interface {
+	SyncGateway(name types.NamespacedName, routes route.Bag, backends []discoveryv1.EndpointSlice) error
 }
 
-func (d Dataplane) SyncRoute(route mcgatewayv1.MinecraftRoute) {
-
+type dataplanes struct {
+	items []Dataplane
 }
 
-func (d Dataplane) SyncPlayers(service corev1.Service, server mcgatewayv1.MinecraftServer) {
-
+func (d dataplanes) SyncGateway(name types.NamespacedName, routes route.Bag, backends []discoveryv1.EndpointSlice) error {
+	for _, dataplane := range d.items {
+		if err := dataplane.SyncGateway(name, routes, backends); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (d Dataplane) SyncService(service corev1.Service) {
-
+func CreateDataplane(ctx context.Context, c client.Client) Dataplane {
+	return dataplanes{
+		items: []Dataplane{
+			newEdgeDataplane(ctx, c),
+			newNetworkDataplane(ctx, c),
+		},
+	}
 }

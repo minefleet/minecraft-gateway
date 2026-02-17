@@ -1,0 +1,16 @@
+[package]
+name = "envoy-minecraft-extension"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# IMPORTANT: pin this to the SAME Envoy commit you build/run against (strict ABI compatibility).
+# This is exactly how the dynamic-modules-examples repo does it.
+envoy-proxy-dynamic-modules-rust-sdk = { git = "https://github.com/envoyproxy/envoy", rev = "6d9bb7d9a85d616b220d1f8fe67b61f82bbdb8d3" }
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
