@@ -15,7 +15,7 @@
 //!   },
 //!   "reject_unknown": true,
 //!   "max_read_bytes": 1024,
-//!   "metadata_namespace": "com.example.minecraft",
+//!   "metadata_namespace": "dev.minefleet.edge",
 //!   "metadata_key": "selected_filter_chain"
 //! }
 //! ```

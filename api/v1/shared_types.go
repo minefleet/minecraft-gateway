@@ -1,7 +1,6 @@
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
@@ -9,8 +8,6 @@ type MinecraftRoute struct {
 	gatewayv1.CommonRouteSpec `json:",inline"`
 	// +optional
 	BackendRefs []MinecraftBackendRef `json:"backendRefs,omitempty"`
-	// +optional
-	FilterRules []MinecraftFilterRules `json:"filterRules,omitempty"`
 	// +optional
 	Priority int `json:"priority,omitempty"`
 }
@@ -32,18 +29,18 @@ const (
 	MinecraftDistributionStrategyLeastPlayers MinecraftDistributionStrategyType = "least-players"
 )
 
-type MinecraftFilterRules struct {
+type MinecraftFilterRuleSet struct {
+	// For MinecraftFilterRule.Domain only MinecraftFilterRuleAny is applicable
 	// +optional
 	Type MinecraftFilterRuleType `json:"type,omitempty"`
-	// +required
-	Rules []MinecraftFilterRule `json:"rules"`
 }
 
 type MinecraftFilterRuleType string
 
 const (
-	MinecraftFilterRuleAll  MinecraftFilterRuleType = "all"
-	MinecraftFilterRuleAny  MinecraftFilterRuleType = "any"
+	MinecraftFilterRuleAll MinecraftFilterRuleType = "all"
+	MinecraftFilterRuleAny MinecraftFilterRuleType = "any"
+	// MinecraftFilterRuleNone is not a sufficient MinecraftFilterRuleType for edge routing based on MinecraftFilterRule.Domain
 	MinecraftFilterRuleNone MinecraftFilterRuleType = "none"
 )
 
@@ -52,8 +49,6 @@ type MinecraftFilterRule struct {
 	Domain string `json:"domain,omitempty"`
 	// +optional
 	Permission string `json:"permission,omitempty"`
-	// +optional
-	FallbackFor metav1.LabelSelector `json:"fallbackFor,omitempty"`
 }
 
 type MinecraftService struct {
@@ -64,7 +59,9 @@ type MinecraftService struct {
 	// +optional
 	DistributionStrategy MinecraftDistributionStrategy `json:"distributionStrategy,omitempty"`
 	// +optional
-	FilterRules []MinecraftFilterRules `json:"filterRules,omitempty"`
+	JoinRules []MinecraftJoinFilterRuleSet `json:"joinRules,omitempty"`
+	// +optional
+	FallbackRules []MinecraftFallbackFilterRuleSet `json:"fallbackRules,omitempty"`
 }
 
 type MinecraftServer struct {

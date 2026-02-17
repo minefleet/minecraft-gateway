@@ -198,6 +198,8 @@ spec:
                         type: object
                       type: array
                     type:
+                      description: For MinecraftFilterRule.Domain only MinecraftFilterRuleAny
+                        is applicable
                       type: string
                   required:
                   - rules

@@ -2,6 +2,7 @@ package dataplane
 
 import (
 	"context"
+
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
@@ -27,6 +28,6 @@ func (d NetworkDataplane) SetupDataplane() {
 
 }
 
-func (d NetworkDataplane) SyncGateway(name types.NamespacedName, route route.Bag, backends []discoveryv1.EndpointSlice) error {
+func (d NetworkDataplane) SyncGateway(name types.NamespacedName, routes route.Bag, backends []discoveryv1.EndpointSlice) error {
 	return nil
 }
