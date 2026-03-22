@@ -28,7 +28,7 @@ func newEdgeDataplane(ctx context.Context, c client.Client) Dataplane {
 
 func (d *EdgeDataplane) SetupDataplane() {
 	edge.StartADS(d.ctx, d.updates)
-	edge.EnsureEnvoy()
+	edge.EnsureProxy()
 }
 
 func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes route.Bag, _ []discoveryv1.EndpointSlice) error {

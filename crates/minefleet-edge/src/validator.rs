@@ -14,21 +14,32 @@
 //!     "*.example.com": "fc_wildcard"
 //!   },
 //!   "reject_unknown": true,
-//!   "max_read_bytes": 1024,
+//!   "max_scanned_bytes": 1024,
 //!   "metadata_namespace": "dev.minefleet.edge",
-//!   "metadata_key": "selected_filter_chain"
+//!   "metadata_key": "cluster"
 //! }
 //! ```
 //!
 //! The filter writes the chosen value into dynamic metadata:
 //! namespace = metadata_namespace, key = metadata_key
-//! so you can use `filter_chain_matcher` to select a named filter chain.
 
 use envoy_proxy_dynamic_modules_rust_sdk::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use envoy_proxy_dynamic_modules_rust_sdk::abi::*;
 
-fn default_max_read_bytes() -> usize {
+/// Required by Envoy's listener-filter ABI in v1.37.x:
+/// https://raw.githubusercontent.com/envoyproxy/envoy/refs/tags/v1.37.0/source/extensions/dynamic_modules/abi.h
+#[unsafe(no_mangle)]
+pub extern "C" fn envoy_dynamic_module_on_listener_filter_get_max_read_bytes(
+    _envoy_ptr: envoy_dynamic_module_type_listener_filter_envoy_ptr,
+    filter_module_ptr: envoy_dynamic_module_type_listener_filter_module_ptr,
+) -> usize {
+    let data_ptr = unsafe { *(filter_module_ptr as *const *const McRouterFilter) };
+    unsafe { (*data_ptr).max_scanned_bytes }
+}
+
+fn default_max_scanned_bytes() -> usize {
     1024
 }
 
@@ -37,7 +48,7 @@ fn default_metadata_namespace() -> String {
 }
 
 fn default_metadata_key() -> String {
-    "selected_filter_chain".to_string()
+    "cluster".to_string()
 }
 
 /// Configuration data parsed from the filter config JSON.
@@ -49,8 +60,8 @@ struct McRouterConfigData {
     domain_mappings: HashMap<String, String>,
     #[serde(default)]
     reject_unknown: bool,
-    #[serde(default = "default_max_read_bytes")]
-    max_read_bytes: usize,
+    #[serde(default = "default_max_scanned_bytes")]
+    max_scanned_bytes: usize,
     #[serde(default = "default_metadata_namespace")]
     metadata_namespace: String,
     #[serde(default = "default_metadata_key")]
@@ -63,7 +74,7 @@ impl Default for McRouterConfigData {
             default_server_name: None,
             domain_mappings: HashMap::new(),
             reject_unknown: true,
-            max_read_bytes: default_max_read_bytes(),
+            max_scanned_bytes: default_max_scanned_bytes(),
             metadata_namespace: default_metadata_namespace(),
             metadata_key: default_metadata_key(),
         }
@@ -75,7 +86,7 @@ impl Default for McRouterConfigData {
 pub enum McRoutingResult {
     Routed { host: String, target: String },
     NoMapping { host: String },
-    NoHandshake { default: Option<String> },
+    NoHandshake,
     NotMinecraft,
     Rejected { reason: String },
     NeedMoreData,
@@ -87,7 +98,7 @@ pub struct McRouterFilterConfig {
     default_server_name: Option<String>,
     domain_mappings: HashMap<String, String>,
     reject_unknown: bool,
-    max_read_bytes: usize,
+    max_scanned_bytes: usize,
     metadata_namespace: String,
     metadata_key: String,
     matches: EnvoyCounterId,
@@ -97,20 +108,36 @@ pub struct McRouterFilterConfig {
 /// Creates a new Minecraft router filter configuration.
 pub fn new_filter_config<EC: EnvoyListenerFilterConfig, ELF: EnvoyListenerFilter>(
     envoy_filter_config: &mut EC,
-    _name: &str,
+    filter_name: &str,
     config: &[u8],
 ) -> Option<Box<dyn ListenerFilterConfig<ELF>>> {
+    if filter_name != "validator" {
+        panic!("Unknown filter name: {filter_name}")
+    }
     let config_data: McRouterConfigData = if config.is_empty() {
+        eprintln!("[minefleet-edge/validator] no config provided, using defaults");
         McRouterConfigData::default()
     } else {
         match serde_json::from_slice(config) {
             Ok(cfg) => cfg,
             Err(err) => {
-                eprintln!("Error parsing Minecraft router config: {err}");
+                eprintln!("[minefleet-edge/validator] ERROR: failed to parse config: {err}");
                 return None;
             }
         }
     };
+
+    eprintln!(
+        "[minefleet-edge/validator] loaded config: {} domain mapping(s), reject_unknown={}, max_scanned_bytes={}, metadata={}/{}",
+        config_data.domain_mappings.len(),
+        config_data.reject_unknown,
+        config_data.max_scanned_bytes,
+        config_data.metadata_namespace,
+        config_data.metadata_key,
+    );
+    for (domain, target) in &config_data.domain_mappings {
+        eprintln!("[minefleet-edge/validator]   {domain:?} -> {target:?}");
+    }
 
     let matches = envoy_filter_config
         .define_counter("minecraft_router_matches_total")
@@ -124,7 +151,7 @@ pub fn new_filter_config<EC: EnvoyListenerFilterConfig, ELF: EnvoyListenerFilter
         default_server_name: config_data.default_server_name,
         domain_mappings: config_data.domain_mappings,
         reject_unknown: config_data.reject_unknown,
-        max_read_bytes: config_data.max_read_bytes,
+        max_scanned_bytes: config_data.max_scanned_bytes,
         metadata_namespace: config_data.metadata_namespace,
         metadata_key: config_data.metadata_key,
         matches,
@@ -138,12 +165,12 @@ impl<ELF: EnvoyListenerFilter> ListenerFilterConfig<ELF> for McRouterFilterConfi
             default_server_name: self.default_server_name.clone(),
             domain_mappings: self.domain_mappings.clone(),
             reject_unknown: self.reject_unknown,
-            max_read_bytes: self.max_read_bytes,
+            max_scanned_bytes: self.max_scanned_bytes,
             metadata_namespace: self.metadata_namespace.clone(),
             metadata_key: self.metadata_key.clone(),
             matches: self.matches,
             misses: self.misses,
-            buf: Vec::with_capacity(self.max_read_bytes.min(2048)),
+            buf: Vec::with_capacity(self.max_scanned_bytes.min(2048)),
             decided: false,
         })
     }
@@ -154,7 +181,7 @@ struct McRouterFilter {
     default_server_name: Option<String>,
     domain_mappings: HashMap<String, String>,
     reject_unknown: bool,
-    max_read_bytes: usize,
+    max_scanned_bytes: usize,
     metadata_namespace: String,
     metadata_key: String,
     matches: EnvoyCounterId,
@@ -222,78 +249,113 @@ impl<ELF: EnvoyListenerFilter> ListenerFilter<ELF> for McRouterFilter {
     fn on_accept(
         &mut self,
         _envoy_filter: &mut ELF,
-    ) -> abi::envoy_dynamic_module_type_on_listener_filter_status {
-        // Need on_data to inspect bytes.
-        abi::envoy_dynamic_module_type_on_listener_filter_status::Continue
+    ) -> envoy_dynamic_module_type_on_listener_filter_status {
+        // StopIteration: tell Envoy to pause and call on_data when bytes arrive.
+        envoy_dynamic_module_type_on_listener_filter_status::StopIteration
     }
 
     fn on_data(
         &mut self,
         envoy_filter: &mut ELF,
-    ) -> abi::envoy_dynamic_module_type_on_listener_filter_status {
+    ) -> envoy_dynamic_module_type_on_listener_filter_status {
         if self.decided {
-            return abi::envoy_dynamic_module_type_on_listener_filter_status::Continue;
+            return envoy_dynamic_module_type_on_listener_filter_status::Continue;
         }
 
-        // Peek bytes currently available and accumulate up to max_read_bytes.
-        let available_room = self.max_read_bytes.saturating_sub(self.buf.len());
+
+        // Peek bytes currently available and accumulate up to max_scanned_bytes.
+        let available_room = self.max_scanned_bytes.saturating_sub(self.buf.len());
         if available_room > 0 && let Some(chunk) = envoy_filter.get_buffer_chunk() {
             let slice: &[u8] = chunk.as_slice();
             let take = available_room.min(slice.len());
             self.buf.extend_from_slice(&slice[..take]);
         }
 
+        eprintln!(
+            "[minefleet-edge/validator] on_data: buf={} bytes",
+            self.buf.len()
+        );
         let res = self.process(&self.buf);
 
         match res {
             McRoutingResult::NeedMoreData => {
-                if self.buf.len() >= self.max_read_bytes {
-                    // Stop waiting; apply fallback.
-                    if let Some(def) = &self.default_server_name {
-                        self.write_metadata(envoy_filter, def);
-                    } else {
-                        self.write_metadata(envoy_filter, "default");
-                    }
+                if self.buf.len() >= self.max_scanned_bytes {
+                    let fallback = self
+                        .default_server_name
+                        .as_deref()
+                        .unwrap_or("default");
+                    eprintln!(
+                        "[minefleet-edge/validator] buffer limit reached ({} bytes), falling back to {fallback:?}",
+                        self.buf.len()
+                    );
+                    self.write_metadata(envoy_filter, fallback);
                     let _ = envoy_filter.increment_counter(self.misses, 1);
                     self.decided = true;
                     return abi::envoy_dynamic_module_type_on_listener_filter_status::Continue;
                 }
+                eprintln!("[minefleet-edge/validator] need more data ({} bytes so far)", self.buf.len());
                 abi::envoy_dynamic_module_type_on_listener_filter_status::StopIteration
             }
 
-            McRoutingResult::Routed { host: _, target } => {
+            McRoutingResult::Routed { host, target } => {
+                eprintln!("[minefleet-edge/validator] routed: {host:?} -> {target:?}");
                 self.write_metadata(envoy_filter, &target);
                 let _ = envoy_filter.increment_counter(self.matches, 1);
                 self.decided = true;
                 abi::envoy_dynamic_module_type_on_listener_filter_status::Continue
             }
 
-            McRoutingResult::NoMapping { host: _ } => {
-                // Fallback to default_server_name or "default"
-                if let Some(def) = &self.default_server_name {
-                    self.write_metadata(envoy_filter, def);
-                } else {
-                    self.write_metadata(envoy_filter, "default");
-                }
+            McRoutingResult::NoMapping { host } => {
+                let fallback = self
+                    .default_server_name
+                    .as_deref()
+                    .unwrap_or("default");
+                eprintln!("[minefleet-edge/validator] no mapping for {host:?}, falling back to {fallback:?}");
+                self.write_metadata(envoy_filter, fallback);
                 let _ = envoy_filter.increment_counter(self.misses, 1);
                 self.decided = true;
                 abi::envoy_dynamic_module_type_on_listener_filter_status::Continue
             }
 
-            McRoutingResult::NoHandshake { default: _ } | McRoutingResult::NotMinecraft | McRoutingResult::Invalid { .. } => {
-                if let Some(def) = &self.default_server_name {
-                    self.write_metadata(envoy_filter, def);
-                } else {
-                    self.write_metadata(envoy_filter, "default");
-                }
+            McRoutingResult::NotMinecraft => {
+                let fallback = self
+                    .default_server_name
+                    .as_deref()
+                    .unwrap_or("default");
+                eprintln!("[minefleet-edge/validator] not a Minecraft handshake, falling back to {fallback:?}");
+                self.write_metadata(envoy_filter, fallback);
+                let _ = envoy_filter.increment_counter(self.misses, 1);
+                self.decided = true;
+                abi::envoy_dynamic_module_type_on_listener_filter_status::Continue
+            }
+
+            McRoutingResult::NoHandshake => {
+                let fallback = self
+                    .default_server_name
+                    .as_deref()
+                    .unwrap_or("default");
+                eprintln!("[minefleet-edge/validator] no handshake received, falling back to {fallback:?}");
+                self.write_metadata(envoy_filter, fallback);
+                let _ = envoy_filter.increment_counter(self.misses, 1);
+                self.decided = true;
+                abi::envoy_dynamic_module_type_on_listener_filter_status::Continue
+            }
+
+            McRoutingResult::Invalid { reason } => {
+                let fallback = self
+                    .default_server_name
+                    .as_deref()
+                    .unwrap_or("default");
+                eprintln!("[minefleet-edge/validator] invalid handshake ({reason}), falling back to {fallback:?}");
+                self.write_metadata(envoy_filter, fallback);
                 let _ = envoy_filter.increment_counter(self.misses, 1);
                 self.decided = true;
                 abi::envoy_dynamic_module_type_on_listener_filter_status::Continue
             }
 
             McRoutingResult::Rejected { reason } => {
+                eprintln!("[minefleet-edge/validator] rejected: {reason}");
                 envoy_filter.set_downstream_transport_failure_reason(&reason);
-                // Still choose a default chain so Envoy can proceed; you can also design a "reject" chain.
                 self.write_metadata(envoy_filter, "reject");
                 let _ = envoy_filter.increment_counter(self.misses, 1);
                 self.decided = true;
@@ -303,11 +365,12 @@ impl<ELF: EnvoyListenerFilter> ListenerFilter<ELF> for McRouterFilter {
     }
 
     fn on_close(&mut self, _envoy_filter: &mut ELF) {}
+
 }
 
 // ---------------- Minecraft parsing ----------------
 
-enum ParseHandshake {
+pub(crate) enum ParseHandshake {
     Ok { host: String },
     NeedMore,
     NotHandshake,
@@ -319,7 +382,7 @@ enum ParseHandshake {
 /// - NeedMore if more bytes are required
 /// - NotHandshake if it doesn't look like a handshake packet
 /// - Invalid if malformed
-fn parse_handshake_server_address(buf: &[u8]) -> ParseHandshake {
+pub(crate) fn parse_handshake_server_address(buf: &[u8]) -> ParseHandshake {
     let mut i = 0;
 
     let (packet_len, packet_len_len) = match read_varint(buf, i) {

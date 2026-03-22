@@ -1,5 +1,0 @@
-package edge
-
-func EnsureEnvoy() {
-
-}

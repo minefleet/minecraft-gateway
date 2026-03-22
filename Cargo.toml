@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "crates/envoy-minecraft-extension",
+    "crates/minefleet-edge",
 ]
 
 resolver = "2"

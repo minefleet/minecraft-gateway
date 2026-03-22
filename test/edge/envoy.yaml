@@ -1,0 +1,78 @@
+static_resources:
+  listeners:
+    - name: minecraft_ingress
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 25565
+
+      # Your handshake-based listener filter (dynamic module)
+      listener_filters:
+        - name: envoy.filters.listener.dynamic_modules
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.listener.dynamic_modules.v3.DynamicModuleListenerFilter
+            dynamic_module_config:
+              name: minefleet_edge
+            filter_name: validator
+            filter_config:
+              "@type": type.googleapis.com/google.protobuf.StringValue
+              value: |
+                {
+                  "domain_mappings": {
+                    "ugede.localhost": "mc1",
+                    "server2.localhost": "mc2",
+                    "localhost": "mc1"
+                  },
+                  "reject_unknown": true,
+                  "max_scanned_bytes": 1024
+                }
+
+      # Single filter chain; tcp_proxy will read filter-state:
+      #   envoy.tcp_proxy.cluster = "mc1" / "mc2"
+      # which your listener filter sets via listener_filter_set_filter_state().
+      filter_chains:
+        - name: ingress
+          filters:
+            - name: envoy.filters.network.dynamic_modules
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.dynamic_modules.v3.DynamicModuleNetworkFilter
+                dynamic_module_config:
+                  name: minefleet_edge
+                filter_name: router
+                filter_config:
+                  "@type": type.googleapis.com/google.protobuf.StringValue
+                  value: ""
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: minecraft
+                cluster: default
+
+  clusters:
+    - name: mc1
+      connect_timeout: 1s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: mc1
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: mc1
+                      port_value: 25565
+
+    - name: mc2
+      connect_timeout: 1s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: mc2
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: mc2
+                      port_value: 25565
