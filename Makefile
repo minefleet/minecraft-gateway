@@ -166,6 +166,10 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 	- $(CONTAINER_TOOL) buildx rm minecraft-edge-builder
 	rm Dockerfile.edge.cross
 
+##@ Build
+.PHONY: docker-build
+docker-build: controller-docker-build edge-docker-build
+
 ##@ Deployment
 
 ifndef ignore-not-found
