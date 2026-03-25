@@ -2,21 +2,24 @@ package dataplane
 
 import (
 	"context"
+
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type Dataplane interface {
-	SyncGateway(name types.NamespacedName, routes route.Bag, backends []discoveryv1.EndpointSlice) error
+	SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error
 }
 
 type dataplanes struct {
 	items []Dataplane
 }
 
-func (d dataplanes) SyncGateway(name types.NamespacedName, routes route.Bag, backends []discoveryv1.EndpointSlice) error {
+func (d dataplanes) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
 	for _, dataplane := range d.items {
 		if err := dataplane.SyncGateway(name, routes, backends); err != nil {
 			return err
@@ -25,10 +28,13 @@ func (d dataplanes) SyncGateway(name types.NamespacedName, routes route.Bag, bac
 	return nil
 }
 
-func CreateDataplane(ctx context.Context, c client.Client) Dataplane {
+// CreateDataplane creates the composite dataplane.
+// cfg configures the edge proxy: the DaemonSet namespace, container image,
+// local xDS gRPC port, and the hostname DaemonSet pods use to reach the xDS server.
+func CreateDataplane(ctx context.Context, c client.Client, cfg edge.ProxyConfig) Dataplane {
 	return dataplanes{
 		items: []Dataplane{
-			newEdgeDataplane(ctx, c),
+			newEdgeDataplane(ctx, c, cfg),
 			newNetworkDataplane(ctx, c),
 		},
 	}
