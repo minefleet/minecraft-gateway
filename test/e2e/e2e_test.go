@@ -67,7 +67,10 @@ var _ = Describe("Manager", Ordered, func() {
 
 		By("deploying the controller-manager")
 		cmd = exec.Command("make", "deploy")
-		cmd.Env = append(os.Environ(), fmt.Sprintf("CONTROLLER_IMG=%s", controllerImage), fmt.Sprintf("EDGE_IMG=%s", edgeImage))
+		cmd.Env = append(os.Environ(),
+			fmt.Sprintf("CONTROLLER_IMG=%s", controllerImage),
+			fmt.Sprintf("EDGE_IMG=%s", edgeImage),
+		)
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to deploy the controller-manager")
 	})
