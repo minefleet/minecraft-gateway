@@ -11,7 +11,7 @@ var log = logf.Log.WithName("edge")
 
 // StartADS starts three goroutines:
 //   - the xDS gRPC server (ADS) on cfg.XDSPort
-//   - a one-shot call to ensure the Kubernetes ConfigMap and DaemonSet exist
+//   - a one-shot health check verifying the edge DaemonSet and xDS Service are present
 //   - a loop that applies incoming DomainSnapshots to the xDS cache
 func StartADS(ctx context.Context, snapshots <-chan DomainSnapshot, cfg ProxyConfig, c client.Client) {
 	xds := newXDSServer(ctx)
@@ -23,11 +23,11 @@ func StartADS(ctx context.Context, snapshots <-chan DomainSnapshot, cfg ProxyCon
 		}
 	}()
 
-	// Ensure the Kubernetes edge resources (ConfigMap + DaemonSet) are present.
+	// Verify edge infrastructure is present and healthy.
 	pm := newProxyManager(c, cfg)
 	go func() {
-		if err := pm.EnsureResources(ctx); err != nil {
-			log.Error(err, "failed to ensure edge proxy resources")
+		if err := pm.CheckHealth(ctx); err != nil {
+			log.Error(err, "edge proxy health check failed")
 		}
 	}()
 

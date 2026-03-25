@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: edge
+  namespace: system
+  labels:
+    control-plane: controller-manager
+    app.kubernetes.io/name: minecraft-edge
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+      app.kubernetes.io/name: minecraft-edge
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: edge
+      labels:
+        control-plane: controller-manager
+        app.kubernetes.io/name: minecraft-edge
+    spec:
+      securityContext:
+        # Projects are configured by default to adhere to the "restricted" Pod Security Standards.
+        # This ensures that deployments meet the highest security requirements for Kubernetes.
+        # For more details, see: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - command:
+            - envoy
+          args:
+            - -c
+            - /etc/envoy/bootstrap.yaml
+            - --log-level
+            - info
+          image: edge:latest
+          name: edge
+          ports:
+            - name: minecraft
+              containerPort: 25565
+              hostPort: 25565
+          volumeMounts:
+            - name: edge-bootstrap-volume
+              mountPath: /etc/envoy/bootstrap.yaml
+              subPath: bootstrap.yaml
+      volumes:
+        - name: edge-bootstrap-volume
+          configMap:
+            name: edge-bootstrap
+            items:
+              - key: bootstrap.yaml
+                path: bootstrap.yaml

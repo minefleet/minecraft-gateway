@@ -54,7 +54,7 @@ func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap DomainSnapshot) err
 		return fmt.Errorf("build listener: %w", err)
 	}
 
-	clusters := buildClusterResources(snap.Clusters)
+	clusters := buildClusterResources(snap)
 	clusterResources := make([]cachetypes.Resource, len(clusters))
 	for i, c := range clusters {
 		clusterResources[i] = c

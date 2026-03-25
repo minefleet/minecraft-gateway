@@ -142,12 +142,6 @@ controller-docker-buildx: ## Build and push docker image for the manager for cro
 	- $(CONTAINER_TOOL) buildx rm minecraft-gateway-builder
 	rm Dockerfile.controller.cross
 
-.PHONY: controller-build-installer
-controller-build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
-	mkdir -p dist
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${CONTROLLER_IMG}
-	$(KUSTOMIZE) build config/default > dist/install.yaml
-
 ##@ Build Edge Envoy
 .PHONY: edge-build
 edge-build: ## Build edge proxy hostname dynamic module
@@ -189,11 +183,19 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${CONTROLLER_IMG}
+	cd config/edge && $(KUSTOMIZE) edit set image edge=${EDGE_IMG}
 	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
 
 .PHONY: undeploy
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
+
+.PHONY: build-installer
+build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
+	mkdir -p dist
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${CONTROLLER_IMG}
+	cd config/edge && $(KUSTOMIZE) edit set image edge=${EDGE_IMG}
+	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 ##@ Dependencies
 
