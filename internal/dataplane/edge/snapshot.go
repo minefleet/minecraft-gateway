@@ -49,7 +49,7 @@ type EndpointConfig struct {
 // BuildGatewaySnapshot constructs a DomainSnapshot for one Gateway.
 func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag) DomainSnapshot {
 	domainMappings := make(map[string]string)
-	clusters := make([]ClusterConfig, 0)
+	clusters := make([]ClusterConfig, 0, len(routes))
 	for listener, bag := range routes {
 		cluster := ClusterConfig{
 			Name: fmt.Sprintf("%s-%s", listener.Name, name.Name),
