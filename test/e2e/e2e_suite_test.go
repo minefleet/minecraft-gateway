@@ -50,7 +50,7 @@ var (
 
 	// edgeImage is the name of the edge image which will be build and loaded
 	// with the code source changes to be tested.
-	edgeImage = "minefleet.dev/minecraft-gateway:v0.0.1"
+	edgeImage = "minefleet.dev/minecraft-edge:v0.0.1"
 )
 
 // TestE2E runs the end-to-end (e2e) test suite for the project. These tests execute in an isolated,
@@ -65,7 +65,8 @@ func TestE2E(t *testing.T) {
 
 var _ = BeforeSuite(func() {
 	By("building the manager(Operator) image")
-	cmd := exec.Command("make", "docker-build", fmt.Sprintf("CONTROLLER_IMG=%s EDGE_IMG=%s", controllerImage, edgeImage))
+	cmd := exec.Command("make", "docker-build")
+	cmd.Env = append(os.Environ(), fmt.Sprintf("CONTROLLER_IMG=%s", controllerImage), fmt.Sprintf("EDGE_IMG=%s", edgeImage))
 	_, err := utils.Run(cmd)
 	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to build the manager(Operator) image")
 
