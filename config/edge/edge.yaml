@@ -41,6 +41,20 @@ spec:
             - name: minecraft
               containerPort: 25565
               hostPort: 25565
+            - name: admin
+              containerPort: 9901
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 9901
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9901
+            initialDelaySeconds: 5
+            periodSeconds: 10
           volumeMounts:
             - name: edge-bootstrap-volume
               mountPath: /etc/envoy/bootstrap.yaml
