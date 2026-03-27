@@ -10,11 +10,22 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func GetEndpointSlicesByService(c client.Client, ctx context.Context, svc corev1.Service) ([]discoveryv1.EndpointSlice, error) {
+func GetEndpointSlicesByServiceObject(c client.Client, ctx context.Context, svc corev1.Service) ([]discoveryv1.EndpointSlice, error) {
 	var slice discoveryv1.EndpointSliceList
 	if err := c.List(ctx, &slice,
 		client.InNamespace(svc.Namespace),
 		client.MatchingLabels{"kubernetes.io/service-name": svc.Name},
+	); err != nil {
+		return nil, err
+	}
+	return slice.Items, nil
+}
+
+func GetEndpointSlicesByService(c client.Client, ctx context.Context, namespace, name string) ([]discoveryv1.EndpointSlice, error) {
+	var slice discoveryv1.EndpointSliceList
+	if err := c.List(ctx, &slice,
+		client.InNamespace(namespace),
+		client.MatchingLabels{"kubernetes.io/service-name": name},
 	); err != nil {
 		return nil, err
 	}

@@ -20,8 +20,7 @@ import (
 
 const (
 	// NodeID is the Envoy node ID used in the DaemonSet bootstrap config.
-	NodeID      = "minefleet-edge"
-	nodeCluster = "minefleet-gateway"
+	NodeID = "minefleet-edge"
 
 	listenerName    = "minecraft_gateway"
 	minecraftPort   = uint32(25565)

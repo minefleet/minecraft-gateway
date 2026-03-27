@@ -17,11 +17,14 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"flag"
 	"os"
 	"path/filepath"
 
+	"minefleet.dev/minecraft-gateway/internal/dataplane"
+	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -200,10 +203,22 @@ func main() {
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
 	})
+
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
+
+	namespace, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		setupLog.Error(err, "unable to determine namespace")
+		os.Exit(1)
+	}
+	plane := dataplane.CreateDataplane(context.Background(), mgr.GetClient(), edge.ProxyConfig{
+		Namespace: string(namespace),
+		XDSPort:   18000,
+	})
+
 	if err := (&controller.GatewayClassReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
@@ -212,8 +227,9 @@ func main() {
 		os.Exit(1)
 	}
 	if err := (&controller.GatewayReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:    mgr.GetClient(),
+		Scheme:    mgr.GetScheme(),
+		Dataplane: &plane,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Gateway")
 		os.Exit(1)

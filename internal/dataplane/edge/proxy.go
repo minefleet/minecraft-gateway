@@ -35,6 +35,8 @@ func (m *proxyManager) CheckHealth(ctx context.Context) error {
 	return m.checkXDSService(ctx)
 }
 
+// +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch
+
 func (m *proxyManager) checkDaemonSet(ctx context.Context) error {
 	ds := &appsv1.DaemonSet{}
 	if err := m.client.Get(ctx, types.NamespacedName{Name: daemonSetName, Namespace: m.cfg.Namespace}, ds); err != nil {

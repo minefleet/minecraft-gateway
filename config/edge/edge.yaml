@@ -37,6 +37,11 @@ spec:
             - info
           image: edge:latest
           name: edge
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: minecraft
               containerPort: 25565

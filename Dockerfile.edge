@@ -36,3 +36,6 @@ ENV ENVOY_DYNAMIC_MODULES_SEARCH_PATH=/usr/lib
 # Pick the correct artifact for the requested target arch
 COPY --from=builder /workspace/${TARGETARCH}_libminefleet_edge.so \
   /usr/lib/libminefleet_edge.so
+
+# set user to nobody for security reasons
+USER 65534

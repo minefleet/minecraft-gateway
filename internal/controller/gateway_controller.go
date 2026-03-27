@@ -20,6 +20,8 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/utils/ptr"
+	"minefleet.dev/minecraft-gateway/internal/dataplane"
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -40,7 +42,8 @@ import (
 // GatewayReconciler reconciles a Gateway object
 type GatewayReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	Dataplane *dataplane.Dataplane
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways;gatewayclasses,verbs=get;list;watch;create;update;patch;delete
@@ -81,32 +84,34 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if err != nil {
 		return ctrl.Result{}, nil
 	}
-	_ = infrastructure
-	// TODO: actually reconcile the gateway as it is "locked and loaded"
-	// [] Make sure there are daemon sets, proxy services for each listener (and gate lite instances)
+	// [] Make sure there are daemon sets, proxy services for each listener (and gate lite instances [X])
 	//    Generally speaking: One daemon set and gate lite service for each port generally common across all gateways,
 	//    Then proxy services for each listener
-	// [X] List routes for each consecutive listener
-	// [] Regenerate config map per listener (proxy level)
-	// [] Regenerate config map for listeners (gate lite level)
 	// TODO: copy infrastructure stuff from the gwclass via mutating admission webhook (maybe)
 
 	var bag route.Bag
 	if err := route.ListAllRoutesByGateway(r.Client, ctx, gw, &bag); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+	backends := make([]discoveryv1.EndpointSlice, 0)
+	for _, ref := range infrastructure.Status.BackendRefs {
+		backend, err := endpoint.GetEndpointSlicesByService(r.Client, ctx, string(ptr.Deref(ref.Namespace, "")), string(ref.Name))
+		if err != nil {
+			if client.IgnoreNotFound(err) != nil {
+				return ctrl.Result{}, err
+			}
+			continue
+		}
+		backends = append(backends, backend...)
+
+	}
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
-	for listener, routes := range network {
-		// TODO: create proxy
-		// TODO: edit the gate daemonset to provide listener
-		for i, joinRoute := range routes.Join {
-			_ = i
-			_ = listener
-			_ = joinRoute
+	if r.Dataplane != nil {
+		err := (*r.Dataplane).SyncGateway(req.NamespacedName, network, backends)
+		if err != nil {
+			return ctrl.Result{}, err
 		}
 	}
-
-	// TODO: regenerate config map
 
 	return ctrl.Result{}, nil
 }

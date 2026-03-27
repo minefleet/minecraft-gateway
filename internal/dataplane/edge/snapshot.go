@@ -13,13 +13,8 @@ type ProxyConfig struct {
 	// Namespace where the edge DaemonSet and ConfigMap will be created.
 	Namespace string
 	// Image is the edge container image (e.g., minefleet.dev/minecraft-edge:v0.0.1).
-	Image string
 	// XDSPort is the local port the xDS gRPC server listens on (default: 18000).
 	XDSPort int
-	// XDSHost is the hostname that DaemonSet pods use to reach the xDS server.
-	// Typically a Kubernetes Service DNS name,
-	// e.g., "minecraft-gateway-xds.namespace.svc.cluster.local".
-	XDSHost string
 }
 
 // DomainSnapshot is the full routing config for one gateway sync cycle.
