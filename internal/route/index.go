@@ -6,6 +6,7 @@ import (
 	"log"
 
 	corev1 "k8s.io/api/core/v1"
+	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/utils/ptr"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -206,7 +207,6 @@ func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.G
 }
 
 func ListRoutesByService[T client.ObjectList](c client.Client, ctx context.Context, svc corev1.Service, zero T) error {
-	// TODO: reference verification
 	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByService: keySvc(svc.Namespace, svc.Name)}); err != nil {
 		return err
 	}
@@ -223,5 +223,42 @@ func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Ser
 		return err
 	}
 
+	verifier := NewReferenceVerifier(c, ctx)
+
+	filteredJoin, err := filterGranted(verifier, &join, &svc)
+	if err != nil {
+		return err
+	}
+	filteredFallback, err := filterGranted(verifier, &fallback, &svc)
+	if err != nil {
+		return err
+	}
+
+	*into = Bag{
+		Join:     filteredJoin.Items,
+		Fallback: filteredFallback.Items,
+	}
 	return nil
+}
+
+func filterGranted[T client.ObjectList](v *ReferenceVerifier, list T, obj client.Object) (T, error) {
+	items, err := apimeta.ExtractList(list)
+	if err != nil {
+		return list, err
+	}
+	out := items[:0]
+	for _, item := range items {
+		o := item.(client.Object)
+		granted, err := v.IsGranted(o, obj)
+		if err != nil {
+			return list, err
+		}
+		if granted {
+			out = append(out, item)
+		}
+	}
+	if err := apimeta.SetList(list, out); err != nil {
+		return list, err
+	}
+	return list, nil
 }

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+    minefleet.dev/environment: sample
+  name: minecraft-service-sample
+spec:
+  selector:
+    app: minecraft-minefleet-gateway-sample
+  ports:
+    - name: minecraft
+      port: 25565
+      targetPort: 25565

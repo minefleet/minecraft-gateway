@@ -58,6 +58,14 @@ rules:
   - patch
   - update
 - apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - referencegrants
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - gateway.networking.minefleet.dev
   resources:
   - minecraftfallbackroutes

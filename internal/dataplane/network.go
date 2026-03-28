@@ -29,6 +29,10 @@ func (d NetworkDataplane) SetupDataplane() {
 
 }
 
-func (d NetworkDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
-	return nil
+func (d NetworkDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) ([]types.NamespacedName, error) {
+	return nil, nil
+}
+
+func (d NetworkDataplane) DeleteGateway(name types.NamespacedName) ([]types.NamespacedName, error) {
+	return nil, nil
 }

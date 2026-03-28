@@ -12,6 +12,7 @@ import (
 	resourcev3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	serverv3 "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"google.golang.org/grpc"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 type xdsServer struct {
@@ -46,10 +47,11 @@ func (x *xdsServer) Start(ctx context.Context, port int) error {
 }
 
 // UpdateSnapshot builds and pushes a new LDS+CDS snapshot for all edge nodes.
-func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap DomainSnapshot) error {
+func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap Snapshot) error {
+	log := logf.FromContext(ctx)
 	v := x.ver.Add(1)
 
-	listener, err := buildListenerResource(snap)
+	listener, err := buildListenerResources(snap)
 	if err != nil {
 		return fmt.Errorf("build listener: %w", err)
 	}
@@ -70,5 +72,6 @@ func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap DomainSnapshot) err
 	if err != nil {
 		return fmt.Errorf("new xds snapshot: %w", err)
 	}
+	log.Info("updated snapshot", "clusters", len(snapshot.GetResources(resourcev3.ClusterType)), "mapping", snap.DomainMapping)
 	return x.cache.SetSnapshot(ctx, NodeID, snapshot)
 }

@@ -6,4 +6,17 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: minecraftfallbackroute-sample
 spec:
-  # TODO(user): Add fields here
+  priority: 0
+  parentRefs:
+    - name: minefleet-gateway-sample
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  backendRefs:
+    - name: minecraft-service-sample
+      port: 25565
+  filterRules:
+    - type: any
+      rules:
+        - fallbackFor:
+            matchLabels:
+              minefleet.dev/environment: sample

@@ -7,13 +7,12 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-var log = logf.Log.WithName("edge")
-
 // StartADS starts three goroutines:
 //   - the xDS gRPC server (ADS) on cfg.XDSPort
 //   - a one-shot health check verifying the edge DaemonSet and xDS Service are present
 //   - a loop that applies incoming DomainSnapshots to the xDS cache
-func StartADS(ctx context.Context, snapshots <-chan DomainSnapshot, cfg ProxyConfig, c client.Client) {
+func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg ProxyConfig, c client.Client) {
+	log := logf.FromContext(ctx)
 	xds := newXDSServer(ctx)
 
 	// Serve xDS over gRPC.

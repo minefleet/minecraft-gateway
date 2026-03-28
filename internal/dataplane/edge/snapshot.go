@@ -2,9 +2,11 @@ package edge
 
 import (
 	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/util"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
@@ -17,14 +19,12 @@ type ProxyConfig struct {
 	XDSPort int
 }
 
-// DomainSnapshot is the full routing config for one gateway sync cycle.
-type DomainSnapshot struct {
-	// DomainMappings maps each hostname to a cluster name.
-	DomainMappings map[string]string
+// GatewaySnapshot is the full routing config for one gateway sync cycle.
+type GatewaySnapshot struct {
+	// DomainMapping maps each hostname to a cluster name.
+	DomainMapping map[string]string
 	// Clusters defines the upstream clusters with their endpoints.
 	Clusters []ClusterConfig
-	// RejectUnknown controls whether connections to unmapped domains are rejected.
-	RejectUnknown bool
 }
 
 // ClusterConfig holds the Envoy cluster definition.
@@ -39,29 +39,80 @@ type EndpointConfig struct {
 	Port    uint32
 }
 
-// BuildSnapshot constructs a Do
+type Snapshot struct {
+	GatewaySnapshot
+	// RejectUnknown controls whether connections to unmapped domains are rejected.
+	RejectUnknown bool
+}
 
-// BuildGatewaySnapshot constructs a DomainSnapshot for one Gateway.
-func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag) DomainSnapshot {
-	domainMappings := make(map[string]string)
+type GatewaySnapshotCache = map[types.NamespacedName]GatewaySnapshot
+
+// BuildGatewaySnapshot constructs a GatewaySnapshot for one Gateway.
+func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag) GatewaySnapshot {
+	domainMapping := make(map[string]string)
 	clusters := make([]ClusterConfig, 0, len(routes))
 	for listener, bag := range routes {
 		cluster := ClusterConfig{
-			Name: fmt.Sprintf("%s-%s", listener.Name, name.Name),
+			Name: toClusterName(name, listener.Name),
 			Endpoints: []EndpointConfig{
 				{
-					Address: fmt.Sprintf("%s-%s.%s.cluster.svc.local:%v", listener.Name, name.Name, name.Namespace, listener.Port),
+					Address: fmt.Sprintf("%s-%s.%s.cluster.svc.local", listener.Name, name.Name, name.Namespace),
 					Port:    uint32(listener.Port),
 				},
 			},
 		}
 		clusters = append(clusters, cluster)
 		for _, domain := range Domains(bag) {
-			domainMappings[domain] = cluster.Endpoints[0].Address
+			domainMapping[domain] = cluster.Name
 		}
 	}
-	return DomainSnapshot{
-		DomainMappings: domainMappings,
-		Clusters:       clusters,
+	return GatewaySnapshot{
+		DomainMapping: domainMapping,
+		Clusters:      clusters,
 	}
+}
+
+func toClusterName(gatewayName types.NamespacedName, listenerName gatewayv1.SectionName) string {
+	return fmt.Sprintf("%s_%s_%s", gatewayName.Name, gatewayName.Namespace, listenerName)
+}
+
+func fromClusterName(clusterName string) types.NamespacedName {
+	args := strings.Split(clusterName, "_")
+	return types.NamespacedName{
+		Name:      args[0],
+		Namespace: args[1],
+	}
+}
+
+// BuildSnapshot constructs a Snapshot for all gateways.
+// It returns the snapshot and a list of Gateways that cant be applied due to a conflicting Domain setup.
+func BuildSnapshot(cache GatewaySnapshotCache) (Snapshot, []types.NamespacedName) {
+	mapping := make(map[string]string)
+	clusters := make([]ClusterConfig, 0)
+	conflicting := util.NewSet[types.NamespacedName]()
+	for gateway, snap := range cache {
+		isConflicting := false
+		for domain, key := range snap.DomainMapping {
+			// Check if there is a conflict for the current domain (same domain dropped twice)
+			if mapping[domain] != "" && mapping[domain] != key {
+				conflicting.Add(gateway)
+				conflicting.Add(fromClusterName(mapping[domain]))
+				isConflicting = true
+				break
+			}
+			mapping[domain] = key
+		}
+		if isConflicting {
+			continue
+		}
+		clusters = append(clusters, snap.Clusters...)
+	}
+
+	return Snapshot{
+		GatewaySnapshot: GatewaySnapshot{
+			DomainMapping: mapping,
+			Clusters:      clusters,
+		},
+		RejectUnknown: false,
+	}, conflicting.List()
 }

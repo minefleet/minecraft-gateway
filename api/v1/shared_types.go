@@ -31,7 +31,8 @@ const (
 
 type MinecraftFilterRuleSet struct {
 	// For MinecraftFilterRule.Domain only MinecraftFilterRuleAny is applicable
-	// +optional
+	// +required
+	// +kubebuilder:validation:Enum=all;any;none
 	Type MinecraftFilterRuleType `json:"type,omitempty"`
 }
 

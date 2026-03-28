@@ -27,10 +27,10 @@ const (
 	maxScannedBytes = 1024
 )
 
-// buildListenerResource builds the Envoy Listener xDS resource for Minecraft routing.
-func buildListenerResource(snap DomainSnapshot) (*listenerv3.Listener, error) {
+// buildListenerResources builds the Envoy Listener xDS resource for Minecraft routing.
+func buildListenerResources(snap Snapshot) (*listenerv3.Listener, error) {
 	filterCfgJSON, err := json.Marshal(map[string]any{
-		"domain_mappings":   snap.DomainMappings,
+		"domain_mappings":   snap.DomainMapping,
 		"max_scanned_bytes": maxScannedBytes,
 		"reject_unknown":    snap.RejectUnknown,
 	})
@@ -107,8 +107,8 @@ func buildListenerResource(snap DomainSnapshot) (*listenerv3.Listener, error) {
 	}, nil
 }
 
-// buildClusterResources builds Envoy Cluster xDS resources from a DomainSnapshot.
-func buildClusterResources(snap DomainSnapshot) []*clusterv3.Cluster {
+// buildClusterResources builds Envoy Cluster xDS resources from a GatewaySnapshot.
+func buildClusterResources(snap Snapshot) []*clusterv3.Cluster {
 	result := make([]*clusterv3.Cluster, 0, len(snap.Clusters))
 	for _, c := range snap.Clusters {
 		lbEndpoints := make([]*endpointv3.LbEndpoint, 0, len(c.Endpoints))
@@ -132,7 +132,7 @@ func buildClusterResources(snap DomainSnapshot) []*clusterv3.Cluster {
 			Name:           c.Name,
 			ConnectTimeout: durationpb.New(time.Second),
 			ClusterDiscoveryType: &clusterv3.Cluster_Type{
-				Type: clusterv3.Cluster_STATIC,
+				Type: clusterv3.Cluster_LOGICAL_DNS,
 			},
 			LoadAssignment: &endpointv3.ClusterLoadAssignment{
 				ClusterName: c.Name,

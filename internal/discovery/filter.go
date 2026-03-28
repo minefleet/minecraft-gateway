@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
@@ -27,6 +28,29 @@ func GetMinecraftServerDiscoveryByGateway(c client.Client, ctx context.Context, 
 		Namespace: ptr.To(gatewayv1.Namespace(gw.Namespace)),
 	}
 	return GetMinecraftServerDiscoveryByRef(c, ctx, &ref)
+}
+
+// GetMinecraftServerDiscoveriesByService returns all MinecraftServerDiscovery objects
+// that have resolved the given service into their Status.BackendRefs.
+func GetMinecraftServerDiscoveriesByService(c client.Client, ctx context.Context, svc corev1.Service) ([]mcgatewayv1.MinecraftServerDiscovery, error) {
+	var all mcgatewayv1.MinecraftServerDiscoveryList
+	if err := c.List(ctx, &all); err != nil {
+		return nil, err
+	}
+	result := make([]mcgatewayv1.MinecraftServerDiscovery, 0)
+	for _, disc := range all.Items {
+		for _, ref := range disc.Status.BackendRefs {
+			refNs := disc.Namespace
+			if ref.Namespace != nil {
+				refNs = string(*ref.Namespace)
+			}
+			if refNs == svc.Namespace && string(ref.Name) == svc.Name {
+				result = append(result, disc)
+				break
+			}
+		}
+	}
+	return result, nil
 }
 
 func GetMinecraftServerDiscoveryByRef(c client.Client, ctx context.Context, ref *gatewayv1.ParametersReference) (mcgatewayv1.MinecraftServerDiscovery, error) {

@@ -15,5 +15,6 @@ spec:
     - name: minecraft-service-sample
       port: 25565
   filterRules:
-    - rules:
-        - domain: test.local
+    - type: any
+      rules:
+        - domain: test.localhost
