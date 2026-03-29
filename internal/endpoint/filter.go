@@ -21,6 +21,17 @@ func GetEndpointSlicesByService(c client.Client, ctx context.Context, svc corev1
 	return slice.Items, nil
 }
 
+func GetEndpointSlicesByServiceName(c client.Client, ctx context.Context, namespace, name string) ([]discoveryv1.EndpointSlice, error) {
+	var slice discoveryv1.EndpointSliceList
+	if err := c.List(ctx, &slice,
+		client.InNamespace(namespace),
+		client.MatchingLabels{"kubernetes.io/service-name": name},
+	); err != nil {
+		return nil, err
+	}
+	return slice.Items, nil
+}
+
 func GetServiceByEndpointSlice(c client.Client, ctx context.Context, slice discoveryv1.EndpointSlice) (corev1.Service, error) {
 	var svc corev1.Service
 	svcName, ok := slice.Labels[discoveryv1.LabelServiceName]

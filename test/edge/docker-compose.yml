@@ -1,0 +1,29 @@
+services:
+  mc1:
+    image: itzg/minecraft-server:latest
+    environment:
+      EULA: "TRUE"
+      ONLINE_MODE: "TRUE"
+      MOTD: "§aMinefleet §7- §bServer 1"
+      TYPE: PAPER
+      VERSION: 1.21.11
+
+  mc2:
+    image: itzg/minecraft-server:latest
+    environment:
+      EULA: "TRUE"
+      ONLINE_MODE: "TRUE"
+      MOTD: "§dMinefleet §7- §eServer 2"
+      TYPE: PAPER
+      VERSION: 1.21.11
+
+  gateway:
+    image: minefleet.dev/minecraft-edge:v0.0.1
+    depends_on:
+      - mc1
+      - mc2
+    ports:
+      - "25565:25565" # connect your Minecraft client here
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info"]

@@ -13,6 +13,14 @@ rules:
   - list
   - watch
 - apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - discovery.k8s.io
   resources:
   - endpointslices
@@ -49,6 +57,14 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - referencegrants
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:

@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/minefleet-edge",
+]
+
+resolver = "2"

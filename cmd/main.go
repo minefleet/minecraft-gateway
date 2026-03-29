@@ -200,10 +200,12 @@ func main() {
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
 	})
+
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
+
 	if err := (&controller.GatewayClassReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),

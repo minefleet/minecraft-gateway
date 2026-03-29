@@ -18,10 +18,10 @@ type Infrastructure struct {
 	Status      mcgatewayv1.MinecraftServerDiscoveryStatus            `json:"config,omitempty"`
 }
 
-func GetInfrastructureByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (Infrastructure, error) {
+func GetInfrastructureForGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (Infrastructure, error) {
 	log := logf.FromContext(ctx)
-	var gwConfig *mcgatewayv1.MinecraftServerDiscovery
-	if config, err := mfdiscovery.GetMinecraftServerDiscoveryByGateway(c, ctx, gw); err == nil {
+	var gwConfig *Infrastructure
+	if config, err := GetInfrastructureByGateway(c, ctx, gw); err == nil {
 		gwConfig = &config
 	} else {
 		log.Info(fmt.Sprintf("%s: no (valid) infrastructure config found", err.Error()))
@@ -30,21 +30,27 @@ func GetInfrastructureByGateway(c client.Client, ctx context.Context, gw gateway
 	if err != nil {
 		return Infrastructure{}, err
 	}
-	var classConfig *mcgatewayv1.MinecraftServerDiscovery
-	if config, err := mfdiscovery.GetMinecraftServerDiscoveryByRef(c, ctx, class.Spec.ParametersRef); err == nil {
+	var classConfig *Infrastructure
+	if config, err := GetInfrastructureByClass(c, ctx, class); err == nil {
 		classConfig = &config
 	} else {
 		log.Info(fmt.Sprintf("%s: no (valid) class infrastructure config found", err.Error()))
 	}
-	status, err := merge(classConfig, gwConfig)
+	infrastructure, err := merge(classConfig, gwConfig)
 	if err != nil {
 		return Infrastructure{}, err
 	}
-	return Infrastructure{
-		Labels:      gw.Spec.Infrastructure.Labels,
-		Annotations: gw.Spec.Infrastructure.Annotations,
-		Status:      status,
-	}, nil
+	return infrastructure, nil
+}
+
+func GetInfrastructureByGateway(c client.Client, ctx context.Context, gateway gatewayv1.Gateway) (Infrastructure, error) {
+	if config, err := mfdiscovery.GetMinecraftServerDiscoveryByGateway(c, ctx, gateway); err == nil {
+		return Infrastructure{
+			Status: config.Status,
+		}, nil
+	} else {
+		return Infrastructure{}, err
+	}
 }
 
 func GetInfrastructureByClass(c client.Client, ctx context.Context, class gatewayv1.GatewayClass) (Infrastructure, error) {
@@ -57,16 +63,16 @@ func GetInfrastructureByClass(c client.Client, ctx context.Context, class gatewa
 	}
 }
 
-func merge(first *mcgatewayv1.MinecraftServerDiscovery, second *mcgatewayv1.MinecraftServerDiscovery) (mcgatewayv1.MinecraftServerDiscoveryStatus, error) {
+func merge(first *Infrastructure, second *Infrastructure) (Infrastructure, error) {
 	if first == nil && second == nil {
-		return mcgatewayv1.MinecraftServerDiscoveryStatus{}, errors.New("no infrastructure provided")
+		return Infrastructure{}, errors.New("no infrastructure provided")
 	}
 	if second == nil {
-		return first.Status, nil
+		return *first, nil
 	}
 	if first == nil {
-		return second.Status, nil
+		return *second, nil
 	}
 	// TODO: code actual merging
-	return mcgatewayv1.MinecraftServerDiscoveryStatus{}, nil
+	return Infrastructure{}, nil
 }

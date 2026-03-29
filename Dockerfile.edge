@@ -1,0 +1,41 @@
+# Build the edge binary
+FROM --platform=$BUILDPLATFORM ghcr.io/rust-cross/cargo-zigbuild:0.21.3 AS builder
+WORKDIR /workspace
+
+# Copy manifests first to maximize caching
+COPY Cargo.lock Cargo.toml ./
+COPY crates/minefleet-edge/Cargo.toml crates/minefleet-edge/Cargo.toml
+
+# Create a tiny dummy crate layout so cargo can resolve deps without full source
+# (This avoids invalidating the fetch layer on source changes)
+RUN mkdir -p crates/minefleet-edge/src \
+ && printf "pub fn _dummy() {}\n" > crates/minefleet-edge/src/lib.rs
+
+RUN cargo fetch --locked
+
+# Now copy the real source
+RUN rm -rf crates/minefleet-edge/src
+COPY crates/minefleet-edge/ crates/minefleet-edge/
+
+# Build both targets (release)
+# Note: zigbuild uses the "GNU" targets; good default for Envoy images.
+RUN cargo zigbuild --release --locked --target aarch64-unknown-linux-gnu
+RUN cargo zigbuild --release --locked --target x86_64-unknown-linux-gnu
+
+# Stash outputs in predictable names for the final stage
+RUN cp /workspace/target/aarch64-unknown-linux-gnu/release/libminefleet_edge.so /workspace/arm64_libminefleet_edge.so \
+ && cp /workspace/target/x86_64-unknown-linux-gnu/release/libminefleet_edge.so /workspace/amd64_libminefleet_edge.so
+
+
+##### Final image #####
+FROM envoyproxy/envoy:dev-ce64b2ab5841d967886a7cbb3e99a37f9cd2c3a1 AS envoy
+ARG TARGETARCH
+
+ENV ENVOY_DYNAMIC_MODULES_SEARCH_PATH=/usr/lib
+
+# Pick the correct artifact for the requested target arch
+COPY --from=builder /workspace/${TARGETARCH}_libminefleet_edge.so \
+  /usr/lib/libminefleet_edge.so
+
+# set user to nobody for security reasons
+USER 65534

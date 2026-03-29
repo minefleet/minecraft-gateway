@@ -198,9 +198,16 @@ spec:
                         type: object
                       type: array
                     type:
+                      description: For MinecraftFilterRule.Domain only MinecraftFilterRuleAny
+                        is applicable
+                      enum:
+                      - all
+                      - any
+                      - none
                       type: string
                   required:
                   - rules
+                  - type
                   type: object
                 type: array
               parentRefs:

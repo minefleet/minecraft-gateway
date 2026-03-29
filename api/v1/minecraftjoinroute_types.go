@@ -27,11 +27,23 @@ import (
 // MinecraftJoinRouteSpec defines the desired state of MinecraftJoinRoute
 type MinecraftJoinRouteSpec struct {
 	MinecraftRoute `json:",inline"`
+	// +optional
+	FilterRules []MinecraftJoinFilterRuleSet `json:"filterRules,omitempty"`
 }
 
 // MinecraftJoinRouteStatus defines the observed state of MinecraftJoinRoute.
 type MinecraftJoinRouteStatus struct {
 	gatewayv1.RouteStatus `json:",inline"`
+}
+
+type MinecraftJoinFilterRuleSet struct {
+	MinecraftFilterRuleSet `json:",inline"`
+	// +required
+	Rules []MinecraftJoinFilterRule `json:"rules"`
+}
+
+type MinecraftJoinFilterRule struct {
+	MinecraftFilterRule `json:",inline"`
 }
 
 // +kubebuilder:object:root=true

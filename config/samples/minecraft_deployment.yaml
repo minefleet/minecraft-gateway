@@ -25,3 +25,7 @@ spec:
           env:
             - name: EULA
               value: "true"
+            - name: VERSION
+              value: "1.21.11"
+            - name: TYPE
+              value: "PAPER"

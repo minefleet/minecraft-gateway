@@ -1,5 +1,8 @@
 # Image URL to use all building/pushing image targets
-IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
+CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
+EDGE_IMG ?= minefleet.dev/minecraft-edge:v0.0.1
+
+PLATFORMS ?= linux/arm64,linux/amd64
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -102,49 +105,70 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 lint-config: golangci-lint ## Verify golangci-lint linter configuration
 	$(GOLANGCI_LINT) config verify
 
-##@ Build
+##@ Build Controller
 
-.PHONY: build
-build: manifests generate fmt vet ## Build manager binary.
+.PHONY: controller-build
+controller-build: manifests generate fmt vet ## Build manager binary.
 	go build -o bin/manager cmd/main.go
 
-.PHONY: run
-run: manifests generate fmt vet ## Run a controller from your host.
+.PHONY: controller-run
+controller-run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./cmd/main.go
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
-.PHONY: docker-build
-docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${IMG} .
+.PHONY: controller-docker-build
+controller-docker-build: ## Build docker image with the manager.
+	$(CONTAINER_TOOL) build -t ${CONTROLLER_IMG} . -f Dockerfile.controller
 
-.PHONY: docker-push
-docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
+.PHONY: controller-docker-push
+controller-docker-push: ## Push docker image with the manager.
+	$(CONTAINER_TOOL) push ${CONTROLLER_IMG}
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
-# architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
+# architectures. (i.e. make controller-docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
 # - be able to use docker buildx. More info: https://docs.docker.com/build/buildx/
 # - have enabled BuildKit. More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 # - be able to push the image to your registry (i.e. if you do not set a valid value via IMG=<myregistry/image:<tag>> then the export will fail)
 # To adequately provide solutions that are compatible with multiple platforms, you should consider using this option.
-PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
-.PHONY: docker-buildx
-docker-buildx: ## Build and push docker image for the manager for cross-platform support
-	# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
-	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+.PHONY: controller-docker-buildx
+controller-docker-buildx: ## Build and push docker image for the manager for cross-platform support
+	# copy existing Dockerfile.controller and insert --platform=${BUILDPLATFORM} into Dockerfile.controller.cross, and preserve the original Dockerfile.controller
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile.controller > Dockerfile.controller.cross
 	- $(CONTAINER_TOOL) buildx create --name minecraft-gateway-builder
 	$(CONTAINER_TOOL) buildx use minecraft-gateway-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} -f Dockerfile.controller.cross .
 	- $(CONTAINER_TOOL) buildx rm minecraft-gateway-builder
-	rm Dockerfile.cross
+	rm Dockerfile.controller.cross
 
-.PHONY: build-installer
-build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
-	mkdir -p dist
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default > dist/install.yaml
+##@ Build Edge Envoy
+.PHONY: edge-build
+edge-build: ## Build edge proxy hostname dynamic module
+	cargo build
+
+.PHONY: edge-docker-build
+edge-docker-build: ## Build docker image with the edge proxy.
+	$(CONTAINER_TOOL) build -t ${EDGE_IMG} . -f Dockerfile.edge
+
+.PHONY: edge-docker-push
+edge-docker-push: ## Push docker image with the edge proxy.
+	$(CONTAINER_TOOL) push ${EDGE_IMG}
+
+.PHONY: edge-docker-buildx
+edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-platform support
+	## Build and push docker image for the manager for cross-platform support
+	# copy existing Dockerfile.controller and insert --platform=${BUILDPLATFORM} into Dockerfile.controller.cross, and preserve the original Dockerfile.controller
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile.edge > Dockerfile.edge.cross
+	- $(CONTAINER_TOOL) buildx create --name minecraft-edge-builder
+	$(CONTAINER_TOOL) buildx use minecraft-edge-builder
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} -f Dockerfile.edge.cross .
+	- $(CONTAINER_TOOL) buildx rm minecraft-edge-builder
+	rm Dockerfile.edge.cross
+
+##@ Build
+.PHONY: docker-build
+docker-build: controller-docker-build edge-docker-build
 
 ##@ Deployment
 
@@ -160,14 +184,28 @@ install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~
 uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/crd | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
+.PHONY: image-load
+image-load: manifests
+	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
+	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
+
+
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${CONTROLLER_IMG}
+	cd config/edge && $(KUSTOMIZE) edit set image edge=${EDGE_IMG}
 	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
 
 .PHONY: undeploy
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
+
+.PHONY: build-installer
+build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
+	mkdir -p dist
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${CONTROLLER_IMG}
+	cd config/edge && $(KUSTOMIZE) edit set image edge=${EDGE_IMG}
+	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 ##@ Dependencies
 
@@ -191,7 +229,7 @@ CONTROLLER_TOOLS_VERSION ?= v0.18.0
 ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller-runtime | awk -F'[v.]' '{printf "release-%d.%d", $$2, $$3}')
 #ENVTEST_K8S_VERSION is the version of Kubernetes to use for setting up ENVTEST binaries (i.e. 1.31)
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
-GOLANGCI_LINT_VERSION ?= v2.1.6
+GOLANGCI_LINT_VERSION ?= v2.8.0
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.

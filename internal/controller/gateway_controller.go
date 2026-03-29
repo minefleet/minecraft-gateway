@@ -20,11 +20,13 @@ import (
 	"context"
 	"fmt"
 
-	"minefleet.dev/minecraft-gateway/internal/endpoint"
-
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	"minefleet.dev/minecraft-gateway/internal/dataplane"
+	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
+	"minefleet.dev/minecraft-gateway/internal/endpoint"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -40,10 +42,12 @@ import (
 // GatewayReconciler reconciles a Gateway object
 type GatewayReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	Dataplane *dataplane.Dataplane
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways;gatewayclasses,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=referencegrants,verbs=get;list;watch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/status;gatewayclasses/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/finalizers;gatewayclasses/finalizers,verbs=update
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes;minecraftjoinroutes;minecraftserverdiscoveries,verbs=get;list;watch;create;update;patch;delete
@@ -77,36 +81,38 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	infrastructure, err := gateway.GetInfrastructureByGateway(r.Client, ctx, gw)
+	infrastructure, err := gateway.GetInfrastructureForGateway(r.Client, ctx, gw)
 	if err != nil {
 		return ctrl.Result{}, nil
 	}
-	_ = infrastructure
-	// TODO: actually reconcile the gateway as it is "locked and loaded"
-	// [] Make sure there are daemon sets, proxy services for each listener (and gate lite instances)
-	//    Generally speaking: One daemon set and gate lite service for each port generally common across all gateways,
-	//    Then proxy services for each listener
-	// [X] List routes for each consecutive listener
-	// [] Regenerate config map per listener (proxy level)
-	// [] Regenerate config map for listeners (gate lite level)
-	// TODO: copy infrastructure stuff from the gwclass via mutating admission webhook (maybe)
 
 	var bag route.Bag
 	if err := route.ListAllRoutesByGateway(r.Client, ctx, gw, &bag); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+	backends := make([]discoveryv1.EndpointSlice, 0)
+	for _, ref := range infrastructure.Status.BackendRefs {
+		backend, err := endpoint.GetEndpointSlicesByServiceName(r.Client, ctx, string(ptr.Deref(ref.Namespace, "")), string(ref.Name))
+		if err != nil {
+			log.Error(err, "could not resolve endpoint slices for service")
+			if client.IgnoreNotFound(err) != nil {
+				return ctrl.Result{}, err
+			}
+			continue
+		}
+		backends = append(backends, backend...)
+
+	}
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
-	for listener, routes := range network {
-		// TODO: create proxy
-		// TODO: edit the gate daemonset to provide listener
-		for i, joinRoute := range routes.Join {
-			_ = i
-			_ = listener
-			_ = joinRoute
+	if r.Dataplane != nil {
+		conflicted, err := (*r.Dataplane).SyncGateway(req.NamespacedName, network, backends)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		if conflicted != nil {
+			log.Info("the following gateways conflicted when synchronizing", "conflicted", conflicted)
 		}
 	}
-
-	// TODO: regenerate config map
 
 	return ctrl.Result{}, nil
 }
@@ -166,17 +172,75 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 	if err != nil {
 		return nil
 	}
-	// TODO: requeue if the slices service is being targeted by infrastructure config
 
-	// requeue if the slices service is being targeted by either Join or Fallback routes
-	var bag route.Bag
-	if err := route.ListAllRoutesByService(r.Client, ctx, svc, &bag); err != nil {
-		return nil
+	seen := make(map[types.NamespacedName]struct{})
+	result := make([]reconcile.Request, 0)
+
+	enqueue := func(name types.NamespacedName) {
+		if _, ok := seen[name]; !ok {
+			seen[name] = struct{}{}
+			result = append(result, reconcile.Request{NamespacedName: name})
+		}
 	}
 
-	// TODO: actually requeue
+	// Requeue gateways whose infrastructure (MinecraftServerDiscovery) includes this service.
+	discoveries, err := mfdiscovery.GetMinecraftServerDiscoveriesByService(r.Client, ctx, svc)
+	if err == nil {
+		for _, disc := range discoveries {
+			var gws gatewayv1.GatewayList
+			if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, disc); err != nil {
+				continue
+			}
+			for _, gw := range gws.Items {
+				enqueue(types.NamespacedName{Namespace: gw.Namespace, Name: gw.Name})
+			}
+		}
+	}
 
-	return nil
+	// Requeue gateways targeted by routes that reference this service.
+	var bag route.Bag
+	if err := route.ListAllRoutesByService(r.Client, ctx, svc, &bag); err != nil {
+		return result
+	}
+	for _, r := range bag.Join {
+		for _, nn := range route.NamespacedNamesByRefs(r.Namespace, r.Spec.ParentRefs) {
+			if nn.Section == "" {
+				enqueue(types.NamespacedName{Namespace: nn.Namespace, Name: nn.Name})
+			}
+		}
+	}
+	for _, r := range bag.Fallback {
+		for _, nn := range route.NamespacedNamesByRefs(r.Namespace, r.Spec.ParentRefs) {
+			if nn.Section == "" {
+				enqueue(types.NamespacedName{Namespace: nn.Namespace, Name: nn.Name})
+			}
+		}
+	}
+
+	return result
+}
+
+func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Object) []reconcile.Request {
+	log := logf.FromContext(ctx)
+	infrastructure := obj.(*mcgatewayv1.MinecraftServerDiscovery)
+	var gws gatewayv1.GatewayList
+	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, *infrastructure); err != nil {
+		if client.IgnoreNotFound(err) != nil {
+			log.Error(err, "failed to list gateways by infrastructure")
+		}
+		return nil
+	}
+	result := make([]reconcile.Request, 0, len(gws.Items))
+	for _, item := range gws.Items {
+		result = append(result, reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Namespace: item.Namespace,
+				Name:      item.Name,
+			},
+		})
+	}
+
+	return result
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -191,11 +255,23 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
+	if r.Dataplane == nil {
+		r.Dataplane = new(dataplane.Dataplane)
+	}
+	err := mgr.Add(dataplane.Executor{
+		Client:    mgr.GetClient(),
+		Dataplane: r.Dataplane,
+	})
+	if err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&gatewayv1.Gateway{}).
 		Named("gateway").
 		Watches(&gatewayv1.GatewayClass{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayClass)).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
+		Watches(&mcgatewayv1.MinecraftServerDiscovery{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
 		Watches(&mcgatewayv1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Complete(r)

@@ -27,11 +27,25 @@ import (
 // MinecraftFallbackRouteSpec defines the desired state of MinecraftFallbackRoute
 type MinecraftFallbackRouteSpec struct {
 	MinecraftRoute `json:",inline"`
+	// +optional
+	FilterRules []MinecraftFallbackFilterRuleSet `json:"filterRules,omitempty"`
 }
 
 // MinecraftFallbackRouteStatus defines the observed state of MinecraftFallbackRoute.
 type MinecraftFallbackRouteStatus struct {
 	gatewayv1.RouteStatus `json:",inline"`
+}
+
+type MinecraftFallbackFilterRuleSet struct {
+	MinecraftFilterRuleSet `json:",inline"`
+	// +required
+	Rules []MinecraftFallbackFilterRule `json:"rules"`
+}
+
+type MinecraftFallbackFilterRule struct {
+	MinecraftFilterRule `json:",inline"`
+	// +optional
+	FallbackFor metav1.LabelSelector `json:"fallbackFor,omitempty"`
 }
 
 // +kubebuilder:object:root=true

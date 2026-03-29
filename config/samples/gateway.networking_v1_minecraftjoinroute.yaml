@@ -14,3 +14,8 @@ spec:
   backendRefs:
     - name: minecraft-service-sample
       port: 25565
+  filterRules:
+    - type: any
+      rules:
+        - domain: "localhost"
+        - domain: "test.localhost"
