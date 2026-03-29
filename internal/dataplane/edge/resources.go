@@ -132,7 +132,7 @@ func buildClusterResources(snap Snapshot) []*clusterv3.Cluster {
 			Name:           c.Name,
 			ConnectTimeout: durationpb.New(time.Second),
 			ClusterDiscoveryType: &clusterv3.Cluster_Type{
-				Type: clusterv3.Cluster_LOGICAL_DNS,
+				Type: clusterv3.Cluster_STRICT_DNS,
 			},
 			LoadAssignment: &endpointv3.ClusterLoadAssignment{
 				ClusterName: c.Name,

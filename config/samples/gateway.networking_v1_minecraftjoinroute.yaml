@@ -17,4 +17,5 @@ spec:
   filterRules:
     - type: any
       rules:
-        - domain: test.localhost
+        - domain: "localhost"
+        - domain: "test.localhost"

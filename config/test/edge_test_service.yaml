@@ -5,10 +5,10 @@ metadata:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
     minefleet.dev/environment: sample
-  name: minecraft-service-sample
+  name: minecraft-minefleet-gateway-sample
 spec:
   selector:
-    app: minecraft-minefleet-gateway-sample
+    app: minecraft-sample
   ports:
     - name: minecraft
       port: 25565

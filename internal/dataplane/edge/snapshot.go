@@ -56,7 +56,7 @@ func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listen
 			Name: toClusterName(name, listener.Name),
 			Endpoints: []EndpointConfig{
 				{
-					Address: fmt.Sprintf("%s-%s.%s.cluster.svc.local", listener.Name, name.Name, name.Namespace),
+					Address: fmt.Sprintf("%s-%s.%s.svc.cluster.local", listener.Name, name.Name, name.Namespace),
 					Port:    uint32(listener.Port),
 				},
 			},

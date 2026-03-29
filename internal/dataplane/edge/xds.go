@@ -72,6 +72,6 @@ func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap Snapshot) error {
 	if err != nil {
 		return fmt.Errorf("new xds snapshot: %w", err)
 	}
-	log.Info("updated snapshot", "clusters", len(snapshot.GetResources(resourcev3.ClusterType)), "mapping", snap.DomainMapping)
+	log.Info("updated edge xDS snapshot", "clusters", len(snapshot.GetResources(resourcev3.ClusterType)), "mapping", snap.DomainMapping)
 	return x.cache.SetSnapshot(ctx, NodeID, snapshot)
 }
