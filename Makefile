@@ -170,6 +170,10 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 .PHONY: docker-build
 docker-build: controller-docker-build edge-docker-build
 
+##@ Push
+.PHONY: docker-push
+docker-push: controller-docker-push edge-docker-push
+
 ##@ Deployment
 
 ifndef ignore-not-found

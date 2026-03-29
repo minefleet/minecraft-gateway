@@ -1,25 +1,28 @@
 # minecraft-gateway
-// TODO(user): Add simple overview of use/purpose
+A Kubernetes-native gateway controller that creates minecraft networks and routes Minecraft Java Edition connections to networks based on the hostname in the handshake packet.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+minecraft-gateway implements the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/) for Minecraft TCP traffic. It consists of three components: 
+- a Go controller that reconciles custom (`MinecraftJoinRoute`, `MinecraftFallbackRoute`, `MinecraftServerDiscovery`) and Gateway API CRDs and synchronizes routing state
+- an Envoy Edge Dataplane that parses Minecraft Java Edition handshake packets and selects the correct upstream cluster via Envoy filter chain metadata. This allows a single entry point per kubernetes node to transparently proxy players to different minecraft networks based on the hostname they connected with.
+- a per Gateway Velocity Dataplane that constructs a minecraft network based on the routing state.
 
 ## Getting Started
 
 ### Prerequisites
-- go version v1.24.0+
+- go version v1.25.0+
 - docker version 17.03+.
 - kubectl version v1.11.3+.
 - Access to a Kubernetes v1.11.3+ cluster.
 
 ### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+**Build and push your controller and edge to the location specified by `CONTROLLER_IMG` and `EDGE_IMG`:**
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/minecraft-gateway:tag
+CONTROLLER_IMG=<some-registry>/minecraft-gateway:tag EDGE_IMG=<some-registry>/minecraft-edge:tag make docker-build docker-push
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
+**NOTE:** The images ought to be published in the personal registry you specified.
 And it is required to have access to pull the image from the working environment.
 Make sure you have the proper permission to the registry if the above commands don’t work.
 
@@ -32,7 +35,7 @@ make install
 **Deploy the Manager to the cluster with the image specified by `IMG`:**
 
 ```sh
-make deploy IMG=<some-registry>/minecraft-gateway:tag
+CONTROLLER_IMG=<some-registry>/minecraft-gateway:tag EDGE_IMG=<some-registry>/minecraft-edge:tag make deploy
 ```
 
 > **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
@@ -89,7 +92,7 @@ Users can just run 'kubectl apply -f <URL for YAML BUNDLE>' to install
 the project, i.e.:
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/minecraft-gateway/<tag or branch>/dist/install.yaml
+kubectl apply -f https://raw.githubusercontent.com/minefleet/minecraft-gateway/<tag or branch>/dist/install.yaml
 ```
 
 ### By providing a Helm Chart
@@ -111,7 +114,7 @@ previously added to 'dist/chart/values.yaml' or 'dist/chart/manager/manager.yaml
 is manually re-applied afterwards.
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+Open an issue or pull request on GitHub. Please run `make fmt`, `make vet`, and `make lint` before submitting. After editing types in `api/v1/`, regenerate code with `make manifests generate`.
 
 **NOTE:** Run `make help` for more information on all potential `make` targets
 
