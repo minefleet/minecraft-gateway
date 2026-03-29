@@ -13,41 +13,40 @@ import (
 )
 
 type Dataplane interface {
-	SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) ([]types.NamespacedName, error)
-	DeleteGateway(name types.NamespacedName) ([]types.NamespacedName, error)
+	SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error
+	DeleteGateway(name types.NamespacedName) error
 }
 
 type dataplanes struct {
 	items []Dataplane
 }
 
-func (d dataplanes) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) ([]types.NamespacedName, error) {
+func (d dataplanes) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
 	for _, dataplane := range d.items {
-		if conflicting, err := dataplane.SyncGateway(name, routes, backends); conflicting != nil || err != nil {
-			return conflicting, err
+		if err := dataplane.SyncGateway(name, routes, backends); err != nil {
+			return err
 		}
 	}
-	return nil, nil
+	return nil
 }
 
-func (d dataplanes) DeleteGateway(name types.NamespacedName) ([]types.NamespacedName, error) {
+func (d dataplanes) DeleteGateway(name types.NamespacedName) error {
 	for _, dataplane := range d.items {
-		if conflicting, err := dataplane.DeleteGateway(name); conflicting != nil || err != nil {
-			return conflicting, err
+		if err := dataplane.DeleteGateway(name); err != nil {
+			return err
 		}
 	}
-
-	return nil, nil
+	return nil
 }
 
 // CreateDataplane creates the composite dataplane.
 // cfg configures the edge proxy: the DaemonSet namespace, container image,
 // local xDS gRPC port, and the hostname DaemonSet pods use to reach the xDS server.
-func CreateDataplane(ctx context.Context, c client.Client, cfg edge.ProxyConfig) Dataplane {
+func CreateDataplane(ctx context.Context, c client.Client, cfg Config) Dataplane {
 	return dataplanes{
 		items: []Dataplane{
-			newEdgeDataplane(ctx, c, cfg),
-			newNetworkDataplane(ctx, c),
+			newEdgeDataplane(ctx, c, cfg.Edge),
+			newNetworkDataplane(ctx, c, cfg.Network),
 		},
 	}
 }
@@ -58,14 +57,14 @@ type Executor struct {
 }
 
 func (e Executor) Start(ctx context.Context) error {
-	namespace, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	controllerNamespace, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 	if err != nil {
 		return err
 	}
-	plane := CreateDataplane(ctx, e.Client, edge.ProxyConfig{
-		Namespace: string(namespace),
+	plane := CreateDataplane(ctx, e.Client, Config{Edge: edge.Config{
+		Namespace: string(controllerNamespace),
 		XDSPort:   18000,
-	})
+	}})
 	*e.Dataplane = plane
 	return nil
 }

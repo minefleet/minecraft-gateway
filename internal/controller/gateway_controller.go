@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -58,10 +59,6 @@ type GatewayReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the Gateway object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
@@ -105,12 +102,13 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
 	if r.Dataplane != nil {
-		conflicted, err := (*r.Dataplane).SyncGateway(req.NamespacedName, network, backends)
+		err := (*r.Dataplane).SyncGateway(req.NamespacedName, network, backends)
 		if err != nil {
-			return ctrl.Result{}, err
-		}
-		if conflicted != nil {
-			log.Info("the following gateways conflicted when synchronizing", "conflicted", conflicted)
+			var conflictError dataplane.RouteConflictError
+			if !errors.As(err, &conflictError) {
+				return ctrl.Result{}, err
+			}
+			log.Info("the following join routes conflicted when synchronizing", "conflicting", conflictError.Conflicting)
 		}
 	}
 

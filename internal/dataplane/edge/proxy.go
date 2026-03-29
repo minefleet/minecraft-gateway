@@ -19,10 +19,10 @@ const (
 
 type proxyManager struct {
 	client client.Client
-	cfg    ProxyConfig
+	cfg    Config
 }
 
-func newProxyManager(c client.Client, cfg ProxyConfig) *proxyManager {
+func newProxyManager(c client.Client, cfg Config) *proxyManager {
 	return &proxyManager{client: c, cfg: cfg}
 }
 
