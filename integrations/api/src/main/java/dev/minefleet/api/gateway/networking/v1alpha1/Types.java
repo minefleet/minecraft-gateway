@@ -2974,8 +2974,8 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
   }
 
-  public interface MinefleetServiceOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:network.v1alpha1.MinefleetService)
+  public interface ManagedServiceOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.ManagedService)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -3074,12 +3074,12 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         int index);
   }
   /**
-   * Protobuf type {@code network.v1alpha1.MinefleetService}
+   * Protobuf type {@code network.v1alpha1.ManagedService}
    */
-  public static final class MinefleetService extends
+  public static final class ManagedService extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:network.v1alpha1.MinefleetService)
-      MinefleetServiceOrBuilder {
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.ManagedService)
+      ManagedServiceOrBuilder {
   private static final long serialVersionUID = 0L;
     static {
       com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -3088,13 +3088,13 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         /* minor= */ 34,
         /* patch= */ 1,
         /* suffix= */ "",
-        "MinefleetService");
+        "ManagedService");
     }
-    // Use MinefleetService.newBuilder() to construct.
-    private MinefleetService(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    // Use ManagedService.newBuilder() to construct.
+    private ManagedService(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
     }
-    private MinefleetService() {
+    private ManagedService() {
       namespacedName_ = "";
       namespace_ = "";
       name_ = "";
@@ -3105,20 +3105,20 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_MinefleetService_descriptor;
+      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_ManagedService_descriptor;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_MinefleetService_descriptor;
+      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_ManagedService_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_MinefleetService_fieldAccessorTable
+      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_ManagedService_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.class, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder.class);
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.class, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder.class);
     }
 
     public static final int NAMESPACED_NAME_FIELD_NUMBER = 1;
@@ -3420,10 +3420,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService)) {
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService)) {
         return super.equals(obj);
       }
-      dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService other = (dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService) obj;
+      dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService other = (dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService) obj;
 
       if (!getNamespacedName()
           .equals(other.getNamespacedName())) return false;
@@ -3468,44 +3468,44 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return hash;
     }
 
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(byte[] data)
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(java.io.InputStream input)
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseWithIOException(PARSER, input);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3513,26 +3513,26 @@ public final class Types extends com.google.protobuf.GeneratedFile {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseDelimitedFrom(java.io.InputStream input)
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseDelimitedFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseWithIOException(PARSER, input);
     }
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService parseFrom(
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3545,7 +3545,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService prototype) {
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -3561,26 +3561,26 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return builder;
     }
     /**
-     * Protobuf type {@code network.v1alpha1.MinefleetService}
+     * Protobuf type {@code network.v1alpha1.ManagedService}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:network.v1alpha1.MinefleetService)
-        dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder {
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.ManagedService)
+        dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_MinefleetService_descriptor;
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_ManagedService_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_MinefleetService_fieldAccessorTable
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_ManagedService_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.class, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder.class);
+                dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.class, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder.class);
       }
 
-      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.newBuilder()
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.newBuilder()
       private Builder() {
 
       }
@@ -3618,17 +3618,17 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_MinefleetService_descriptor;
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_ManagedService_descriptor;
       }
 
       @java.lang.Override
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService getDefaultInstanceForType() {
-        return dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.getDefaultInstance();
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.getDefaultInstance();
       }
 
       @java.lang.Override
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService build() {
-        dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService result = buildPartial();
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -3636,15 +3636,15 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       }
 
       @java.lang.Override
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService buildPartial() {
-        dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService result = new dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService(this);
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService result = new dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService(this);
         buildPartialRepeatedFields(result);
         if (bitField0_ != 0) { buildPartial0(result); }
         onBuilt();
         return result;
       }
 
-      private void buildPartialRepeatedFields(dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService result) {
+      private void buildPartialRepeatedFields(dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService result) {
         if (serversBuilder_ == null) {
           if (((bitField0_ & 0x00000010) != 0)) {
             servers_ = java.util.Collections.unmodifiableList(servers_);
@@ -3665,7 +3665,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         }
       }
 
-      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService result) {
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
           result.namespacedName_ = namespacedName_;
@@ -3683,16 +3683,16 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService) {
-          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService)other);
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService other) {
-        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.getDefaultInstance()) return this;
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.getDefaultInstance()) return this;
         if (!other.getNamespacedName().isEmpty()) {
           namespacedName_ = other.namespacedName_;
           bitField0_ |= 0x00000001;
@@ -4600,23 +4600,23 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return ruleSetsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:network.v1alpha1.MinefleetService)
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.ManagedService)
     }
 
-    // @@protoc_insertion_point(class_scope:network.v1alpha1.MinefleetService)
-    private static final dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.ManagedService)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService();
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService();
     }
 
-    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService getDefaultInstance() {
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<MinefleetService>
-        PARSER = new com.google.protobuf.AbstractParser<MinefleetService>() {
+    private static final com.google.protobuf.Parser<ManagedService>
+        PARSER = new com.google.protobuf.AbstractParser<ManagedService>() {
       @java.lang.Override
-      public MinefleetService parsePartialFrom(
+      public ManagedService parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4635,17 +4635,17 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       }
     };
 
-    public static com.google.protobuf.Parser<MinefleetService> parser() {
+    public static com.google.protobuf.Parser<ManagedService> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<MinefleetService> getParserForType() {
+    public com.google.protobuf.Parser<ManagedService> getParserForType() {
       return PARSER;
     }
 
     @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService getDefaultInstanceForType() {
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -5655,27 +5655,27 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         getCurrentGenerationBytes();
 
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
-    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService> 
+    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService> 
         getServicesList();
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
-    dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService getServices(int index);
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService getServices(int index);
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
     int getServicesCount();
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
-    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder> 
+    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder> 
         getServicesOrBuilderList();
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
-    dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder getServicesOrBuilder(
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder getServicesOrBuilder(
         int index);
   }
   /**
@@ -5843,41 +5843,41 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
     public static final int SERVICES_FIELD_NUMBER = 4;
     @SuppressWarnings("serial")
-    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService> services_;
+    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService> services_;
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
     @java.lang.Override
-    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService> getServicesList() {
+    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService> getServicesList() {
       return services_;
     }
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
     @java.lang.Override
-    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder> 
+    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder> 
         getServicesOrBuilderList() {
       return services_;
     }
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
     @java.lang.Override
     public int getServicesCount() {
       return services_.size();
     }
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
     @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService getServices(int index) {
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService getServices(int index) {
       return services_.get(index);
     }
     /**
-     * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+     * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
      */
     @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder getServicesOrBuilder(
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder getServicesOrBuilder(
         int index) {
       return services_.get(index);
     }
@@ -6272,9 +6272,9 @@ public final class Types extends com.google.protobuf.GeneratedFile {
                 break;
               } // case 26
               case 34: {
-                dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService m =
+                dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService m =
                     input.readMessage(
-                        dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.parser(),
+                        dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.parser(),
                         extensionRegistry);
                 if (servicesBuilder_ == null) {
                   ensureServicesIsMutable();
@@ -6517,22 +6517,22 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
 
-      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService> services_ =
+      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService> services_ =
         java.util.Collections.emptyList();
       private void ensureServicesIsMutable() {
         if (!((bitField0_ & 0x00000008) != 0)) {
-          services_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService>(services_);
+          services_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService>(services_);
           bitField0_ |= 0x00000008;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder> servicesBuilder_;
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder> servicesBuilder_;
 
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService> getServicesList() {
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService> getServicesList() {
         if (servicesBuilder_ == null) {
           return java.util.Collections.unmodifiableList(services_);
         } else {
@@ -6540,7 +6540,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public int getServicesCount() {
         if (servicesBuilder_ == null) {
@@ -6550,9 +6550,9 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService getServices(int index) {
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService getServices(int index) {
         if (servicesBuilder_ == null) {
           return services_.get(index);
         } else {
@@ -6560,10 +6560,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder setServices(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService value) {
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService value) {
         if (servicesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6577,10 +6577,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder setServices(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder builderForValue) {
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder builderForValue) {
         if (servicesBuilder_ == null) {
           ensureServicesIsMutable();
           services_.set(index, builderForValue.build());
@@ -6591,9 +6591,9 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public Builder addServices(dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService value) {
+      public Builder addServices(dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService value) {
         if (servicesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6607,10 +6607,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder addServices(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService value) {
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService value) {
         if (servicesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6624,10 +6624,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder addServices(
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder builderForValue) {
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder builderForValue) {
         if (servicesBuilder_ == null) {
           ensureServicesIsMutable();
           services_.add(builderForValue.build());
@@ -6638,10 +6638,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder addServices(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder builderForValue) {
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder builderForValue) {
         if (servicesBuilder_ == null) {
           ensureServicesIsMutable();
           services_.add(index, builderForValue.build());
@@ -6652,10 +6652,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder addAllServices(
-          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService> values) {
+          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService> values) {
         if (servicesBuilder_ == null) {
           ensureServicesIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -6667,7 +6667,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder clearServices() {
         if (servicesBuilder_ == null) {
@@ -6680,7 +6680,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
       public Builder removeServices(int index) {
         if (servicesBuilder_ == null) {
@@ -6693,16 +6693,16 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder getServicesBuilder(
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder getServicesBuilder(
           int index) {
         return internalGetServicesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder getServicesOrBuilder(
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder getServicesOrBuilder(
           int index) {
         if (servicesBuilder_ == null) {
           return services_.get(index);  } else {
@@ -6710,9 +6710,9 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder> 
+      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder> 
            getServicesOrBuilderList() {
         if (servicesBuilder_ != null) {
           return servicesBuilder_.getMessageOrBuilderList();
@@ -6721,33 +6721,33 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder addServicesBuilder() {
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder addServicesBuilder() {
         return internalGetServicesFieldBuilder().addBuilder(
-            dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.getDefaultInstance());
+            dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.getDefaultInstance());
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder addServicesBuilder(
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder addServicesBuilder(
           int index) {
         return internalGetServicesFieldBuilder().addBuilder(
-            index, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.getDefaultInstance());
+            index, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.getDefaultInstance());
       }
       /**
-       * <code>repeated .network.v1alpha1.MinefleetService services = 4 [json_name = "services"];</code>
+       * <code>repeated .network.v1alpha1.ManagedService services = 4 [json_name = "services"];</code>
        */
-      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder> 
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder> 
            getServicesBuilderList() {
         return internalGetServicesFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder> 
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder> 
           internalGetServicesFieldBuilder() {
         if (servicesBuilder_ == null) {
           servicesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetService.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.MinefleetServiceOrBuilder>(
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedService.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.ManagedServiceOrBuilder>(
                   services_,
                   ((bitField0_ & 0x00000008) != 0),
                   getParentForChildren(),
@@ -6829,10 +6829,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_network_v1alpha1_OptionRuleSet_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_network_v1alpha1_MinefleetService_descriptor;
+    internal_static_network_v1alpha1_ManagedService_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_network_v1alpha1_MinefleetService_fieldAccessorTable;
+      internal_static_network_v1alpha1_ManagedService_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_network_v1alpha1_ManagedServer_descriptor;
   private static final 
@@ -6865,31 +6865,31 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       "nRuleH\000R\010joinRule\210\001\001\022H\n\rfallback_rule\030\004 " +
       "\001(\0132\036.network.v1alpha1.FallbackRuleH\001R\014f" +
       "allbackRule\210\001\001B\014\n\n_join_ruleB\020\n\016_fallbac" +
-      "k_rule\"\303\002\n\020MinefleetService\022\'\n\017namespace" +
-      "d_name\030\001 \001(\tR\016namespacedName\022\034\n\tnamespac" +
-      "e\030\002 \001(\tR\tnamespace\022\022\n\004name\030\003 \001(\tR\004name\022[" +
-      "\n\025distribution_strategy\030\004 \001(\0162&.network." +
-      "v1alpha1.DistributionStrategyR\024distribut" +
-      "ionStrategy\0229\n\007servers\030\005 \003(\0132\037.network.v" +
-      "1alpha1.ManagedServerR\007servers\022<\n\trule_s" +
-      "ets\030\006 \003(\0132\037.network.v1alpha1.OptionRuleS" +
-      "etR\010ruleSets\"\361\001\n\rManagedServer\022\033\n\tunique" +
-      "_id\030\001 \001(\tR\010uniqueId\022\022\n\004name\030\002 \001(\tR\004name\022" +
-      "&\n\014numerical_id\030\003 \001(\rH\000R\013numericalId\210\001\001\022" +
-      "$\n\013max_players\030\004 \001(\rH\001R\nmaxPlayers\210\001\001\022,\n" +
-      "\017current_players\030\005 \001(\rH\002R\016currentPlayers" +
-      "\210\001\001B\017\n\r_numerical_idB\016\n\014_max_playersB\022\n\020" +
-      "_current_players\"\301\001\n\010Snapshot\022!\n\014gateway" +
-      "_name\030\001 \001(\tR\013gatewayName\022#\n\rlistener_nam" +
-      "e\030\002 \001(\tR\014listenerName\022-\n\022current_generat" +
-      "ion\030\003 \001(\tR\021currentGeneration\022>\n\010services" +
-      "\030\004 \003(\0132\".network.v1alpha1.MinefleetServi" +
-      "ceR\010services*&\n\010RuleType\022\010\n\004NONE\020\000\022\007\n\003AN" +
-      "Y\020\001\022\007\n\003ALL\020\002*5\n\024DistributionStrategy\022\n\n\006" +
-      "RANDOM\020\000\022\021\n\rLEAST_PLAYERS\020\001Bl\n-dev.minef" +
-      "leet.api.gateway.networking.v1alpha1Z;gi" +
-      "thub.com/minefleet/minecraft-gateway/api" +
-      "/network/v1alpha1b\006proto3"
+      "k_rule\"\301\002\n\016ManagedService\022\'\n\017namespaced_" +
+      "name\030\001 \001(\tR\016namespacedName\022\034\n\tnamespace\030" +
+      "\002 \001(\tR\tnamespace\022\022\n\004name\030\003 \001(\tR\004name\022[\n\025" +
+      "distribution_strategy\030\004 \001(\0162&.network.v1" +
+      "alpha1.DistributionStrategyR\024distributio" +
+      "nStrategy\0229\n\007servers\030\005 \003(\0132\037.network.v1a" +
+      "lpha1.ManagedServerR\007servers\022<\n\trule_set" +
+      "s\030\006 \003(\0132\037.network.v1alpha1.OptionRuleSet" +
+      "R\010ruleSets\"\361\001\n\rManagedServer\022\033\n\tunique_i" +
+      "d\030\001 \001(\tR\010uniqueId\022\022\n\004name\030\002 \001(\tR\004name\022&\n" +
+      "\014numerical_id\030\003 \001(\rH\000R\013numericalId\210\001\001\022$\n" +
+      "\013max_players\030\004 \001(\rH\001R\nmaxPlayers\210\001\001\022,\n\017c" +
+      "urrent_players\030\005 \001(\rH\002R\016currentPlayers\210\001" +
+      "\001B\017\n\r_numerical_idB\016\n\014_max_playersB\022\n\020_c" +
+      "urrent_players\"\277\001\n\010Snapshot\022!\n\014gateway_n" +
+      "ame\030\001 \001(\tR\013gatewayName\022#\n\rlistener_name\030" +
+      "\002 \001(\tR\014listenerName\022-\n\022current_generatio" +
+      "n\030\003 \001(\tR\021currentGeneration\022<\n\010services\030\004" +
+      " \003(\0132 .network.v1alpha1.ManagedServiceR\010" +
+      "services*&\n\010RuleType\022\010\n\004NONE\020\000\022\007\n\003ANY\020\001\022" +
+      "\007\n\003ALL\020\002*5\n\024DistributionStrategy\022\n\n\006RAND" +
+      "OM\020\000\022\021\n\rLEAST_PLAYERS\020\001Bl\n-dev.minefleet" +
+      ".api.gateway.networking.v1alpha1Z;github" +
+      ".com/minefleet/minecraft-gateway/api/net" +
+      "work/v1alpha1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -6919,11 +6919,11 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_OptionRuleSet_descriptor,
         new java.lang.String[] { "Type", "GenericRule", "JoinRule", "FallbackRule", });
-    internal_static_network_v1alpha1_MinefleetService_descriptor =
+    internal_static_network_v1alpha1_ManagedService_descriptor =
       getDescriptor().getMessageType(4);
-    internal_static_network_v1alpha1_MinefleetService_fieldAccessorTable = new
+    internal_static_network_v1alpha1_ManagedService_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_network_v1alpha1_MinefleetService_descriptor,
+        internal_static_network_v1alpha1_ManagedService_descriptor,
         new java.lang.String[] { "NamespacedName", "Namespace", "Name", "DistributionStrategy", "Servers", "RuleSets", });
     internal_static_network_v1alpha1_ManagedServer_descriptor =
       getDescriptor().getMessageType(5);

@@ -317,7 +317,7 @@ func (x *OptionRuleSet) GetFallbackRule() *FallbackRule {
 	return nil
 }
 
-type MinefleetService struct {
+type ManagedService struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	NamespacedName       string                 `protobuf:"bytes,1,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
 	Namespace            string                 `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
@@ -329,20 +329,20 @@ type MinefleetService struct {
 	sizeCache            protoimpl.SizeCache
 }
 
-func (x *MinefleetService) Reset() {
-	*x = MinefleetService{}
+func (x *ManagedService) Reset() {
+	*x = ManagedService{}
 	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MinefleetService) String() string {
+func (x *ManagedService) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MinefleetService) ProtoMessage() {}
+func (*ManagedService) ProtoMessage() {}
 
-func (x *MinefleetService) ProtoReflect() protoreflect.Message {
+func (x *ManagedService) ProtoReflect() protoreflect.Message {
 	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -354,47 +354,47 @@ func (x *MinefleetService) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MinefleetService.ProtoReflect.Descriptor instead.
-func (*MinefleetService) Descriptor() ([]byte, []int) {
+// Deprecated: Use ManagedService.ProtoReflect.Descriptor instead.
+func (*ManagedService) Descriptor() ([]byte, []int) {
 	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *MinefleetService) GetNamespacedName() string {
+func (x *ManagedService) GetNamespacedName() string {
 	if x != nil {
 		return x.NamespacedName
 	}
 	return ""
 }
 
-func (x *MinefleetService) GetNamespace() string {
+func (x *ManagedService) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
 	}
 	return ""
 }
 
-func (x *MinefleetService) GetName() string {
+func (x *ManagedService) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *MinefleetService) GetDistributionStrategy() DistributionStrategy {
+func (x *ManagedService) GetDistributionStrategy() DistributionStrategy {
 	if x != nil {
 		return x.DistributionStrategy
 	}
 	return DistributionStrategy_RANDOM
 }
 
-func (x *MinefleetService) GetServers() []*ManagedServer {
+func (x *ManagedService) GetServers() []*ManagedServer {
 	if x != nil {
 		return x.Servers
 	}
 	return nil
 }
 
-func (x *MinefleetService) GetRuleSets() []*OptionRuleSet {
+func (x *ManagedService) GetRuleSets() []*OptionRuleSet {
 	if x != nil {
 		return x.RuleSets
 	}
@@ -482,7 +482,7 @@ type Snapshot struct {
 	GatewayName       string                 `protobuf:"bytes,1,opt,name=gateway_name,json=gatewayName,proto3" json:"gateway_name,omitempty"`
 	ListenerName      string                 `protobuf:"bytes,2,opt,name=listener_name,json=listenerName,proto3" json:"listener_name,omitempty"`
 	CurrentGeneration string                 `protobuf:"bytes,3,opt,name=current_generation,json=currentGeneration,proto3" json:"current_generation,omitempty"`
-	Services          []*MinefleetService    `protobuf:"bytes,4,rep,name=services,proto3" json:"services,omitempty"`
+	Services          []*ManagedService      `protobuf:"bytes,4,rep,name=services,proto3" json:"services,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -538,7 +538,7 @@ func (x *Snapshot) GetCurrentGeneration() string {
 	return ""
 }
 
-func (x *Snapshot) GetServices() []*MinefleetService {
+func (x *Snapshot) GetServices() []*ManagedService {
 	if x != nil {
 		return x.Services
 	}
@@ -569,8 +569,8 @@ const file_network_v1alpha1_types_proto_rawDesc = "" +
 	"\rfallback_rule\x18\x04 \x01(\v2\x1e.network.v1alpha1.FallbackRuleH\x01R\ffallbackRule\x88\x01\x01B\f\n" +
 	"\n" +
 	"_join_ruleB\x10\n" +
-	"\x0e_fallback_rule\"\xc3\x02\n" +
-	"\x10MinefleetService\x12'\n" +
+	"\x0e_fallback_rule\"\xc1\x02\n" +
+	"\x0eManagedService\x12'\n" +
 	"\x0fnamespaced_name\x18\x01 \x01(\tR\x0enamespacedName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12[\n" +
@@ -586,12 +586,12 @@ const file_network_v1alpha1_types_proto_rawDesc = "" +
 	"\x0fcurrent_players\x18\x05 \x01(\rH\x02R\x0ecurrentPlayers\x88\x01\x01B\x0f\n" +
 	"\r_numerical_idB\x0e\n" +
 	"\f_max_playersB\x12\n" +
-	"\x10_current_players\"\xc1\x01\n" +
+	"\x10_current_players\"\xbf\x01\n" +
 	"\bSnapshot\x12!\n" +
 	"\fgateway_name\x18\x01 \x01(\tR\vgatewayName\x12#\n" +
 	"\rlistener_name\x18\x02 \x01(\tR\flistenerName\x12-\n" +
-	"\x12current_generation\x18\x03 \x01(\tR\x11currentGeneration\x12>\n" +
-	"\bservices\x18\x04 \x03(\v2\".network.v1alpha1.MinefleetServiceR\bservices*&\n" +
+	"\x12current_generation\x18\x03 \x01(\tR\x11currentGeneration\x12<\n" +
+	"\bservices\x18\x04 \x03(\v2 .network.v1alpha1.ManagedServiceR\bservices*&\n" +
 	"\bRuleType\x12\b\n" +
 	"\x04NONE\x10\x00\x12\a\n" +
 	"\x03ANY\x10\x01\x12\a\n" +
@@ -623,7 +623,7 @@ var file_network_v1alpha1_types_proto_goTypes = []any{
 	(*FallbackRule)(nil),      // 3: network.v1alpha1.FallbackRule
 	(*Rule)(nil),              // 4: network.v1alpha1.Rule
 	(*OptionRuleSet)(nil),     // 5: network.v1alpha1.OptionRuleSet
-	(*MinefleetService)(nil),  // 6: network.v1alpha1.MinefleetService
+	(*ManagedService)(nil),    // 6: network.v1alpha1.ManagedService
 	(*ManagedServer)(nil),     // 7: network.v1alpha1.ManagedServer
 	(*Snapshot)(nil),          // 8: network.v1alpha1.Snapshot
 }
@@ -632,10 +632,10 @@ var file_network_v1alpha1_types_proto_depIdxs = []int32{
 	4, // 1: network.v1alpha1.OptionRuleSet.generic_rule:type_name -> network.v1alpha1.Rule
 	2, // 2: network.v1alpha1.OptionRuleSet.join_rule:type_name -> network.v1alpha1.JoinRule
 	3, // 3: network.v1alpha1.OptionRuleSet.fallback_rule:type_name -> network.v1alpha1.FallbackRule
-	1, // 4: network.v1alpha1.MinefleetService.distribution_strategy:type_name -> network.v1alpha1.DistributionStrategy
-	7, // 5: network.v1alpha1.MinefleetService.servers:type_name -> network.v1alpha1.ManagedServer
-	5, // 6: network.v1alpha1.MinefleetService.rule_sets:type_name -> network.v1alpha1.OptionRuleSet
-	6, // 7: network.v1alpha1.Snapshot.services:type_name -> network.v1alpha1.MinefleetService
+	1, // 4: network.v1alpha1.ManagedService.distribution_strategy:type_name -> network.v1alpha1.DistributionStrategy
+	7, // 5: network.v1alpha1.ManagedService.servers:type_name -> network.v1alpha1.ManagedServer
+	5, // 6: network.v1alpha1.ManagedService.rule_sets:type_name -> network.v1alpha1.OptionRuleSet
+	6, // 7: network.v1alpha1.Snapshot.services:type_name -> network.v1alpha1.ManagedService
 	8, // [8:8] is the sub-list for method output_type
 	8, // [8:8] is the sub-list for method input_type
 	8, // [8:8] is the sub-list for extension type_name
