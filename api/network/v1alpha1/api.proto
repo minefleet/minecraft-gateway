@@ -5,6 +5,18 @@ package network.v1alpha1;
 option go_package = "github.com/minefleet/minecraft-gateway/api/network/v1alpha1";
 option java_package = "dev.minefleet.api.gateway.networking.v1alpha1";
 
-service NetworkDataplane {
+import "network/v1alpha1/types.proto";
 
+message GetSnapshotRequest {
+  string gateway_namespace = 1;
+  string gateway_name = 2;
+  string listener_name = 3;
+}
+
+message GetSnapshotResponse {
+  Snapshot snapshot = 1;
+}
+
+service NetworkXDS {
+  rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse);
 }

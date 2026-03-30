@@ -26,6 +26,1402 @@ public final class Api extends com.google.protobuf.GeneratedFile {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
+  public interface GetSnapshotRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.GetSnapshotRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The gatewayNamespace.
+     */
+    java.lang.String getGatewayNamespace();
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The bytes for gatewayNamespace.
+     */
+    com.google.protobuf.ByteString
+        getGatewayNamespaceBytes();
+
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The gatewayName.
+     */
+    java.lang.String getGatewayName();
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The bytes for gatewayName.
+     */
+    com.google.protobuf.ByteString
+        getGatewayNameBytes();
+
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The listenerName.
+     */
+    java.lang.String getListenerName();
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The bytes for listenerName.
+     */
+    com.google.protobuf.ByteString
+        getListenerNameBytes();
+  }
+  /**
+   * Protobuf type {@code network.v1alpha1.GetSnapshotRequest}
+   */
+  public static final class GetSnapshotRequest extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.GetSnapshotRequest)
+      GetSnapshotRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 34,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "GetSnapshotRequest");
+    }
+    // Use GetSnapshotRequest.newBuilder() to construct.
+    private GetSnapshotRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private GetSnapshotRequest() {
+      gatewayNamespace_ = "";
+      gatewayName_ = "";
+      listenerName_ = "";
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotRequest_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.Builder.class);
+    }
+
+    public static final int GATEWAY_NAMESPACE_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object gatewayNamespace_ = "";
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The gatewayNamespace.
+     */
+    @java.lang.Override
+    public java.lang.String getGatewayNamespace() {
+      java.lang.Object ref = gatewayNamespace_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gatewayNamespace_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The bytes for gatewayNamespace.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGatewayNamespaceBytes() {
+      java.lang.Object ref = gatewayNamespace_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gatewayNamespace_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int GATEWAY_NAME_FIELD_NUMBER = 2;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object gatewayName_ = "";
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The gatewayName.
+     */
+    @java.lang.Override
+    public java.lang.String getGatewayName() {
+      java.lang.Object ref = gatewayName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gatewayName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The bytes for gatewayName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGatewayNameBytes() {
+      java.lang.Object ref = gatewayName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gatewayName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int LISTENER_NAME_FIELD_NUMBER = 3;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object listenerName_ = "";
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The listenerName.
+     */
+    @java.lang.Override
+    public java.lang.String getListenerName() {
+      java.lang.Object ref = listenerName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        listenerName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The bytes for listenerName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getListenerNameBytes() {
+      java.lang.Object ref = listenerName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        listenerName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayNamespace_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, gatewayNamespace_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, gatewayName_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(listenerName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, listenerName_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayNamespace_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, gatewayNamespace_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, gatewayName_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(listenerName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, listenerName_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest) obj;
+
+      if (!getGatewayNamespace()
+          .equals(other.getGatewayNamespace())) return false;
+      if (!getGatewayName()
+          .equals(other.getGatewayName())) return false;
+      if (!getListenerName()
+          .equals(other.getListenerName())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + GATEWAY_NAMESPACE_FIELD_NUMBER;
+      hash = (53 * hash) + getGatewayNamespace().hashCode();
+      hash = (37 * hash) + GATEWAY_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getGatewayName().hashCode();
+      hash = (37 * hash) + LISTENER_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getListenerName().hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code network.v1alpha1.GetSnapshotRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.GetSnapshotRequest)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        gatewayNamespace_ = "";
+        gatewayName_ = "";
+        listenerName_ = "";
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.gatewayNamespace_ = gatewayNamespace_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.gatewayName_ = gatewayName_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.listenerName_ = listenerName_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.getDefaultInstance()) return this;
+        if (!other.getGatewayNamespace().isEmpty()) {
+          gatewayNamespace_ = other.gatewayNamespace_;
+          bitField0_ |= 0x00000001;
+          onChanged();
+        }
+        if (!other.getGatewayName().isEmpty()) {
+          gatewayName_ = other.gatewayName_;
+          bitField0_ |= 0x00000002;
+          onChanged();
+        }
+        if (!other.getListenerName().isEmpty()) {
+          listenerName_ = other.listenerName_;
+          bitField0_ |= 0x00000004;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                gatewayNamespace_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 18: {
+                gatewayName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+              case 26: {
+                listenerName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object gatewayNamespace_ = "";
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @return The gatewayNamespace.
+       */
+      public java.lang.String getGatewayNamespace() {
+        java.lang.Object ref = gatewayNamespace_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gatewayNamespace_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @return The bytes for gatewayNamespace.
+       */
+      public com.google.protobuf.ByteString
+          getGatewayNamespaceBytes() {
+        java.lang.Object ref = gatewayNamespace_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gatewayNamespace_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @param value The gatewayNamespace to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayNamespace(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        gatewayNamespace_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearGatewayNamespace() {
+        gatewayNamespace_ = getDefaultInstance().getGatewayNamespace();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @param value The bytes for gatewayNamespace to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayNamespaceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        gatewayNamespace_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object gatewayName_ = "";
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @return The gatewayName.
+       */
+      public java.lang.String getGatewayName() {
+        java.lang.Object ref = gatewayName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gatewayName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @return The bytes for gatewayName.
+       */
+      public com.google.protobuf.ByteString
+          getGatewayNameBytes() {
+        java.lang.Object ref = gatewayName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gatewayName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @param value The gatewayName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayName(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        gatewayName_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearGatewayName() {
+        gatewayName_ = getDefaultInstance().getGatewayName();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @param value The bytes for gatewayName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        gatewayName_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object listenerName_ = "";
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @return The listenerName.
+       */
+      public java.lang.String getListenerName() {
+        java.lang.Object ref = listenerName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          listenerName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @return The bytes for listenerName.
+       */
+      public com.google.protobuf.ByteString
+          getListenerNameBytes() {
+        java.lang.Object ref = listenerName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          listenerName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @param value The listenerName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setListenerName(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        listenerName_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearListenerName() {
+        listenerName_ = getDefaultInstance().getListenerName();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @param value The bytes for listenerName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setListenerNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        listenerName_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.GetSnapshotRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.GetSnapshotRequest)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GetSnapshotRequest>
+        PARSER = new com.google.protobuf.AbstractParser<GetSnapshotRequest>() {
+      @java.lang.Override
+      public GetSnapshotRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<GetSnapshotRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GetSnapshotRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface GetSnapshotResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.GetSnapshotResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+     * @return Whether the snapshot field is set.
+     */
+    boolean hasSnapshot();
+    /**
+     * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+     * @return The snapshot.
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot getSnapshot();
+    /**
+     * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.SnapshotOrBuilder getSnapshotOrBuilder();
+  }
+  /**
+   * Protobuf type {@code network.v1alpha1.GetSnapshotResponse}
+   */
+  public static final class GetSnapshotResponse extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.GetSnapshotResponse)
+      GetSnapshotResponseOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 34,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "GetSnapshotResponse");
+    }
+    // Use GetSnapshotResponse.newBuilder() to construct.
+    private GetSnapshotResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private GetSnapshotResponse() {
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotResponse_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotResponse_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int SNAPSHOT_FIELD_NUMBER = 1;
+    private dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot snapshot_;
+    /**
+     * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+     * @return Whether the snapshot field is set.
+     */
+    @java.lang.Override
+    public boolean hasSnapshot() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+     * @return The snapshot.
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot getSnapshot() {
+      return snapshot_ == null ? dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.getDefaultInstance() : snapshot_;
+    }
+    /**
+     * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.SnapshotOrBuilder getSnapshotOrBuilder() {
+      return snapshot_ == null ? dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.getDefaultInstance() : snapshot_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) != 0)) {
+        output.writeMessage(1, getSnapshot());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) != 0)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getSnapshot());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse) obj;
+
+      if (hasSnapshot() != other.hasSnapshot()) return false;
+      if (hasSnapshot()) {
+        if (!getSnapshot()
+            .equals(other.getSnapshot())) return false;
+      }
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasSnapshot()) {
+        hash = (37 * hash) + SNAPSHOT_FIELD_NUMBER;
+        hash = (53 * hash) + getSnapshot().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code network.v1alpha1.GetSnapshotResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.GetSnapshotResponse)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotResponse_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage
+                .alwaysUseFieldBuilders) {
+          internalGetSnapshotFieldBuilder();
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        snapshot_ = null;
+        if (snapshotBuilder_ != null) {
+          snapshotBuilder_.dispose();
+          snapshotBuilder_ = null;
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_GetSnapshotResponse_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse result) {
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.snapshot_ = snapshotBuilder_ == null
+              ? snapshot_
+              : snapshotBuilder_.build();
+          to_bitField0_ |= 0x00000001;
+        }
+        result.bitField0_ |= to_bitField0_;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.getDefaultInstance()) return this;
+        if (other.hasSnapshot()) {
+          mergeSnapshot(other.getSnapshot());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                input.readMessage(
+                    internalGetSnapshotFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot snapshot_;
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot, dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.SnapshotOrBuilder> snapshotBuilder_;
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       * @return Whether the snapshot field is set.
+       */
+      public boolean hasSnapshot() {
+        return ((bitField0_ & 0x00000001) != 0);
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       * @return The snapshot.
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot getSnapshot() {
+        if (snapshotBuilder_ == null) {
+          return snapshot_ == null ? dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.getDefaultInstance() : snapshot_;
+        } else {
+          return snapshotBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      public Builder setSnapshot(dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot value) {
+        if (snapshotBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          snapshot_ = value;
+        } else {
+          snapshotBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      public Builder setSnapshot(
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.Builder builderForValue) {
+        if (snapshotBuilder_ == null) {
+          snapshot_ = builderForValue.build();
+        } else {
+          snapshotBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      public Builder mergeSnapshot(dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot value) {
+        if (snapshotBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0) &&
+            snapshot_ != null &&
+            snapshot_ != dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.getDefaultInstance()) {
+            getSnapshotBuilder().mergeFrom(value);
+          } else {
+            snapshot_ = value;
+          }
+        } else {
+          snapshotBuilder_.mergeFrom(value);
+        }
+        if (snapshot_ != null) {
+          bitField0_ |= 0x00000001;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      public Builder clearSnapshot() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        snapshot_ = null;
+        if (snapshotBuilder_ != null) {
+          snapshotBuilder_.dispose();
+          snapshotBuilder_ = null;
+        }
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.Builder getSnapshotBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return internalGetSnapshotFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.SnapshotOrBuilder getSnapshotOrBuilder() {
+        if (snapshotBuilder_ != null) {
+          return snapshotBuilder_.getMessageOrBuilder();
+        } else {
+          return snapshot_ == null ?
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.getDefaultInstance() : snapshot_;
+        }
+      }
+      /**
+       * <code>.network.v1alpha1.Snapshot snapshot = 1 [json_name = "snapshot"];</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot, dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.SnapshotOrBuilder> 
+          internalGetSnapshotFieldBuilder() {
+        if (snapshotBuilder_ == null) {
+          snapshotBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot, dev.minefleet.api.gateway.networking.v1alpha1.Types.Snapshot.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.SnapshotOrBuilder>(
+                  getSnapshot(),
+                  getParentForChildren(),
+                  isClean());
+          snapshot_ = null;
+        }
+        return snapshotBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.GetSnapshotResponse)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.GetSnapshotResponse)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GetSnapshotResponse>
+        PARSER = new com.google.protobuf.AbstractParser<GetSnapshotResponse>() {
+      @java.lang.Override
+      public GetSnapshotResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<GetSnapshotResponse> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GetSnapshotResponse> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_GetSnapshotRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_GetSnapshotRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_GetSnapshotResponse_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_GetSnapshotResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -36,16 +1432,38 @@ public final class Api extends com.google.protobuf.GeneratedFile {
   static {
     java.lang.String[] descriptorData = {
       "\n\032network/v1alpha1/api.proto\022\020network.v1" +
-      "alpha12\022\n\020NetworkDataplaneBl\n-dev.minefl" +
-      "eet.api.gateway.networking.v1alpha1Z;git" +
-      "hub.com/minefleet/minecraft-gateway/api/" +
-      "network/v1alpha1b\006proto3"
+      "alpha1\032\034network/v1alpha1/types.proto\"\211\001\n" +
+      "\022GetSnapshotRequest\022+\n\021gateway_namespace" +
+      "\030\001 \001(\tR\020gatewayNamespace\022!\n\014gateway_name" +
+      "\030\002 \001(\tR\013gatewayName\022#\n\rlistener_name\030\003 \001" +
+      "(\tR\014listenerName\"M\n\023GetSnapshotResponse\022" +
+      "6\n\010snapshot\030\001 \001(\0132\032.network.v1alpha1.Sna" +
+      "pshotR\010snapshot2h\n\nNetworkXDS\022Z\n\013GetSnap" +
+      "shot\022$.network.v1alpha1.GetSnapshotReque" +
+      "st\032%.network.v1alpha1.GetSnapshotRespons" +
+      "eBl\n-dev.minefleet.api.gateway.networkin" +
+      "g.v1alpha1Z;github.com/minefleet/minecra" +
+      "ft-gateway/api/network/v1alpha1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.getDescriptor(),
         });
+    internal_static_network_v1alpha1_GetSnapshotRequest_descriptor =
+      getDescriptor().getMessageType(0);
+    internal_static_network_v1alpha1_GetSnapshotRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_GetSnapshotRequest_descriptor,
+        new java.lang.String[] { "GatewayNamespace", "GatewayName", "ListenerName", });
+    internal_static_network_v1alpha1_GetSnapshotResponse_descriptor =
+      getDescriptor().getMessageType(1);
+    internal_static_network_v1alpha1_GetSnapshotResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_GetSnapshotResponse_descriptor,
+        new java.lang.String[] { "Snapshot", });
     descriptor.resolveAllFeaturesImmutable();
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

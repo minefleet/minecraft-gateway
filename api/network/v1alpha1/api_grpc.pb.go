@@ -7,7 +7,10 @@
 package v1alpha1
 
 import (
+	context "context"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -15,62 +18,104 @@ import (
 // Requires gRPC-Go v1.64.0 or later.
 const _ = grpc.SupportPackageIsVersion9
 
-// NetworkDataplaneClient is the client API for NetworkDataplane service.
+const (
+	NetworkXDS_GetSnapshot_FullMethodName = "/network.v1alpha1.NetworkXDS/GetSnapshot"
+)
+
+// NetworkXDSClient is the client API for NetworkXDS service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type NetworkDataplaneClient interface {
+type NetworkXDSClient interface {
+	GetSnapshot(ctx context.Context, in *GetSnapshotRequest, opts ...grpc.CallOption) (*GetSnapshotResponse, error)
 }
 
-type networkDataplaneClient struct {
+type networkXDSClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewNetworkDataplaneClient(cc grpc.ClientConnInterface) NetworkDataplaneClient {
-	return &networkDataplaneClient{cc}
+func NewNetworkXDSClient(cc grpc.ClientConnInterface) NetworkXDSClient {
+	return &networkXDSClient{cc}
 }
 
-// NetworkDataplaneServer is the server API for NetworkDataplane service.
-// All implementations must embed UnimplementedNetworkDataplaneServer
+func (c *networkXDSClient) GetSnapshot(ctx context.Context, in *GetSnapshotRequest, opts ...grpc.CallOption) (*GetSnapshotResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSnapshotResponse)
+	err := c.cc.Invoke(ctx, NetworkXDS_GetSnapshot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// NetworkXDSServer is the server API for NetworkXDS service.
+// All implementations must embed UnimplementedNetworkXDSServer
 // for forward compatibility.
-type NetworkDataplaneServer interface {
-	mustEmbedUnimplementedNetworkDataplaneServer()
+type NetworkXDSServer interface {
+	GetSnapshot(context.Context, *GetSnapshotRequest) (*GetSnapshotResponse, error)
+	mustEmbedUnimplementedNetworkXDSServer()
 }
 
-// UnimplementedNetworkDataplaneServer must be embedded to have
+// UnimplementedNetworkXDSServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedNetworkDataplaneServer struct{}
+type UnimplementedNetworkXDSServer struct{}
 
-func (UnimplementedNetworkDataplaneServer) mustEmbedUnimplementedNetworkDataplaneServer() {}
-func (UnimplementedNetworkDataplaneServer) testEmbeddedByValue()                          {}
+func (UnimplementedNetworkXDSServer) GetSnapshot(context.Context, *GetSnapshotRequest) (*GetSnapshotResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSnapshot not implemented")
+}
+func (UnimplementedNetworkXDSServer) mustEmbedUnimplementedNetworkXDSServer() {}
+func (UnimplementedNetworkXDSServer) testEmbeddedByValue()                    {}
 
-// UnsafeNetworkDataplaneServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to NetworkDataplaneServer will
+// UnsafeNetworkXDSServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to NetworkXDSServer will
 // result in compilation errors.
-type UnsafeNetworkDataplaneServer interface {
-	mustEmbedUnimplementedNetworkDataplaneServer()
+type UnsafeNetworkXDSServer interface {
+	mustEmbedUnimplementedNetworkXDSServer()
 }
 
-func RegisterNetworkDataplaneServer(s grpc.ServiceRegistrar, srv NetworkDataplaneServer) {
-	// If the following call pancis, it indicates UnimplementedNetworkDataplaneServer was
+func RegisterNetworkXDSServer(s grpc.ServiceRegistrar, srv NetworkXDSServer) {
+	// If the following call pancis, it indicates UnimplementedNetworkXDSServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&NetworkDataplane_ServiceDesc, srv)
+	s.RegisterService(&NetworkXDS_ServiceDesc, srv)
 }
 
-// NetworkDataplane_ServiceDesc is the grpc.ServiceDesc for NetworkDataplane service.
+func _NetworkXDS_GetSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSnapshotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkXDSServer).GetSnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkXDS_GetSnapshot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkXDSServer).GetSnapshot(ctx, req.(*GetSnapshotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// NetworkXDS_ServiceDesc is the grpc.ServiceDesc for NetworkXDS service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var NetworkDataplane_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "network.v1alpha1.NetworkDataplane",
-	HandlerType: (*NetworkDataplaneServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "network/v1alpha1/api.proto",
+var NetworkXDS_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "network.v1alpha1.NetworkXDS",
+	HandlerType: (*NetworkXDSServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetSnapshot",
+			Handler:    _NetworkXDS_GetSnapshot_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "network/v1alpha1/api.proto",
 }
