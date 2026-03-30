@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1
+package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,47 +24,57 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// MinecraftServerDiscoverySpec defines the desired state of MinecraftServerDiscovery
-type MinecraftServerDiscoverySpec struct {
-	NamespaceSelector *gatewayv1.RouteNamespaces `json:"namespaceSelector"`
-	LabelSelector     metav1.LabelSelector       `json:"labelSelector"`
+// MinecraftJoinRouteSpec defines the desired state of MinecraftJoinRoute
+type MinecraftJoinRouteSpec struct {
+	MinecraftRoute `json:",inline"`
+	// +optional
+	FilterRules []MinecraftJoinFilterRuleSet `json:"filterRules,omitempty"`
 }
 
-// MinecraftServerDiscoveryStatus defines the observed state of MinecraftServerDiscovery.
-type MinecraftServerDiscoveryStatus struct {
-	BackendRefs []gatewayv1.BackendObjectReference `json:"backendRefs"`
-	Conditions  []metav1.Condition                 `json:"conditions"`
+// MinecraftJoinRouteStatus defines the observed state of MinecraftJoinRoute.
+type MinecraftJoinRouteStatus struct {
+	gatewayv1.RouteStatus `json:",inline"`
+}
+
+type MinecraftJoinFilterRuleSet struct {
+	MinecraftFilterRuleSet `json:",inline"`
+	// +required
+	Rules []MinecraftJoinFilterRule `json:"rules"`
+}
+
+type MinecraftJoinFilterRule struct {
+	MinecraftFilterRule `json:",inline"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// MinecraftServerDiscovery is the Schema for the minecraftserverdiscoveries API
-type MinecraftServerDiscovery struct {
+// MinecraftJoinRoute is the Schema for the minecraftjoinroutes API
+type MinecraftJoinRoute struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// metadata is a standard object metadata
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty,omitzero"`
 
-	// spec defines the desired state of MinecraftServerDiscovery
+	// spec defines the desired state of MinecraftJoinRoute
 	// +required
-	Spec MinecraftServerDiscoverySpec `json:"spec"`
+	Spec MinecraftJoinRouteSpec `json:"spec"`
 
-	// status defines the observed state of MinecraftServerDiscovery
+	// status defines the observed state of MinecraftJoinRoute
 	// +optional
-	Status MinecraftServerDiscoveryStatus `json:"status,omitempty,omitzero"`
+	Status MinecraftJoinRouteStatus `json:"status,omitempty,omitzero"`
 }
 
 // +kubebuilder:object:root=true
 
-// MinecraftServerDiscoveryList contains a list of MinecraftServerDiscovery
-type MinecraftServerDiscoveryList struct {
+// MinecraftJoinRouteList contains a list of MinecraftJoinRoute
+type MinecraftJoinRouteList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []MinecraftServerDiscovery `json:"items"`
+	Items           []MinecraftJoinRoute `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&MinecraftServerDiscovery{}, &MinecraftServerDiscoveryList{})
+	SchemeBuilder.Register(&MinecraftJoinRoute{}, &MinecraftJoinRouteList{})
 }

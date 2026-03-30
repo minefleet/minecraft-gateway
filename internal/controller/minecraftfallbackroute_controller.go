@@ -19,9 +19,8 @@ package controller
 import (
 	"context"
 
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
-
 	"k8s.io/apimachinery/pkg/runtime"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -48,7 +47,7 @@ type MinecraftFallbackRouteReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *MinecraftFallbackRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
-	var route mcgatewayv1.MinecraftFallbackRoute
+	var route mcgatewayv1alpha1.MinecraftFallbackRoute
 	if err := r.Get(ctx, req.NamespacedName, &route); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -61,7 +60,7 @@ func (r *MinecraftFallbackRouteReconciler) Reconcile(ctx context.Context, req ct
 func (r *MinecraftFallbackRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
-		For(&mcgatewayv1.MinecraftFallbackRoute{}).
+		For(&mcgatewayv1alpha1.MinecraftFallbackRoute{}).
 		Named("minecraftfallbackroute").
 		Complete(r)
 }

@@ -93,7 +93,7 @@ func BuildSnapshot(cache GatewaySnapshotCache) (Snapshot, map[types.NamespacedNa
 		for domain, key := range snap.DomainMapping {
 			// Check if there is a conflict for the current domain (same domain dropped twice)
 			if mapping[domain] != "" && mapping[domain] != key {
-				//TODO: choose the actual route, nothing else, have to restructure everything for that though
+				// TODO: choose the actual route, nothing else, have to restructure everything for that though
 				conflict := fromClusterName(mapping[domain])
 				conflicting[gateway] = conflict
 				conflicting[conflict] = gateway

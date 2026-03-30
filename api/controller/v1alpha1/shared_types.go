@@ -1,4 +1,4 @@
-package v1
+package v1alpha1
 
 import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"

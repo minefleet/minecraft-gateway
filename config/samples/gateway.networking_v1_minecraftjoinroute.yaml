@@ -1,4 +1,4 @@
-apiVersion: gateway.networking.minefleet.dev/v1
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
 kind: MinecraftJoinRoute
 metadata:
   labels:

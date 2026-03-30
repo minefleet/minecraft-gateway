@@ -24,7 +24,7 @@ import (
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/dataplane"
 	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
@@ -134,13 +134,13 @@ func (r *GatewayReconciler) mapGatewayClass(ctx context.Context, obj client.Obje
 }
 
 func (r *GatewayReconciler) mapRoute(_ context.Context, obj client.Object) []reconcile.Request {
-	var used mcgatewayv1.MinecraftRoute
+	var used mcgatewayv1alpha1.MinecraftRoute
 	var ns string
 
-	if join, ok := obj.(*mcgatewayv1.MinecraftJoinRoute); ok {
+	if join, ok := obj.(*mcgatewayv1alpha1.MinecraftJoinRoute); ok {
 		used = join.Spec.MinecraftRoute
 		ns = join.Namespace
-	} else if fallback, ok := obj.(*mcgatewayv1.MinecraftFallbackRoute); ok {
+	} else if fallback, ok := obj.(*mcgatewayv1alpha1.MinecraftFallbackRoute); ok {
 		used = fallback.Spec.MinecraftRoute
 		ns = fallback.Namespace
 	} else {
@@ -220,7 +220,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 
 func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
-	infrastructure := obj.(*mcgatewayv1.MinecraftServerDiscovery)
+	infrastructure := obj.(*mcgatewayv1alpha1.MinecraftServerDiscovery)
 	var gws gatewayv1.GatewayList
 	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, *infrastructure); err != nil {
 		if client.IgnoreNotFound(err) != nil {
@@ -269,8 +269,8 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Named("gateway").
 		Watches(&gatewayv1.GatewayClass{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayClass)).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
-		Watches(&mcgatewayv1.MinecraftServerDiscovery{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
-		Watches(&mcgatewayv1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
-		Watches(&mcgatewayv1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
+		Watches(&mcgatewayv1alpha1.MinecraftServerDiscovery{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
+		Watches(&mcgatewayv1alpha1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
+		Watches(&mcgatewayv1alpha1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Complete(r)
 }

@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
+	gatewaynetworkingv1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -39,7 +40,6 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	gatewaynetworkingv1 "minefleet.dev/minecraft-gateway/api/v1"
 	"minefleet.dev/minecraft-gateway/internal/controller"
 	// +kubebuilder:scaffold:imports
 )

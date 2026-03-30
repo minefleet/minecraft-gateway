@@ -7,5 +7,4 @@ import (
 )
 
 func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, c client.Client) {
-
 }

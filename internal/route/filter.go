@@ -4,11 +4,10 @@ import (
 	"context"
 	"strings"
 
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
-	v1 "sigs.k8s.io/gateway-api/conformance/apis/v1"
 )
 
 func FilterAllowedRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, routes Bag) map[gatewayv1.Listener]Bag {
@@ -19,8 +18,8 @@ func FilterAllowedRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gate
 			continue
 		}
 		localBag := Bag{
-			Join:     make([]mcgatewayv1.MinecraftJoinRoute, 0),
-			Fallback: make([]mcgatewayv1.MinecraftFallbackRoute, 0),
+			Join:     make([]mcgatewayv1alpha1.MinecraftJoinRoute, 0),
+			Fallback: make([]mcgatewayv1alpha1.MinecraftFallbackRoute, 0),
 		}
 		for _, login := range routes.Join {
 			if IsRouteAllowed(&login, l.AllowedRoutes.Kinds, namespaces) {
@@ -65,7 +64,7 @@ func IsRouteAllowed(obj client.Object, allowedKinds []gatewayv1.RouteGroupKind, 
 			}
 			group := allowed.Group
 			if group == nil {
-				defaultGroup := gatewayv1.Group(v1.Group)
+				defaultGroup := gatewayv1.Group(gatewayv1.GroupName)
 				group = &defaultGroup
 			}
 			if kind.Group != string(*group) {
@@ -83,8 +82,8 @@ func IsRouteAllowed(obj client.Object, allowedKinds []gatewayv1.RouteGroupKind, 
 func dedupeRoutes(in Bag) Bag {
 	seen := map[string]struct{}{}
 	out := Bag{
-		Join:     make([]mcgatewayv1.MinecraftJoinRoute, 0),
-		Fallback: make([]mcgatewayv1.MinecraftFallbackRoute, 0),
+		Join:     make([]mcgatewayv1alpha1.MinecraftJoinRoute, 0),
+		Fallback: make([]mcgatewayv1alpha1.MinecraftFallbackRoute, 0),
 	}
 
 	dedupe := func(ns, name, kind string) bool {

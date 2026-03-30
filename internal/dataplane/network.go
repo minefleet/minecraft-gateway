@@ -38,9 +38,18 @@ func (d *NetworkDataplane) SetupDataplane() {
 }
 
 func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
+	d.mu.Lock()
+	d.snapshotCache[name] = nil
+	for listener, bag := range routes {
+		d.snapshotCache[name][string(listener.Name)] = network.BuildListenerSnapshot(name, listener, bag, backends)
+	}
+	d.mu.Unlock()
 	return nil
 }
 
 func (d *NetworkDataplane) DeleteGateway(name types.NamespacedName) error {
+	d.mu.Lock()
+	delete(d.snapshotCache, name)
+	d.mu.Unlock()
 	return nil
 }

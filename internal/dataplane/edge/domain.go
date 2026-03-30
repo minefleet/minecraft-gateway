@@ -1,7 +1,7 @@
 package edge
 
 import (
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	"minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/route"
 )
 
@@ -13,7 +13,7 @@ func Domains(routes route.Bag) []string {
 	return result
 }
 
-func setListDomains(rules []mcgatewayv1.MinecraftJoinFilterRuleSet) []string {
+func setListDomains(rules []v1alpha1.MinecraftJoinFilterRuleSet) []string {
 	result := make([]string, 0)
 	for _, set := range rules {
 		result = dedupeDomains(append(result, setDomains(set)...))
@@ -21,11 +21,11 @@ func setListDomains(rules []mcgatewayv1.MinecraftJoinFilterRuleSet) []string {
 	return result
 }
 
-func setDomains(set mcgatewayv1.MinecraftJoinFilterRuleSet) []string {
+func setDomains(set v1alpha1.MinecraftJoinFilterRuleSet) []string {
 	switch set.Type {
-	case mcgatewayv1.MinecraftFilterRuleNone:
+	case v1alpha1.MinecraftFilterRuleNone:
 		return nil
-	case mcgatewayv1.MinecraftFilterRuleAny:
+	case v1alpha1.MinecraftFilterRuleAny:
 		result := make([]string, 0)
 		for _, rule := range set.Rules {
 			if rule.Domain == "" {
@@ -34,7 +34,7 @@ func setDomains(set mcgatewayv1.MinecraftJoinFilterRuleSet) []string {
 			result = append(result, rule.Domain)
 		}
 		return dedupeDomains(result)
-	case mcgatewayv1.MinecraftFilterRuleAll:
+	case v1alpha1.MinecraftFilterRuleAll:
 		for _, rule := range set.Rules {
 			if rule.Domain == "" {
 				continue

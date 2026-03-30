@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
@@ -67,7 +67,7 @@ type MinecraftServerDiscoveryReconciler struct {
 func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	var discovery mcgatewayv1.MinecraftServerDiscovery
+	var discovery mcgatewayv1alpha1.MinecraftServerDiscovery
 	if err := r.Get(ctx, req.NamespacedName, &discovery); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -130,7 +130,7 @@ func backendRefCompareFunc(first gatewayv1.BackendObjectReference, second gatewa
 	return string(*first.Kind) == string(*second.Kind) && string(*first.Group) == string(*second.Group) && string(*first.Namespace) == string(*second.Namespace) && first.Name == second.Name
 }
 
-func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, discovery mcgatewayv1.MinecraftServerDiscovery) ([]corev1.Service, error) {
+func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, discovery mcgatewayv1alpha1.MinecraftServerDiscovery) ([]corev1.Service, error) {
 	allNs, err := util.SelectNamespace(r.Client, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 		log.Error(err, "failed to get services for endpoint slice", "EndpointSlice", slice)
 		return nil
 	}
-	var discoveries mcgatewayv1.MinecraftServerDiscoveryList
+	var discoveries mcgatewayv1alpha1.MinecraftServerDiscoveryList
 	// TODO: discoveries by label index
 	if err := r.List(ctx, &discoveries); err != nil {
 		return nil
@@ -236,7 +236,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 // SetupWithManager sets up the controller with the Manager.
 func (r *MinecraftServerDiscoveryReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&mcgatewayv1.MinecraftServerDiscovery{}).
+		For(&mcgatewayv1alpha1.MinecraftServerDiscovery{}).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.watchEndpointsForDiscovery)).
 		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.watchGateways)).
 		// TODO: add gateway class verification when this becomes standard channel

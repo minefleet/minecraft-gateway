@@ -44,7 +44,7 @@ func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes map[gatewa
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
 	if len(conflicting) != 0 {
-		return RouteConflictError{}
+		return RouteConflictError{Conflicting: conflicting}
 	}
 	select {
 	case d.updates <- snap:
@@ -69,7 +69,7 @@ func (d *EdgeDataplane) DeleteGateway(name types.NamespacedName) error {
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
 	if len(conflicting) != 0 {
-		return RouteConflictError{}
+		return RouteConflictError{Conflicting: conflicting}
 	}
 	select {
 	case d.updates <- snap:
