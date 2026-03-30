@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
-	gatewaynetworkingv1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -52,7 +52,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(gatewaynetworkingv1.AddToScheme(scheme))
+	utilruntime.Must(mcgatewayv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(gatewayv1.Install(scheme))
 	// +kubebuilder:scaffold:scheme
 }

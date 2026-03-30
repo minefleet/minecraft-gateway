@@ -22,6 +22,9 @@ go.work
 # Rust target folder
 target
 
+# Java/Gradle
+.gradle
+integrations/**/build
 # editor and IDE paraphernalia
 .idea
 .vscode

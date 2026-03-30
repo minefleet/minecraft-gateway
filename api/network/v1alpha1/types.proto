@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+package network.v1alpha1;
+
+option go_package = "github.com/minefleet/minecraft-gateway/api/network/v1alpha1";
+option java_package = "dev.minefleet.api.gateway.networking.v1alpha1";
