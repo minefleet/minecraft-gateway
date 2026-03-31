@@ -1,5 +1,6 @@
 package dev.minefleet.api.gateway.networking;
 
+import dev.minefleet.api.gateway.networking.rules.RuleSet;
 import dev.minefleet.api.gateway.networking.v1alpha1.Types;
 
 import java.util.List;
@@ -8,12 +9,16 @@ public final class ManagedService {
 
     private final Types.ManagedService proto;
     private final List<ManagedServer> servers;
+    private final RuleSet joinRules;
+    private final RuleSet fallbackRules;
 
     public ManagedService(Types.ManagedService proto) {
         this.proto = proto;
         this.servers = proto.getServersList().stream()
                 .map((Types.ManagedServer serverProto) -> new ManagedServer(namespacedName(), serverProto))
                 .toList();
+        this.joinRules = new RuleSet(proto.getJoinRulesList());
+        this.fallbackRules = new RuleSet(proto.getFallbackRulesList());
     }
 
     public String namespacedName() {
@@ -36,8 +41,12 @@ public final class ManagedService {
         return servers;
     }
 
-    public List<Types.OptionRuleSet> ruleSets() {
-        return proto.getRuleSetsList();
+    public RuleSet joinRules() {
+        return joinRules;
+    }
+
+    public RuleSet fallbackRules() {
+        return fallbackRules;
     }
 
     public Types.ManagedService toProto() {

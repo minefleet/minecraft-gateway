@@ -13,10 +13,6 @@ enum RuleType {
   ALL = 2;
 }
 
-message JoinRule {
-
-}
-
 message FallbackRule {
   optional string fallback_for = 1;
 }
@@ -24,13 +20,12 @@ message FallbackRule {
 message Rule {
   optional string domain = 1;
   optional string permission = 2;
+  optional string fallback_for = 3;
 }
 
 message OptionRuleSet {
   RuleType type = 1;
-  Rule generic_rule = 2;
-  optional JoinRule join_rule = 3;
-  optional FallbackRule fallback_rule = 4;
+  repeated Rule rules = 2;
 }
 
 enum DistributionStrategy {
@@ -44,7 +39,8 @@ message ManagedService {
   string name = 3;
   DistributionStrategy distribution_strategy = 4;
   repeated ManagedServer servers = 5;
-  repeated OptionRuleSet rule_sets = 6;
+  repeated OptionRuleSet join_rules = 6;
+  repeated OptionRuleSet fallback_rules = 7;
 }
 
 message ManagedServer {

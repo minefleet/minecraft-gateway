@@ -117,42 +117,6 @@ func (DistributionStrategy) EnumDescriptor() ([]byte, []int) {
 	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{1}
 }
 
-type JoinRule struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *JoinRule) Reset() {
-	*x = JoinRule{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *JoinRule) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*JoinRule) ProtoMessage() {}
-
-func (x *JoinRule) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use JoinRule.ProtoReflect.Descriptor instead.
-func (*JoinRule) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{0}
-}
-
 type FallbackRule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FallbackFor   *string                `protobuf:"bytes,1,opt,name=fallback_for,json=fallbackFor,proto3,oneof" json:"fallback_for,omitempty"`
@@ -162,7 +126,7 @@ type FallbackRule struct {
 
 func (x *FallbackRule) Reset() {
 	*x = FallbackRule{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[1]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -174,7 +138,7 @@ func (x *FallbackRule) String() string {
 func (*FallbackRule) ProtoMessage() {}
 
 func (x *FallbackRule) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[1]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -187,7 +151,7 @@ func (x *FallbackRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FallbackRule.ProtoReflect.Descriptor instead.
 func (*FallbackRule) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{1}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *FallbackRule) GetFallbackFor() string {
@@ -201,13 +165,14 @@ type Rule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Domain        *string                `protobuf:"bytes,1,opt,name=domain,proto3,oneof" json:"domain,omitempty"`
 	Permission    *string                `protobuf:"bytes,2,opt,name=permission,proto3,oneof" json:"permission,omitempty"`
+	FallbackFor   *string                `protobuf:"bytes,3,opt,name=fallback_for,json=fallbackFor,proto3,oneof" json:"fallback_for,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Rule) Reset() {
 	*x = Rule{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[2]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -219,7 +184,7 @@ func (x *Rule) String() string {
 func (*Rule) ProtoMessage() {}
 
 func (x *Rule) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[2]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -232,7 +197,7 @@ func (x *Rule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Rule.ProtoReflect.Descriptor instead.
 func (*Rule) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{2}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Rule) GetDomain() string {
@@ -249,19 +214,24 @@ func (x *Rule) GetPermission() string {
 	return ""
 }
 
+func (x *Rule) GetFallbackFor() string {
+	if x != nil && x.FallbackFor != nil {
+		return *x.FallbackFor
+	}
+	return ""
+}
+
 type OptionRuleSet struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          RuleType               `protobuf:"varint,1,opt,name=type,proto3,enum=network.v1alpha1.RuleType" json:"type,omitempty"`
-	GenericRule   *Rule                  `protobuf:"bytes,2,opt,name=generic_rule,json=genericRule,proto3" json:"generic_rule,omitempty"`
-	JoinRule      *JoinRule              `protobuf:"bytes,3,opt,name=join_rule,json=joinRule,proto3,oneof" json:"join_rule,omitempty"`
-	FallbackRule  *FallbackRule          `protobuf:"bytes,4,opt,name=fallback_rule,json=fallbackRule,proto3,oneof" json:"fallback_rule,omitempty"`
+	Rules         []*Rule                `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *OptionRuleSet) Reset() {
 	*x = OptionRuleSet{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -273,7 +243,7 @@ func (x *OptionRuleSet) String() string {
 func (*OptionRuleSet) ProtoMessage() {}
 
 func (x *OptionRuleSet) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -286,7 +256,7 @@ func (x *OptionRuleSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OptionRuleSet.ProtoReflect.Descriptor instead.
 func (*OptionRuleSet) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{3}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *OptionRuleSet) GetType() RuleType {
@@ -296,23 +266,9 @@ func (x *OptionRuleSet) GetType() RuleType {
 	return RuleType_NONE
 }
 
-func (x *OptionRuleSet) GetGenericRule() *Rule {
+func (x *OptionRuleSet) GetRules() []*Rule {
 	if x != nil {
-		return x.GenericRule
-	}
-	return nil
-}
-
-func (x *OptionRuleSet) GetJoinRule() *JoinRule {
-	if x != nil {
-		return x.JoinRule
-	}
-	return nil
-}
-
-func (x *OptionRuleSet) GetFallbackRule() *FallbackRule {
-	if x != nil {
-		return x.FallbackRule
+		return x.Rules
 	}
 	return nil
 }
@@ -324,14 +280,15 @@ type ManagedService struct {
 	Name                 string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	DistributionStrategy DistributionStrategy   `protobuf:"varint,4,opt,name=distribution_strategy,json=distributionStrategy,proto3,enum=network.v1alpha1.DistributionStrategy" json:"distribution_strategy,omitempty"`
 	Servers              []*ManagedServer       `protobuf:"bytes,5,rep,name=servers,proto3" json:"servers,omitempty"`
-	RuleSets             []*OptionRuleSet       `protobuf:"bytes,6,rep,name=rule_sets,json=ruleSets,proto3" json:"rule_sets,omitempty"`
+	JoinRules            []*OptionRuleSet       `protobuf:"bytes,6,rep,name=join_rules,json=joinRules,proto3" json:"join_rules,omitempty"`
+	FallbackRules        []*OptionRuleSet       `protobuf:"bytes,7,rep,name=fallback_rules,json=fallbackRules,proto3" json:"fallback_rules,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ManagedService) Reset() {
 	*x = ManagedService{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -343,7 +300,7 @@ func (x *ManagedService) String() string {
 func (*ManagedService) ProtoMessage() {}
 
 func (x *ManagedService) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -356,7 +313,7 @@ func (x *ManagedService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ManagedService.ProtoReflect.Descriptor instead.
 func (*ManagedService) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{4}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ManagedService) GetNamespacedName() string {
@@ -394,9 +351,16 @@ func (x *ManagedService) GetServers() []*ManagedServer {
 	return nil
 }
 
-func (x *ManagedService) GetRuleSets() []*OptionRuleSet {
+func (x *ManagedService) GetJoinRules() []*OptionRuleSet {
 	if x != nil {
-		return x.RuleSets
+		return x.JoinRules
+	}
+	return nil
+}
+
+func (x *ManagedService) GetFallbackRules() []*OptionRuleSet {
+	if x != nil {
+		return x.FallbackRules
 	}
 	return nil
 }
@@ -414,7 +378,7 @@ type ManagedServer struct {
 
 func (x *ManagedServer) Reset() {
 	*x = ManagedServer{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +390,7 @@ func (x *ManagedServer) String() string {
 func (*ManagedServer) ProtoMessage() {}
 
 func (x *ManagedServer) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +403,7 @@ func (x *ManagedServer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ManagedServer.ProtoReflect.Descriptor instead.
 func (*ManagedServer) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{5}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ManagedServer) GetUniqueId() string {
@@ -489,7 +453,7 @@ type Snapshot struct {
 
 func (x *Snapshot) Reset() {
 	*x = Snapshot{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[6]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -501,7 +465,7 @@ func (x *Snapshot) String() string {
 func (*Snapshot) ProtoMessage() {}
 
 func (x *Snapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[6]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -514,7 +478,7 @@ func (x *Snapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Snapshot.ProtoReflect.Descriptor instead.
 func (*Snapshot) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{6}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Snapshot) GetGatewayName() string {
@@ -549,34 +513,31 @@ var File_network_v1alpha1_types_proto protoreflect.FileDescriptor
 
 const file_network_v1alpha1_types_proto_rawDesc = "" +
 	"\n" +
-	"\x1cnetwork/v1alpha1/types.proto\x12\x10network.v1alpha1\"\n" +
-	"\n" +
-	"\bJoinRule\"G\n" +
+	"\x1cnetwork/v1alpha1/types.proto\x12\x10network.v1alpha1\"G\n" +
 	"\fFallbackRule\x12&\n" +
 	"\ffallback_for\x18\x01 \x01(\tH\x00R\vfallbackFor\x88\x01\x01B\x0f\n" +
-	"\r_fallback_for\"b\n" +
+	"\r_fallback_for\"\x9b\x01\n" +
 	"\x04Rule\x12\x1b\n" +
 	"\x06domain\x18\x01 \x01(\tH\x00R\x06domain\x88\x01\x01\x12#\n" +
 	"\n" +
 	"permission\x18\x02 \x01(\tH\x01R\n" +
-	"permission\x88\x01\x01B\t\n" +
+	"permission\x88\x01\x01\x12&\n" +
+	"\ffallback_for\x18\x03 \x01(\tH\x02R\vfallbackFor\x88\x01\x01B\t\n" +
 	"\a_domainB\r\n" +
-	"\v_permission\"\xa2\x02\n" +
+	"\v_permissionB\x0f\n" +
+	"\r_fallback_for\"m\n" +
 	"\rOptionRuleSet\x12.\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x1a.network.v1alpha1.RuleTypeR\x04type\x129\n" +
-	"\fgeneric_rule\x18\x02 \x01(\v2\x16.network.v1alpha1.RuleR\vgenericRule\x12<\n" +
-	"\tjoin_rule\x18\x03 \x01(\v2\x1a.network.v1alpha1.JoinRuleH\x00R\bjoinRule\x88\x01\x01\x12H\n" +
-	"\rfallback_rule\x18\x04 \x01(\v2\x1e.network.v1alpha1.FallbackRuleH\x01R\ffallbackRule\x88\x01\x01B\f\n" +
-	"\n" +
-	"_join_ruleB\x10\n" +
-	"\x0e_fallback_rule\"\xc1\x02\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x1a.network.v1alpha1.RuleTypeR\x04type\x12,\n" +
+	"\x05rules\x18\x02 \x03(\v2\x16.network.v1alpha1.RuleR\x05rules\"\x8b\x03\n" +
 	"\x0eManagedService\x12'\n" +
 	"\x0fnamespaced_name\x18\x01 \x01(\tR\x0enamespacedName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12[\n" +
 	"\x15distribution_strategy\x18\x04 \x01(\x0e2&.network.v1alpha1.DistributionStrategyR\x14distributionStrategy\x129\n" +
-	"\aservers\x18\x05 \x03(\v2\x1f.network.v1alpha1.ManagedServerR\aservers\x12<\n" +
-	"\trule_sets\x18\x06 \x03(\v2\x1f.network.v1alpha1.OptionRuleSetR\bruleSets\"\xf1\x01\n" +
+	"\aservers\x18\x05 \x03(\v2\x1f.network.v1alpha1.ManagedServerR\aservers\x12>\n" +
+	"\n" +
+	"join_rules\x18\x06 \x03(\v2\x1f.network.v1alpha1.OptionRuleSetR\tjoinRules\x12F\n" +
+	"\x0efallback_rules\x18\a \x03(\v2\x1f.network.v1alpha1.OptionRuleSetR\rfallbackRules\"\xf1\x01\n" +
 	"\rManagedServer\x12\x1b\n" +
 	"\tunique_id\x18\x01 \x01(\tR\buniqueId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12&\n" +
@@ -615,32 +576,30 @@ func file_network_v1alpha1_types_proto_rawDescGZIP() []byte {
 }
 
 var file_network_v1alpha1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_network_v1alpha1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_network_v1alpha1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_network_v1alpha1_types_proto_goTypes = []any{
 	(RuleType)(0),             // 0: network.v1alpha1.RuleType
 	(DistributionStrategy)(0), // 1: network.v1alpha1.DistributionStrategy
-	(*JoinRule)(nil),          // 2: network.v1alpha1.JoinRule
-	(*FallbackRule)(nil),      // 3: network.v1alpha1.FallbackRule
-	(*Rule)(nil),              // 4: network.v1alpha1.Rule
-	(*OptionRuleSet)(nil),     // 5: network.v1alpha1.OptionRuleSet
-	(*ManagedService)(nil),    // 6: network.v1alpha1.ManagedService
-	(*ManagedServer)(nil),     // 7: network.v1alpha1.ManagedServer
-	(*Snapshot)(nil),          // 8: network.v1alpha1.Snapshot
+	(*FallbackRule)(nil),      // 2: network.v1alpha1.FallbackRule
+	(*Rule)(nil),              // 3: network.v1alpha1.Rule
+	(*OptionRuleSet)(nil),     // 4: network.v1alpha1.OptionRuleSet
+	(*ManagedService)(nil),    // 5: network.v1alpha1.ManagedService
+	(*ManagedServer)(nil),     // 6: network.v1alpha1.ManagedServer
+	(*Snapshot)(nil),          // 7: network.v1alpha1.Snapshot
 }
 var file_network_v1alpha1_types_proto_depIdxs = []int32{
 	0, // 0: network.v1alpha1.OptionRuleSet.type:type_name -> network.v1alpha1.RuleType
-	4, // 1: network.v1alpha1.OptionRuleSet.generic_rule:type_name -> network.v1alpha1.Rule
-	2, // 2: network.v1alpha1.OptionRuleSet.join_rule:type_name -> network.v1alpha1.JoinRule
-	3, // 3: network.v1alpha1.OptionRuleSet.fallback_rule:type_name -> network.v1alpha1.FallbackRule
-	1, // 4: network.v1alpha1.ManagedService.distribution_strategy:type_name -> network.v1alpha1.DistributionStrategy
-	7, // 5: network.v1alpha1.ManagedService.servers:type_name -> network.v1alpha1.ManagedServer
-	5, // 6: network.v1alpha1.ManagedService.rule_sets:type_name -> network.v1alpha1.OptionRuleSet
-	6, // 7: network.v1alpha1.Snapshot.services:type_name -> network.v1alpha1.ManagedService
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	3, // 1: network.v1alpha1.OptionRuleSet.rules:type_name -> network.v1alpha1.Rule
+	1, // 2: network.v1alpha1.ManagedService.distribution_strategy:type_name -> network.v1alpha1.DistributionStrategy
+	6, // 3: network.v1alpha1.ManagedService.servers:type_name -> network.v1alpha1.ManagedServer
+	4, // 4: network.v1alpha1.ManagedService.join_rules:type_name -> network.v1alpha1.OptionRuleSet
+	4, // 5: network.v1alpha1.ManagedService.fallback_rules:type_name -> network.v1alpha1.OptionRuleSet
+	5, // 6: network.v1alpha1.Snapshot.services:type_name -> network.v1alpha1.ManagedService
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_network_v1alpha1_types_proto_init() }
@@ -648,17 +607,16 @@ func file_network_v1alpha1_types_proto_init() {
 	if File_network_v1alpha1_types_proto != nil {
 		return
 	}
+	file_network_v1alpha1_types_proto_msgTypes[0].OneofWrappers = []any{}
 	file_network_v1alpha1_types_proto_msgTypes[1].OneofWrappers = []any{}
-	file_network_v1alpha1_types_proto_msgTypes[2].OneofWrappers = []any{}
-	file_network_v1alpha1_types_proto_msgTypes[3].OneofWrappers = []any{}
-	file_network_v1alpha1_types_proto_msgTypes[5].OneofWrappers = []any{}
+	file_network_v1alpha1_types_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_network_v1alpha1_types_proto_rawDesc), len(file_network_v1alpha1_types_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   7,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
