@@ -2563,6 +2563,974 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
   }
 
+  public interface RouteOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.Route)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>uint32 priority = 1 [json_name = "priority"];</code>
+     * @return The priority.
+     */
+    int getPriority();
+
+    /**
+     * <code>bool is_join = 2 [json_name = "isJoin"];</code>
+     * @return The isJoin.
+     */
+    boolean getIsJoin();
+
+    /**
+     * <code>bool is_fallback = 3 [json_name = "isFallback"];</code>
+     * @return The isFallback.
+     */
+    boolean getIsFallback();
+
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> 
+        getRulesList();
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getRules(int index);
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    int getRulesCount();
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
+        getRulesOrBuilderList();
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getRulesOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code network.v1alpha1.Route}
+   */
+  public static final class Route extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.Route)
+      RouteOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 34,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "Route");
+    }
+    // Use Route.newBuilder() to construct.
+    private Route(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private Route() {
+      rules_ = java.util.Collections.emptyList();
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_Route_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_Route_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_Route_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.class, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder.class);
+    }
+
+    public static final int PRIORITY_FIELD_NUMBER = 1;
+    private int priority_ = 0;
+    /**
+     * <code>uint32 priority = 1 [json_name = "priority"];</code>
+     * @return The priority.
+     */
+    @java.lang.Override
+    public int getPriority() {
+      return priority_;
+    }
+
+    public static final int IS_JOIN_FIELD_NUMBER = 2;
+    private boolean isJoin_ = false;
+    /**
+     * <code>bool is_join = 2 [json_name = "isJoin"];</code>
+     * @return The isJoin.
+     */
+    @java.lang.Override
+    public boolean getIsJoin() {
+      return isJoin_;
+    }
+
+    public static final int IS_FALLBACK_FIELD_NUMBER = 3;
+    private boolean isFallback_ = false;
+    /**
+     * <code>bool is_fallback = 3 [json_name = "isFallback"];</code>
+     * @return The isFallback.
+     */
+    @java.lang.Override
+    public boolean getIsFallback() {
+      return isFallback_;
+    }
+
+    public static final int RULES_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> rules_;
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> getRulesList() {
+      return rules_;
+    }
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
+        getRulesOrBuilderList() {
+      return rules_;
+    }
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    @java.lang.Override
+    public int getRulesCount() {
+      return rules_.size();
+    }
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getRules(int index) {
+      return rules_.get(index);
+    }
+    /**
+     * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getRulesOrBuilder(
+        int index) {
+      return rules_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (priority_ != 0) {
+        output.writeUInt32(1, priority_);
+      }
+      if (isJoin_ != false) {
+        output.writeBool(2, isJoin_);
+      }
+      if (isFallback_ != false) {
+        output.writeBool(3, isFallback_);
+      }
+      for (int i = 0; i < rules_.size(); i++) {
+        output.writeMessage(4, rules_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (priority_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(1, priority_);
+      }
+      if (isJoin_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(2, isJoin_);
+      }
+      if (isFallback_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, isFallback_);
+      }
+
+          {
+            final int count = rules_.size();
+            for (int i = 0; i < count; i++) {
+              size += com.google.protobuf.CodedOutputStream
+                .computeMessageSizeNoTag(rules_.get(i));
+            }
+            size += 1 * count;
+          }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Types.Route)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Types.Route other = (dev.minefleet.api.gateway.networking.v1alpha1.Types.Route) obj;
+
+      if (getPriority()
+          != other.getPriority()) return false;
+      if (getIsJoin()
+          != other.getIsJoin()) return false;
+      if (getIsFallback()
+          != other.getIsFallback()) return false;
+      if (!getRulesList()
+          .equals(other.getRulesList())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + PRIORITY_FIELD_NUMBER;
+      hash = (53 * hash) + getPriority();
+      hash = (37 * hash) + IS_JOIN_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIsJoin());
+      hash = (37 * hash) + IS_FALLBACK_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getIsFallback());
+      if (getRulesCount() > 0) {
+        hash = (37 * hash) + RULES_FIELD_NUMBER;
+        hash = (53 * hash) + getRulesList().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Types.Route prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code network.v1alpha1.Route}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.Route)
+        dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_Route_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_Route_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.class, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        priority_ = 0;
+        isJoin_ = false;
+        isFallback_ = false;
+        if (rulesBuilder_ == null) {
+          rules_ = java.util.Collections.emptyList();
+        } else {
+          rules_ = null;
+          rulesBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.internal_static_network_v1alpha1_Route_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Types.Route result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Types.Route result = new dev.minefleet.api.gateway.networking.v1alpha1.Types.Route(this);
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(dev.minefleet.api.gateway.networking.v1alpha1.Types.Route result) {
+        if (rulesBuilder_ == null) {
+          if (((bitField0_ & 0x00000008) != 0)) {
+            rules_ = java.util.Collections.unmodifiableList(rules_);
+            bitField0_ = (bitField0_ & ~0x00000008);
+          }
+          result.rules_ = rules_;
+        } else {
+          result.rules_ = rulesBuilder_.build();
+        }
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Types.Route result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.priority_ = priority_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.isJoin_ = isJoin_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.isFallback_ = isFallback_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Types.Route) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Types.Route)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Types.Route other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.getDefaultInstance()) return this;
+        if (other.getPriority() != 0) {
+          setPriority(other.getPriority());
+        }
+        if (other.getIsJoin() != false) {
+          setIsJoin(other.getIsJoin());
+        }
+        if (other.getIsFallback() != false) {
+          setIsFallback(other.getIsFallback());
+        }
+        if (rulesBuilder_ == null) {
+          if (!other.rules_.isEmpty()) {
+            if (rules_.isEmpty()) {
+              rules_ = other.rules_;
+              bitField0_ = (bitField0_ & ~0x00000008);
+            } else {
+              ensureRulesIsMutable();
+              rules_.addAll(other.rules_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.rules_.isEmpty()) {
+            if (rulesBuilder_.isEmpty()) {
+              rulesBuilder_.dispose();
+              rulesBuilder_ = null;
+              rules_ = other.rules_;
+              bitField0_ = (bitField0_ & ~0x00000008);
+              rulesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   internalGetRulesFieldBuilder() : null;
+            } else {
+              rulesBuilder_.addAllMessages(other.rules_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8: {
+                priority_ = input.readUInt32();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 8
+              case 16: {
+                isJoin_ = input.readBool();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 24: {
+                isFallback_ = input.readBool();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 24
+              case 34: {
+                dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet m =
+                    input.readMessage(
+                        dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.parser(),
+                        extensionRegistry);
+                if (rulesBuilder_ == null) {
+                  ensureRulesIsMutable();
+                  rules_.add(m);
+                } else {
+                  rulesBuilder_.addMessage(m);
+                }
+                break;
+              } // case 34
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private int priority_ ;
+      /**
+       * <code>uint32 priority = 1 [json_name = "priority"];</code>
+       * @return The priority.
+       */
+      @java.lang.Override
+      public int getPriority() {
+        return priority_;
+      }
+      /**
+       * <code>uint32 priority = 1 [json_name = "priority"];</code>
+       * @param value The priority to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPriority(int value) {
+
+        priority_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 priority = 1 [json_name = "priority"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPriority() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        priority_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private boolean isJoin_ ;
+      /**
+       * <code>bool is_join = 2 [json_name = "isJoin"];</code>
+       * @return The isJoin.
+       */
+      @java.lang.Override
+      public boolean getIsJoin() {
+        return isJoin_;
+      }
+      /**
+       * <code>bool is_join = 2 [json_name = "isJoin"];</code>
+       * @param value The isJoin to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIsJoin(boolean value) {
+
+        isJoin_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool is_join = 2 [json_name = "isJoin"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearIsJoin() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        isJoin_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean isFallback_ ;
+      /**
+       * <code>bool is_fallback = 3 [json_name = "isFallback"];</code>
+       * @return The isFallback.
+       */
+      @java.lang.Override
+      public boolean getIsFallback() {
+        return isFallback_;
+      }
+      /**
+       * <code>bool is_fallback = 3 [json_name = "isFallback"];</code>
+       * @param value The isFallback to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIsFallback(boolean value) {
+
+        isFallback_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool is_fallback = 3 [json_name = "isFallback"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearIsFallback() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        isFallback_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> rules_ =
+        java.util.Collections.emptyList();
+      private void ensureRulesIsMutable() {
+        if (!((bitField0_ & 0x00000008) != 0)) {
+          rules_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet>(rules_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> rulesBuilder_;
+
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> getRulesList() {
+        if (rulesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(rules_);
+        } else {
+          return rulesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public int getRulesCount() {
+        if (rulesBuilder_ == null) {
+          return rules_.size();
+        } else {
+          return rulesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getRules(int index) {
+        if (rulesBuilder_ == null) {
+          return rules_.get(index);
+        } else {
+          return rulesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder setRules(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.set(index, value);
+          onChanged();
+        } else {
+          rulesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder setRules(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder addRules(dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.add(value);
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder addRules(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.add(index, value);
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder addRules(
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.add(builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder addRules(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder addAllRules(
+          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> values) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, rules_);
+          onChanged();
+        } else {
+          rulesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder clearRules() {
+        if (rulesBuilder_ == null) {
+          rules_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000008);
+          onChanged();
+        } else {
+          rulesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public Builder removeRules(int index) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.remove(index);
+          onChanged();
+        } else {
+          rulesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder getRulesBuilder(
+          int index) {
+        return internalGetRulesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getRulesOrBuilder(
+          int index) {
+        if (rulesBuilder_ == null) {
+          return rules_.get(index);  } else {
+          return rulesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
+           getRulesOrBuilderList() {
+        if (rulesBuilder_ != null) {
+          return rulesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(rules_);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder addRulesBuilder() {
+        return internalGetRulesFieldBuilder().addBuilder(
+            dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder addRulesBuilder(
+          int index) {
+        return internalGetRulesFieldBuilder().addBuilder(
+            index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .network.v1alpha1.OptionRuleSet rules = 4 [json_name = "rules"];</code>
+       */
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder> 
+           getRulesBuilderList() {
+        return internalGetRulesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
+          internalGetRulesFieldBuilder() {
+        if (rulesBuilder_ == null) {
+          rulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder>(
+                  rules_,
+                  ((bitField0_ & 0x00000008) != 0),
+                  getParentForChildren(),
+                  isClean());
+          rules_ = null;
+        }
+        return rulesBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.Route)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.Route)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Types.Route DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Types.Route();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Types.Route getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Route>
+        PARSER = new com.google.protobuf.AbstractParser<Route>() {
+      @java.lang.Override
+      public Route parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<Route> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Route> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ManagedServiceOrBuilder extends
       // @@protoc_insertion_point(interface_extends:network.v1alpha1.ManagedService)
       com.google.protobuf.MessageOrBuilder {
@@ -2639,51 +3607,27 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         int index);
 
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
-    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> 
-        getJoinRulesList();
+    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route> 
+        getRoutesList();
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
-    dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getJoinRules(int index);
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.Route getRoutes(int index);
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
-    int getJoinRulesCount();
+    int getRoutesCount();
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
-    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-        getJoinRulesOrBuilderList();
+    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder> 
+        getRoutesOrBuilderList();
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
-    dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getJoinRulesOrBuilder(
-        int index);
-
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> 
-        getFallbackRulesList();
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getFallbackRules(int index);
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    int getFallbackRulesCount();
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-        getFallbackRulesOrBuilderList();
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getFallbackRulesOrBuilder(
+    dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder getRoutesOrBuilder(
         int index);
   }
   /**
@@ -2713,8 +3657,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       name_ = "";
       distributionStrategy_ = 0;
       servers_ = java.util.Collections.emptyList();
-      joinRules_ = java.util.Collections.emptyList();
-      fallbackRules_ = java.util.Collections.emptyList();
+      routes_ = java.util.Collections.emptyList();
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -2911,86 +3854,45 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return servers_.get(index);
     }
 
-    public static final int JOIN_RULES_FIELD_NUMBER = 6;
+    public static final int ROUTES_FIELD_NUMBER = 6;
     @SuppressWarnings("serial")
-    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> joinRules_;
+    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route> routes_;
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
     @java.lang.Override
-    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> getJoinRulesList() {
-      return joinRules_;
+    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route> getRoutesList() {
+      return routes_;
     }
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
     @java.lang.Override
-    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-        getJoinRulesOrBuilderList() {
-      return joinRules_;
+    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder> 
+        getRoutesOrBuilderList() {
+      return routes_;
     }
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
     @java.lang.Override
-    public int getJoinRulesCount() {
-      return joinRules_.size();
+    public int getRoutesCount() {
+      return routes_.size();
     }
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
     @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getJoinRules(int index) {
-      return joinRules_.get(index);
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route getRoutes(int index) {
+      return routes_.get(index);
     }
     /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+     * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
      */
     @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getJoinRulesOrBuilder(
+    public dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder getRoutesOrBuilder(
         int index) {
-      return joinRules_.get(index);
-    }
-
-    public static final int FALLBACK_RULES_FIELD_NUMBER = 7;
-    @SuppressWarnings("serial")
-    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> fallbackRules_;
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    @java.lang.Override
-    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> getFallbackRulesList() {
-      return fallbackRules_;
-    }
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    @java.lang.Override
-    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-        getFallbackRulesOrBuilderList() {
-      return fallbackRules_;
-    }
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    @java.lang.Override
-    public int getFallbackRulesCount() {
-      return fallbackRules_.size();
-    }
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getFallbackRules(int index) {
-      return fallbackRules_.get(index);
-    }
-    /**
-     * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-     */
-    @java.lang.Override
-    public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getFallbackRulesOrBuilder(
-        int index) {
-      return fallbackRules_.get(index);
+      return routes_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -3022,11 +3924,8 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       for (int i = 0; i < servers_.size(); i++) {
         output.writeMessage(5, servers_.get(i));
       }
-      for (int i = 0; i < joinRules_.size(); i++) {
-        output.writeMessage(6, joinRules_.get(i));
-      }
-      for (int i = 0; i < fallbackRules_.size(); i++) {
-        output.writeMessage(7, fallbackRules_.get(i));
+      for (int i = 0; i < routes_.size(); i++) {
+        output.writeMessage(6, routes_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -3061,19 +3960,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
           }
 
           {
-            final int count = joinRules_.size();
+            final int count = routes_.size();
             for (int i = 0; i < count; i++) {
               size += com.google.protobuf.CodedOutputStream
-                .computeMessageSizeNoTag(joinRules_.get(i));
-            }
-            size += 1 * count;
-          }
-
-          {
-            final int count = fallbackRules_.size();
-            for (int i = 0; i < count; i++) {
-              size += com.google.protobuf.CodedOutputStream
-                .computeMessageSizeNoTag(fallbackRules_.get(i));
+                .computeMessageSizeNoTag(routes_.get(i));
             }
             size += 1 * count;
           }
@@ -3101,10 +3991,8 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       if (distributionStrategy_ != other.distributionStrategy_) return false;
       if (!getServersList()
           .equals(other.getServersList())) return false;
-      if (!getJoinRulesList()
-          .equals(other.getJoinRulesList())) return false;
-      if (!getFallbackRulesList()
-          .equals(other.getFallbackRulesList())) return false;
+      if (!getRoutesList()
+          .equals(other.getRoutesList())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -3128,13 +4016,9 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         hash = (37 * hash) + SERVERS_FIELD_NUMBER;
         hash = (53 * hash) + getServersList().hashCode();
       }
-      if (getJoinRulesCount() > 0) {
-        hash = (37 * hash) + JOIN_RULES_FIELD_NUMBER;
-        hash = (53 * hash) + getJoinRulesList().hashCode();
-      }
-      if (getFallbackRulesCount() > 0) {
-        hash = (37 * hash) + FALLBACK_RULES_FIELD_NUMBER;
-        hash = (53 * hash) + getFallbackRulesList().hashCode();
+      if (getRoutesCount() > 0) {
+        hash = (37 * hash) + ROUTES_FIELD_NUMBER;
+        hash = (53 * hash) + getRoutesList().hashCode();
       }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
@@ -3278,20 +4162,13 @@ public final class Types extends com.google.protobuf.GeneratedFile {
           serversBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000010);
-        if (joinRulesBuilder_ == null) {
-          joinRules_ = java.util.Collections.emptyList();
+        if (routesBuilder_ == null) {
+          routes_ = java.util.Collections.emptyList();
         } else {
-          joinRules_ = null;
-          joinRulesBuilder_.clear();
+          routes_ = null;
+          routesBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000020);
-        if (fallbackRulesBuilder_ == null) {
-          fallbackRules_ = java.util.Collections.emptyList();
-        } else {
-          fallbackRules_ = null;
-          fallbackRulesBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -3334,23 +4211,14 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         } else {
           result.servers_ = serversBuilder_.build();
         }
-        if (joinRulesBuilder_ == null) {
+        if (routesBuilder_ == null) {
           if (((bitField0_ & 0x00000020) != 0)) {
-            joinRules_ = java.util.Collections.unmodifiableList(joinRules_);
+            routes_ = java.util.Collections.unmodifiableList(routes_);
             bitField0_ = (bitField0_ & ~0x00000020);
           }
-          result.joinRules_ = joinRules_;
+          result.routes_ = routes_;
         } else {
-          result.joinRules_ = joinRulesBuilder_.build();
-        }
-        if (fallbackRulesBuilder_ == null) {
-          if (((bitField0_ & 0x00000040) != 0)) {
-            fallbackRules_ = java.util.Collections.unmodifiableList(fallbackRules_);
-            bitField0_ = (bitField0_ & ~0x00000040);
-          }
-          result.fallbackRules_ = fallbackRules_;
-        } else {
-          result.fallbackRules_ = fallbackRulesBuilder_.build();
+          result.routes_ = routesBuilder_.build();
         }
       }
 
@@ -3426,55 +4294,29 @@ public final class Types extends com.google.protobuf.GeneratedFile {
             }
           }
         }
-        if (joinRulesBuilder_ == null) {
-          if (!other.joinRules_.isEmpty()) {
-            if (joinRules_.isEmpty()) {
-              joinRules_ = other.joinRules_;
+        if (routesBuilder_ == null) {
+          if (!other.routes_.isEmpty()) {
+            if (routes_.isEmpty()) {
+              routes_ = other.routes_;
               bitField0_ = (bitField0_ & ~0x00000020);
             } else {
-              ensureJoinRulesIsMutable();
-              joinRules_.addAll(other.joinRules_);
+              ensureRoutesIsMutable();
+              routes_.addAll(other.routes_);
             }
             onChanged();
           }
         } else {
-          if (!other.joinRules_.isEmpty()) {
-            if (joinRulesBuilder_.isEmpty()) {
-              joinRulesBuilder_.dispose();
-              joinRulesBuilder_ = null;
-              joinRules_ = other.joinRules_;
+          if (!other.routes_.isEmpty()) {
+            if (routesBuilder_.isEmpty()) {
+              routesBuilder_.dispose();
+              routesBuilder_ = null;
+              routes_ = other.routes_;
               bitField0_ = (bitField0_ & ~0x00000020);
-              joinRulesBuilder_ = 
+              routesBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   internalGetJoinRulesFieldBuilder() : null;
+                   internalGetRoutesFieldBuilder() : null;
             } else {
-              joinRulesBuilder_.addAllMessages(other.joinRules_);
-            }
-          }
-        }
-        if (fallbackRulesBuilder_ == null) {
-          if (!other.fallbackRules_.isEmpty()) {
-            if (fallbackRules_.isEmpty()) {
-              fallbackRules_ = other.fallbackRules_;
-              bitField0_ = (bitField0_ & ~0x00000040);
-            } else {
-              ensureFallbackRulesIsMutable();
-              fallbackRules_.addAll(other.fallbackRules_);
-            }
-            onChanged();
-          }
-        } else {
-          if (!other.fallbackRules_.isEmpty()) {
-            if (fallbackRulesBuilder_.isEmpty()) {
-              fallbackRulesBuilder_.dispose();
-              fallbackRulesBuilder_ = null;
-              fallbackRules_ = other.fallbackRules_;
-              bitField0_ = (bitField0_ & ~0x00000040);
-              fallbackRulesBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   internalGetFallbackRulesFieldBuilder() : null;
-            } else {
-              fallbackRulesBuilder_.addAllMessages(other.fallbackRules_);
+              routesBuilder_.addAllMessages(other.routes_);
             }
           }
         }
@@ -3538,31 +4380,18 @@ public final class Types extends com.google.protobuf.GeneratedFile {
                 break;
               } // case 42
               case 50: {
-                dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet m =
+                dev.minefleet.api.gateway.networking.v1alpha1.Types.Route m =
                     input.readMessage(
-                        dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.parser(),
+                        dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.parser(),
                         extensionRegistry);
-                if (joinRulesBuilder_ == null) {
-                  ensureJoinRulesIsMutable();
-                  joinRules_.add(m);
+                if (routesBuilder_ == null) {
+                  ensureRoutesIsMutable();
+                  routes_.add(m);
                 } else {
-                  joinRulesBuilder_.addMessage(m);
+                  routesBuilder_.addMessage(m);
                 }
                 break;
               } // case 50
-              case 58: {
-                dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet m =
-                    input.readMessage(
-                        dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.parser(),
-                        extensionRegistry);
-                if (fallbackRulesBuilder_ == null) {
-                  ensureFallbackRulesIsMutable();
-                  fallbackRules_.add(m);
-                } else {
-                  fallbackRulesBuilder_.addMessage(m);
-                }
-                break;
-              } // case 58
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -4088,484 +4917,244 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return serversBuilder_;
       }
 
-      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> joinRules_ =
+      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route> routes_ =
         java.util.Collections.emptyList();
-      private void ensureJoinRulesIsMutable() {
+      private void ensureRoutesIsMutable() {
         if (!((bitField0_ & 0x00000020) != 0)) {
-          joinRules_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet>(joinRules_);
+          routes_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route>(routes_);
           bitField0_ |= 0x00000020;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> joinRulesBuilder_;
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.Route, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder> routesBuilder_;
 
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> getJoinRulesList() {
-        if (joinRulesBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(joinRules_);
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route> getRoutesList() {
+        if (routesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(routes_);
         } else {
-          return joinRulesBuilder_.getMessageList();
+          return routesBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public int getJoinRulesCount() {
-        if (joinRulesBuilder_ == null) {
-          return joinRules_.size();
+      public int getRoutesCount() {
+        if (routesBuilder_ == null) {
+          return routes_.size();
         } else {
-          return joinRulesBuilder_.getCount();
+          return routesBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getJoinRules(int index) {
-        if (joinRulesBuilder_ == null) {
-          return joinRules_.get(index);
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route getRoutes(int index) {
+        if (routesBuilder_ == null) {
+          return routes_.get(index);
         } else {
-          return joinRulesBuilder_.getMessage(index);
+          return routesBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder setJoinRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
-        if (joinRulesBuilder_ == null) {
+      public Builder setRoutes(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route value) {
+        if (routesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureJoinRulesIsMutable();
-          joinRules_.set(index, value);
+          ensureRoutesIsMutable();
+          routes_.set(index, value);
           onChanged();
         } else {
-          joinRulesBuilder_.setMessage(index, value);
+          routesBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder setJoinRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
-        if (joinRulesBuilder_ == null) {
-          ensureJoinRulesIsMutable();
-          joinRules_.set(index, builderForValue.build());
+      public Builder setRoutes(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder builderForValue) {
+        if (routesBuilder_ == null) {
+          ensureRoutesIsMutable();
+          routes_.set(index, builderForValue.build());
           onChanged();
         } else {
-          joinRulesBuilder_.setMessage(index, builderForValue.build());
+          routesBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder addJoinRules(dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
-        if (joinRulesBuilder_ == null) {
+      public Builder addRoutes(dev.minefleet.api.gateway.networking.v1alpha1.Types.Route value) {
+        if (routesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureJoinRulesIsMutable();
-          joinRules_.add(value);
+          ensureRoutesIsMutable();
+          routes_.add(value);
           onChanged();
         } else {
-          joinRulesBuilder_.addMessage(value);
+          routesBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder addJoinRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
-        if (joinRulesBuilder_ == null) {
+      public Builder addRoutes(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route value) {
+        if (routesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureJoinRulesIsMutable();
-          joinRules_.add(index, value);
+          ensureRoutesIsMutable();
+          routes_.add(index, value);
           onChanged();
         } else {
-          joinRulesBuilder_.addMessage(index, value);
+          routesBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder addJoinRules(
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
-        if (joinRulesBuilder_ == null) {
-          ensureJoinRulesIsMutable();
-          joinRules_.add(builderForValue.build());
+      public Builder addRoutes(
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder builderForValue) {
+        if (routesBuilder_ == null) {
+          ensureRoutesIsMutable();
+          routes_.add(builderForValue.build());
           onChanged();
         } else {
-          joinRulesBuilder_.addMessage(builderForValue.build());
+          routesBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder addJoinRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
-        if (joinRulesBuilder_ == null) {
-          ensureJoinRulesIsMutable();
-          joinRules_.add(index, builderForValue.build());
+      public Builder addRoutes(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder builderForValue) {
+        if (routesBuilder_ == null) {
+          ensureRoutesIsMutable();
+          routes_.add(index, builderForValue.build());
           onChanged();
         } else {
-          joinRulesBuilder_.addMessage(index, builderForValue.build());
+          routesBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder addAllJoinRules(
-          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> values) {
-        if (joinRulesBuilder_ == null) {
-          ensureJoinRulesIsMutable();
+      public Builder addAllRoutes(
+          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.Route> values) {
+        if (routesBuilder_ == null) {
+          ensureRoutesIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, joinRules_);
+              values, routes_);
           onChanged();
         } else {
-          joinRulesBuilder_.addAllMessages(values);
+          routesBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder clearJoinRules() {
-        if (joinRulesBuilder_ == null) {
-          joinRules_ = java.util.Collections.emptyList();
+      public Builder clearRoutes() {
+        if (routesBuilder_ == null) {
+          routes_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000020);
           onChanged();
         } else {
-          joinRulesBuilder_.clear();
+          routesBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public Builder removeJoinRules(int index) {
-        if (joinRulesBuilder_ == null) {
-          ensureJoinRulesIsMutable();
-          joinRules_.remove(index);
+      public Builder removeRoutes(int index) {
+        if (routesBuilder_ == null) {
+          ensureRoutesIsMutable();
+          routes_.remove(index);
           onChanged();
         } else {
-          joinRulesBuilder_.remove(index);
+          routesBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder getJoinRulesBuilder(
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder getRoutesBuilder(
           int index) {
-        return internalGetJoinRulesFieldBuilder().getBuilder(index);
+        return internalGetRoutesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getJoinRulesOrBuilder(
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder getRoutesOrBuilder(
           int index) {
-        if (joinRulesBuilder_ == null) {
-          return joinRules_.get(index);  } else {
-          return joinRulesBuilder_.getMessageOrBuilder(index);
+        if (routesBuilder_ == null) {
+          return routes_.get(index);  } else {
+          return routesBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-           getJoinRulesOrBuilderList() {
-        if (joinRulesBuilder_ != null) {
-          return joinRulesBuilder_.getMessageOrBuilderList();
+      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder> 
+           getRoutesOrBuilderList() {
+        if (routesBuilder_ != null) {
+          return routesBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(joinRules_);
+          return java.util.Collections.unmodifiableList(routes_);
         }
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder addJoinRulesBuilder() {
-        return internalGetJoinRulesFieldBuilder().addBuilder(
-            dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.getDefaultInstance());
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder addRoutesBuilder() {
+        return internalGetRoutesFieldBuilder().addBuilder(
+            dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.getDefaultInstance());
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder addJoinRulesBuilder(
+      public dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder addRoutesBuilder(
           int index) {
-        return internalGetJoinRulesFieldBuilder().addBuilder(
-            index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.getDefaultInstance());
+        return internalGetRoutesFieldBuilder().addBuilder(
+            index, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.getDefaultInstance());
       }
       /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet join_rules = 6 [json_name = "joinRules"];</code>
+       * <code>repeated .network.v1alpha1.Route routes = 6 [json_name = "routes"];</code>
        */
-      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder> 
-           getJoinRulesBuilderList() {
-        return internalGetJoinRulesFieldBuilder().getBuilderList();
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder> 
+           getRoutesBuilderList() {
+        return internalGetRoutesFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-          internalGetJoinRulesFieldBuilder() {
-        if (joinRulesBuilder_ == null) {
-          joinRulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder>(
-                  joinRules_,
+          dev.minefleet.api.gateway.networking.v1alpha1.Types.Route, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder> 
+          internalGetRoutesFieldBuilder() {
+        if (routesBuilder_ == null) {
+          routesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Types.Route, dev.minefleet.api.gateway.networking.v1alpha1.Types.Route.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.RouteOrBuilder>(
+                  routes_,
                   ((bitField0_ & 0x00000020) != 0),
                   getParentForChildren(),
                   isClean());
-          joinRules_ = null;
+          routes_ = null;
         }
-        return joinRulesBuilder_;
-      }
-
-      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> fallbackRules_ =
-        java.util.Collections.emptyList();
-      private void ensureFallbackRulesIsMutable() {
-        if (!((bitField0_ & 0x00000040) != 0)) {
-          fallbackRules_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet>(fallbackRules_);
-          bitField0_ |= 0x00000040;
-         }
-      }
-
-      private com.google.protobuf.RepeatedFieldBuilder<
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> fallbackRulesBuilder_;
-
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> getFallbackRulesList() {
-        if (fallbackRulesBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(fallbackRules_);
-        } else {
-          return fallbackRulesBuilder_.getMessageList();
-        }
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public int getFallbackRulesCount() {
-        if (fallbackRulesBuilder_ == null) {
-          return fallbackRules_.size();
-        } else {
-          return fallbackRulesBuilder_.getCount();
-        }
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet getFallbackRules(int index) {
-        if (fallbackRulesBuilder_ == null) {
-          return fallbackRules_.get(index);
-        } else {
-          return fallbackRulesBuilder_.getMessage(index);
-        }
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder setFallbackRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
-        if (fallbackRulesBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.set(index, value);
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.setMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder setFallbackRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
-        if (fallbackRulesBuilder_ == null) {
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder addFallbackRules(dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
-        if (fallbackRulesBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.add(value);
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder addFallbackRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet value) {
-        if (fallbackRulesBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.add(index, value);
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder addFallbackRules(
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
-        if (fallbackRulesBuilder_ == null) {
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.add(builderForValue.build());
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder addFallbackRules(
-          int index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder builderForValue) {
-        if (fallbackRulesBuilder_ == null) {
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder addAllFallbackRules(
-          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet> values) {
-        if (fallbackRulesBuilder_ == null) {
-          ensureFallbackRulesIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, fallbackRules_);
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.addAllMessages(values);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder clearFallbackRules() {
-        if (fallbackRulesBuilder_ == null) {
-          fallbackRules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.clear();
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public Builder removeFallbackRules(int index) {
-        if (fallbackRulesBuilder_ == null) {
-          ensureFallbackRulesIsMutable();
-          fallbackRules_.remove(index);
-          onChanged();
-        } else {
-          fallbackRulesBuilder_.remove(index);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder getFallbackRulesBuilder(
-          int index) {
-        return internalGetFallbackRulesFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder getFallbackRulesOrBuilder(
-          int index) {
-        if (fallbackRulesBuilder_ == null) {
-          return fallbackRules_.get(index);  } else {
-          return fallbackRulesBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-           getFallbackRulesOrBuilderList() {
-        if (fallbackRulesBuilder_ != null) {
-          return fallbackRulesBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(fallbackRules_);
-        }
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder addFallbackRulesBuilder() {
-        return internalGetFallbackRulesFieldBuilder().addBuilder(
-            dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder addFallbackRulesBuilder(
-          int index) {
-        return internalGetFallbackRulesFieldBuilder().addBuilder(
-            index, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .network.v1alpha1.OptionRuleSet fallback_rules = 7 [json_name = "fallbackRules"];</code>
-       */
-      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder> 
-           getFallbackRulesBuilderList() {
-        return internalGetFallbackRulesFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder> 
-          internalGetFallbackRulesFieldBuilder() {
-        if (fallbackRulesBuilder_ == null) {
-          fallbackRulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSet.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Types.OptionRuleSetOrBuilder>(
-                  fallbackRules_,
-                  ((bitField0_ & 0x00000040) != 0),
-                  getParentForChildren(),
-                  isClean());
-          fallbackRules_ = null;
-        }
-        return fallbackRulesBuilder_;
+        return routesBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:network.v1alpha1.ManagedService)
@@ -6792,6 +7381,11 @@ public final class Types extends com.google.protobuf.GeneratedFile {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_network_v1alpha1_OptionRuleSet_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_Route_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_Route_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_network_v1alpha1_ManagedService_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -6824,33 +7418,35 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       "_domainB\r\n\013_permissionB\017\n\r_fallback_for\"" +
       "m\n\rOptionRuleSet\022.\n\004type\030\001 \001(\0162\032.network" +
       ".v1alpha1.RuleTypeR\004type\022,\n\005rules\030\002 \003(\0132" +
-      "\026.network.v1alpha1.RuleR\005rules\"\213\003\n\016Manag" +
-      "edService\022\'\n\017namespaced_name\030\001 \001(\tR\016name" +
-      "spacedName\022\034\n\tnamespace\030\002 \001(\tR\tnamespace" +
-      "\022\022\n\004name\030\003 \001(\tR\004name\022[\n\025distribution_str" +
-      "ategy\030\004 \001(\0162&.network.v1alpha1.Distribut" +
-      "ionStrategyR\024distributionStrategy\0229\n\007ser" +
-      "vers\030\005 \003(\0132\037.network.v1alpha1.ManagedSer" +
-      "verR\007servers\022>\n\njoin_rules\030\006 \003(\0132\037.netwo" +
-      "rk.v1alpha1.OptionRuleSetR\tjoinRules\022F\n\016" +
-      "fallback_rules\030\007 \003(\0132\037.network.v1alpha1." +
-      "OptionRuleSetR\rfallbackRules\"\361\001\n\rManaged" +
-      "Server\022\033\n\tunique_id\030\001 \001(\tR\010uniqueId\022\022\n\004n" +
-      "ame\030\002 \001(\tR\004name\022&\n\014numerical_id\030\003 \001(\rH\000R" +
-      "\013numericalId\210\001\001\022$\n\013max_players\030\004 \001(\rH\001R\n" +
-      "maxPlayers\210\001\001\022,\n\017current_players\030\005 \001(\rH\002" +
-      "R\016currentPlayers\210\001\001B\017\n\r_numerical_idB\016\n\014" +
-      "_max_playersB\022\n\020_current_players\"\277\001\n\010Sna" +
-      "pshot\022!\n\014gateway_name\030\001 \001(\tR\013gatewayName" +
-      "\022#\n\rlistener_name\030\002 \001(\tR\014listenerName\022-\n" +
-      "\022current_generation\030\003 \001(\tR\021currentGenera" +
-      "tion\022<\n\010services\030\004 \003(\0132 .network.v1alpha" +
-      "1.ManagedServiceR\010services*&\n\010RuleType\022\010" +
-      "\n\004NONE\020\000\022\007\n\003ANY\020\001\022\007\n\003ALL\020\002*5\n\024Distributi" +
-      "onStrategy\022\n\n\006RANDOM\020\000\022\021\n\rLEAST_PLAYERS\020" +
-      "\001Bl\n-dev.minefleet.api.gateway.networkin" +
-      "g.v1alpha1Z;github.com/minefleet/minecra" +
-      "ft-gateway/api/network/v1alpha1b\006proto3"
+      "\026.network.v1alpha1.RuleR\005rules\"\224\001\n\005Route" +
+      "\022\032\n\010priority\030\001 \001(\rR\010priority\022\027\n\007is_join\030" +
+      "\002 \001(\010R\006isJoin\022\037\n\013is_fallback\030\003 \001(\010R\nisFa" +
+      "llback\0225\n\005rules\030\004 \003(\0132\037.network.v1alpha1" +
+      ".OptionRuleSetR\005rules\"\264\002\n\016ManagedService" +
+      "\022\'\n\017namespaced_name\030\001 \001(\tR\016namespacedNam" +
+      "e\022\034\n\tnamespace\030\002 \001(\tR\tnamespace\022\022\n\004name\030" +
+      "\003 \001(\tR\004name\022[\n\025distribution_strategy\030\004 \001" +
+      "(\0162&.network.v1alpha1.DistributionStrate" +
+      "gyR\024distributionStrategy\0229\n\007servers\030\005 \003(" +
+      "\0132\037.network.v1alpha1.ManagedServerR\007serv" +
+      "ers\022/\n\006routes\030\006 \003(\0132\027.network.v1alpha1.R" +
+      "outeR\006routes\"\361\001\n\rManagedServer\022\033\n\tunique" +
+      "_id\030\001 \001(\tR\010uniqueId\022\022\n\004name\030\002 \001(\tR\004name\022" +
+      "&\n\014numerical_id\030\003 \001(\rH\000R\013numericalId\210\001\001\022" +
+      "$\n\013max_players\030\004 \001(\rH\001R\nmaxPlayers\210\001\001\022,\n" +
+      "\017current_players\030\005 \001(\rH\002R\016currentPlayers" +
+      "\210\001\001B\017\n\r_numerical_idB\016\n\014_max_playersB\022\n\020" +
+      "_current_players\"\277\001\n\010Snapshot\022!\n\014gateway" +
+      "_name\030\001 \001(\tR\013gatewayName\022#\n\rlistener_nam" +
+      "e\030\002 \001(\tR\014listenerName\022-\n\022current_generat" +
+      "ion\030\003 \001(\tR\021currentGeneration\022<\n\010services" +
+      "\030\004 \003(\0132 .network.v1alpha1.ManagedService" +
+      "R\010services*&\n\010RuleType\022\010\n\004NONE\020\000\022\007\n\003ANY\020" +
+      "\001\022\007\n\003ALL\020\002*5\n\024DistributionStrategy\022\n\n\006RA" +
+      "NDOM\020\000\022\021\n\rLEAST_PLAYERS\020\001Bl\n-dev.minefle" +
+      "et.api.gateway.networking.v1alpha1Z;gith" +
+      "ub.com/minefleet/minecraft-gateway/api/n" +
+      "etwork/v1alpha1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -6874,20 +7470,26 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_OptionRuleSet_descriptor,
         new java.lang.String[] { "Type", "Rules", });
-    internal_static_network_v1alpha1_ManagedService_descriptor =
+    internal_static_network_v1alpha1_Route_descriptor =
       getDescriptor().getMessageType(3);
+    internal_static_network_v1alpha1_Route_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_Route_descriptor,
+        new java.lang.String[] { "Priority", "IsJoin", "IsFallback", "Rules", });
+    internal_static_network_v1alpha1_ManagedService_descriptor =
+      getDescriptor().getMessageType(4);
     internal_static_network_v1alpha1_ManagedService_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ManagedService_descriptor,
-        new java.lang.String[] { "NamespacedName", "Namespace", "Name", "DistributionStrategy", "Servers", "JoinRules", "FallbackRules", });
+        new java.lang.String[] { "NamespacedName", "Namespace", "Name", "DistributionStrategy", "Servers", "Routes", });
     internal_static_network_v1alpha1_ManagedServer_descriptor =
-      getDescriptor().getMessageType(4);
+      getDescriptor().getMessageType(5);
     internal_static_network_v1alpha1_ManagedServer_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ManagedServer_descriptor,
         new java.lang.String[] { "UniqueId", "Name", "NumericalId", "MaxPlayers", "CurrentPlayers", });
     internal_static_network_v1alpha1_Snapshot_descriptor =
-      getDescriptor().getMessageType(5);
+      getDescriptor().getMessageType(6);
     internal_static_network_v1alpha1_Snapshot_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_Snapshot_descriptor,

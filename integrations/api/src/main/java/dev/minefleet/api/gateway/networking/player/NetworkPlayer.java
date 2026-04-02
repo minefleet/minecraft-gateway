@@ -11,5 +11,7 @@ public interface NetworkPlayer<P> {
 
     boolean hasPermission(String permission);
 
-    P raw();
+    void connectToServer(ManagedServer server);
+
+    void kick(KickReason reason);
 }

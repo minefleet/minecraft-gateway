@@ -26,15 +26,13 @@ class AvailabilityRuleTest {
 
     @Test
     void trueWhenServersPresent() {
-        ManagedServer server = new ManagedServer("ns/svc",
-                Types.ManagedServer.newBuilder().setUniqueId("s1").build());
-        when(service.servers()).thenReturn(List.of(server));
+        when(service.availableServersAmount()).thenReturn(1);
         assertTrue(rule.evaluate(new RuleContext(player, service)));
     }
 
     @Test
     void falseWhenNoServers() {
-        when(service.servers()).thenReturn(List.of());
+        when(service.availableServersAmount()).thenReturn(0);
         assertFalse(rule.evaluate(new RuleContext(player, service)));
     }
 }

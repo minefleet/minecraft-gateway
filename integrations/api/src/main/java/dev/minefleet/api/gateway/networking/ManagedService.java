@@ -7,18 +7,25 @@ import java.util.List;
 
 public final class ManagedService {
 
+    public record RouteEntry(int priority, RuleSet rules) {
+    }
+
     private final Types.ManagedService proto;
-    private final List<ManagedServer> servers;
-    private final RuleSet joinRules;
-    private final RuleSet fallbackRules;
+    private final List<RouteEntry> joinRoutes;
+    private final List<RouteEntry> fallbackRoutes;
+    private final int availableServersAmount;
 
     public ManagedService(Types.ManagedService proto) {
         this.proto = proto;
-        this.servers = proto.getServersList().stream()
-                .map((Types.ManagedServer serverProto) -> new ManagedServer(namespacedName(), serverProto))
+        this.availableServersAmount = proto.getServersCount();
+        this.joinRoutes = proto.getRoutesList().stream()
+                .filter(Types.Route::getIsJoin)
+                .map(r -> new RouteEntry(r.getPriority(), new RuleSet(r.getRulesList())))
                 .toList();
-        this.joinRules = new RuleSet(proto.getJoinRulesList());
-        this.fallbackRules = new RuleSet(proto.getFallbackRulesList());
+        this.fallbackRoutes = proto.getRoutesList().stream()
+                .filter(Types.Route::getIsFallback)
+                .map(r -> new RouteEntry(r.getPriority(), new RuleSet(r.getRulesList())))
+                .toList();
     }
 
     public String namespacedName() {
@@ -33,20 +40,28 @@ public final class ManagedService {
         return proto.getName();
     }
 
+    public int availableServersAmount() {
+        return availableServersAmount;
+    }
+
+    public boolean isJoinService() {
+        return !joinRoutes.isEmpty();
+    }
+
+    public List<RouteEntry> joinRoutes() {
+        return joinRoutes;
+    }
+
+    public boolean isFallbackService() {
+        return !fallbackRoutes.isEmpty();
+    }
+
+    public List<RouteEntry> fallbackRoutes() {
+        return fallbackRoutes;
+    }
+
     public Types.DistributionStrategy distributionStrategy() {
         return proto.getDistributionStrategy();
-    }
-
-    public List<ManagedServer> servers() {
-        return servers;
-    }
-
-    public RuleSet joinRules() {
-        return joinRules;
-    }
-
-    public RuleSet fallbackRules() {
-        return fallbackRules;
     }
 
     public Types.ManagedService toProto() {

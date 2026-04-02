@@ -5,9 +5,9 @@ import java.util.List;
 
 public interface ServerRegistrar {
 
-    default void registerOrUpdate(ManagedService service) throws ServerRegistrarBulkException {
+    default void registerOrUpdate(List<ManagedServer> servers) throws ServerRegistrarBulkException {
         List<ServerRegistrarException> failures = new ArrayList<>();
-        for (ManagedServer server : service.servers()) {
+        for (ManagedServer server : servers) {
             try {
                 registerOrUpdate(server);
             } catch (ServerRegistrarException e) {
@@ -19,9 +19,9 @@ public interface ServerRegistrar {
 
     void registerOrUpdate(ManagedServer server) throws ServerRegistrarException;
 
-    default void unregister(ManagedService service) throws ServerRegistrarBulkException {
+    default void unregister(List<ManagedServer> servers) throws ServerRegistrarBulkException {
         List<ServerRegistrarException> failures = new ArrayList<>();
-        for (ManagedServer server : service.servers()) {
+        for (ManagedServer server : servers) {
             try {
                 unregister(server);
             } catch (ServerRegistrarException e) {

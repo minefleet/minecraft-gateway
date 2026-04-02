@@ -273,6 +273,74 @@ func (x *OptionRuleSet) GetRules() []*Rule {
 	return nil
 }
 
+type Route struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Priority      uint32                 `protobuf:"varint,1,opt,name=priority,proto3" json:"priority,omitempty"`
+	IsJoin        bool                   `protobuf:"varint,2,opt,name=is_join,json=isJoin,proto3" json:"is_join,omitempty"`
+	IsFallback    bool                   `protobuf:"varint,3,opt,name=is_fallback,json=isFallback,proto3" json:"is_fallback,omitempty"`
+	Rules         []*OptionRuleSet       `protobuf:"bytes,4,rep,name=rules,proto3" json:"rules,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Route) Reset() {
+	*x = Route{}
+	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Route) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Route) ProtoMessage() {}
+
+func (x *Route) ProtoReflect() protoreflect.Message {
+	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Route.ProtoReflect.Descriptor instead.
+func (*Route) Descriptor() ([]byte, []int) {
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Route) GetPriority() uint32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
+func (x *Route) GetIsJoin() bool {
+	if x != nil {
+		return x.IsJoin
+	}
+	return false
+}
+
+func (x *Route) GetIsFallback() bool {
+	if x != nil {
+		return x.IsFallback
+	}
+	return false
+}
+
+func (x *Route) GetRules() []*OptionRuleSet {
+	if x != nil {
+		return x.Rules
+	}
+	return nil
+}
+
 type ManagedService struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	NamespacedName       string                 `protobuf:"bytes,1,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
@@ -280,15 +348,14 @@ type ManagedService struct {
 	Name                 string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	DistributionStrategy DistributionStrategy   `protobuf:"varint,4,opt,name=distribution_strategy,json=distributionStrategy,proto3,enum=network.v1alpha1.DistributionStrategy" json:"distribution_strategy,omitempty"`
 	Servers              []*ManagedServer       `protobuf:"bytes,5,rep,name=servers,proto3" json:"servers,omitempty"`
-	JoinRules            []*OptionRuleSet       `protobuf:"bytes,6,rep,name=join_rules,json=joinRules,proto3" json:"join_rules,omitempty"`
-	FallbackRules        []*OptionRuleSet       `protobuf:"bytes,7,rep,name=fallback_rules,json=fallbackRules,proto3" json:"fallback_rules,omitempty"`
+	Routes               []*Route               `protobuf:"bytes,6,rep,name=routes,proto3" json:"routes,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ManagedService) Reset() {
 	*x = ManagedService{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -300,7 +367,7 @@ func (x *ManagedService) String() string {
 func (*ManagedService) ProtoMessage() {}
 
 func (x *ManagedService) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[3]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -313,7 +380,7 @@ func (x *ManagedService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ManagedService.ProtoReflect.Descriptor instead.
 func (*ManagedService) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{3}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ManagedService) GetNamespacedName() string {
@@ -351,16 +418,9 @@ func (x *ManagedService) GetServers() []*ManagedServer {
 	return nil
 }
 
-func (x *ManagedService) GetJoinRules() []*OptionRuleSet {
+func (x *ManagedService) GetRoutes() []*Route {
 	if x != nil {
-		return x.JoinRules
-	}
-	return nil
-}
-
-func (x *ManagedService) GetFallbackRules() []*OptionRuleSet {
-	if x != nil {
-		return x.FallbackRules
+		return x.Routes
 	}
 	return nil
 }
@@ -378,7 +438,7 @@ type ManagedServer struct {
 
 func (x *ManagedServer) Reset() {
 	*x = ManagedServer{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -390,7 +450,7 @@ func (x *ManagedServer) String() string {
 func (*ManagedServer) ProtoMessage() {}
 
 func (x *ManagedServer) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[4]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -403,7 +463,7 @@ func (x *ManagedServer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ManagedServer.ProtoReflect.Descriptor instead.
 func (*ManagedServer) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{4}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ManagedServer) GetUniqueId() string {
@@ -453,7 +513,7 @@ type Snapshot struct {
 
 func (x *Snapshot) Reset() {
 	*x = Snapshot{}
-	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -465,7 +525,7 @@ func (x *Snapshot) String() string {
 func (*Snapshot) ProtoMessage() {}
 
 func (x *Snapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_network_v1alpha1_types_proto_msgTypes[5]
+	mi := &file_network_v1alpha1_types_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -478,7 +538,7 @@ func (x *Snapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Snapshot.ProtoReflect.Descriptor instead.
 func (*Snapshot) Descriptor() ([]byte, []int) {
-	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{5}
+	return file_network_v1alpha1_types_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Snapshot) GetGatewayName() string {
@@ -528,16 +588,20 @@ const file_network_v1alpha1_types_proto_rawDesc = "" +
 	"\r_fallback_for\"m\n" +
 	"\rOptionRuleSet\x12.\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1a.network.v1alpha1.RuleTypeR\x04type\x12,\n" +
-	"\x05rules\x18\x02 \x03(\v2\x16.network.v1alpha1.RuleR\x05rules\"\x8b\x03\n" +
+	"\x05rules\x18\x02 \x03(\v2\x16.network.v1alpha1.RuleR\x05rules\"\x94\x01\n" +
+	"\x05Route\x12\x1a\n" +
+	"\bpriority\x18\x01 \x01(\rR\bpriority\x12\x17\n" +
+	"\ais_join\x18\x02 \x01(\bR\x06isJoin\x12\x1f\n" +
+	"\vis_fallback\x18\x03 \x01(\bR\n" +
+	"isFallback\x125\n" +
+	"\x05rules\x18\x04 \x03(\v2\x1f.network.v1alpha1.OptionRuleSetR\x05rules\"\xb4\x02\n" +
 	"\x0eManagedService\x12'\n" +
 	"\x0fnamespaced_name\x18\x01 \x01(\tR\x0enamespacedName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12[\n" +
 	"\x15distribution_strategy\x18\x04 \x01(\x0e2&.network.v1alpha1.DistributionStrategyR\x14distributionStrategy\x129\n" +
-	"\aservers\x18\x05 \x03(\v2\x1f.network.v1alpha1.ManagedServerR\aservers\x12>\n" +
-	"\n" +
-	"join_rules\x18\x06 \x03(\v2\x1f.network.v1alpha1.OptionRuleSetR\tjoinRules\x12F\n" +
-	"\x0efallback_rules\x18\a \x03(\v2\x1f.network.v1alpha1.OptionRuleSetR\rfallbackRules\"\xf1\x01\n" +
+	"\aservers\x18\x05 \x03(\v2\x1f.network.v1alpha1.ManagedServerR\aservers\x12/\n" +
+	"\x06routes\x18\x06 \x03(\v2\x17.network.v1alpha1.RouteR\x06routes\"\xf1\x01\n" +
 	"\rManagedServer\x12\x1b\n" +
 	"\tunique_id\x18\x01 \x01(\tR\buniqueId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12&\n" +
@@ -576,25 +640,26 @@ func file_network_v1alpha1_types_proto_rawDescGZIP() []byte {
 }
 
 var file_network_v1alpha1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_network_v1alpha1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_network_v1alpha1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_network_v1alpha1_types_proto_goTypes = []any{
 	(RuleType)(0),             // 0: network.v1alpha1.RuleType
 	(DistributionStrategy)(0), // 1: network.v1alpha1.DistributionStrategy
 	(*FallbackRule)(nil),      // 2: network.v1alpha1.FallbackRule
 	(*Rule)(nil),              // 3: network.v1alpha1.Rule
 	(*OptionRuleSet)(nil),     // 4: network.v1alpha1.OptionRuleSet
-	(*ManagedService)(nil),    // 5: network.v1alpha1.ManagedService
-	(*ManagedServer)(nil),     // 6: network.v1alpha1.ManagedServer
-	(*Snapshot)(nil),          // 7: network.v1alpha1.Snapshot
+	(*Route)(nil),             // 5: network.v1alpha1.Route
+	(*ManagedService)(nil),    // 6: network.v1alpha1.ManagedService
+	(*ManagedServer)(nil),     // 7: network.v1alpha1.ManagedServer
+	(*Snapshot)(nil),          // 8: network.v1alpha1.Snapshot
 }
 var file_network_v1alpha1_types_proto_depIdxs = []int32{
 	0, // 0: network.v1alpha1.OptionRuleSet.type:type_name -> network.v1alpha1.RuleType
 	3, // 1: network.v1alpha1.OptionRuleSet.rules:type_name -> network.v1alpha1.Rule
-	1, // 2: network.v1alpha1.ManagedService.distribution_strategy:type_name -> network.v1alpha1.DistributionStrategy
-	6, // 3: network.v1alpha1.ManagedService.servers:type_name -> network.v1alpha1.ManagedServer
-	4, // 4: network.v1alpha1.ManagedService.join_rules:type_name -> network.v1alpha1.OptionRuleSet
-	4, // 5: network.v1alpha1.ManagedService.fallback_rules:type_name -> network.v1alpha1.OptionRuleSet
-	5, // 6: network.v1alpha1.Snapshot.services:type_name -> network.v1alpha1.ManagedService
+	4, // 2: network.v1alpha1.Route.rules:type_name -> network.v1alpha1.OptionRuleSet
+	1, // 3: network.v1alpha1.ManagedService.distribution_strategy:type_name -> network.v1alpha1.DistributionStrategy
+	7, // 4: network.v1alpha1.ManagedService.servers:type_name -> network.v1alpha1.ManagedServer
+	5, // 5: network.v1alpha1.ManagedService.routes:type_name -> network.v1alpha1.Route
+	6, // 6: network.v1alpha1.Snapshot.services:type_name -> network.v1alpha1.ManagedService
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name
@@ -609,14 +674,14 @@ func file_network_v1alpha1_types_proto_init() {
 	}
 	file_network_v1alpha1_types_proto_msgTypes[0].OneofWrappers = []any{}
 	file_network_v1alpha1_types_proto_msgTypes[1].OneofWrappers = []any{}
-	file_network_v1alpha1_types_proto_msgTypes[4].OneofWrappers = []any{}
+	file_network_v1alpha1_types_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_network_v1alpha1_types_proto_rawDesc), len(file_network_v1alpha1_types_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -33,14 +33,20 @@ enum DistributionStrategy {
   LEAST_PLAYERS = 1;
 }
 
+message Route {
+  uint32 priority = 1;
+  bool is_join = 2;
+  bool is_fallback = 3;
+  repeated OptionRuleSet rules = 4;
+}
+
 message ManagedService {
   string namespaced_name = 1;
   string namespace = 2;
   string name = 3;
   DistributionStrategy distribution_strategy = 4;
   repeated ManagedServer servers = 5;
-  repeated OptionRuleSet join_rules = 6;
-  repeated OptionRuleSet fallback_rules = 7;
+  repeated Route routes = 6;
 }
 
 message ManagedServer {
