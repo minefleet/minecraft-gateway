@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class NetworkSnapshotReconciler {
 
@@ -32,16 +33,22 @@ public class NetworkSnapshotReconciler {
     private final NetworkSnapshotFetcher fetcher;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final ServerRegistrar registrar;
+    private final Consumer<NetworkSnapshot> onSnapshot;
 
     private RetryQueue pendingRegister = RetryQueue.empty();
     private RetryQueue pendingUnregister = RetryQueue.empty();
 
     public NetworkSnapshotReconciler(Channel channel, NetworkSnapshotContext context, ServerRegistrar registrar, int retries, int intervalSeconds) {
+        this(channel, context, registrar, retries, intervalSeconds, snapshot -> {});
+    }
+
+    public NetworkSnapshotReconciler(Channel channel, NetworkSnapshotContext context, ServerRegistrar registrar, int retries, int intervalSeconds, Consumer<NetworkSnapshot> onSnapshot) {
         this.context = context;
         this.retries = retries;
         this.intervalSeconds = intervalSeconds;
         this.fetcher = new NetworkSnapshotFetcher(channel, null);
         this.registrar = registrar;
+        this.onSnapshot = onSnapshot;
     }
 
     // Applies the action, returning any servers that failed.
@@ -58,6 +65,7 @@ public class NetworkSnapshotReconciler {
     private void reconcile(NetworkSnapshot newSnapshot) {
         NetworkSnapshot prev = lastSnapshot;
         lastSnapshot = newSnapshot;
+        onSnapshot.accept(newSnapshot);
         var delta = newSnapshot.serverSnapshotDelta(prev);
 
         // Retry pending from previous cycles before processing new delta
