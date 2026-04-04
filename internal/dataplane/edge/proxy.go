@@ -12,9 +12,7 @@ import (
 
 const (
 	daemonSetName  = "minecraft-gateway-edge"
-	xdsServiceName = "minecraft-gateway-xds"
-	componentLabel = "app.kubernetes.io/component"
-	componentValue = "minecraft-gateway-edge"
+	xdsServiceName = "minecraft-gateway-edge-xds"
 )
 
 type proxyManager struct {

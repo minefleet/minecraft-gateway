@@ -39,6 +39,9 @@ public class MinefleetVelocityPlugin {
                 .registrar(registrar)
                 .build();
         gateway.start();
+        proxy.getAllServers().forEach(server -> {
+            proxy.unregisterServer(server.getServerInfo());
+        });
         logger.info("Minefleet gateway started.");
     }
 

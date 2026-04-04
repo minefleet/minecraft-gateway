@@ -29,3 +29,14 @@ spec:
               value: "1.21.11"
             - name: TYPE
               value: "PAPER"
+            - name: ONLINE_MODE
+              value: "false"
+            - name: PATCH_DEFINITIONS
+              value: /patches
+          volumeMounts:
+            - name: patch-config
+              mountPath: /patches
+      volumes:
+        - name: patch-config
+          configMap:
+            name: minecraft-patch-config

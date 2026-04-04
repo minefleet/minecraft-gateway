@@ -7,4 +7,5 @@ resources:
 - gateway.networking_v1_gatewayclass.yaml
 - minecraft_deployment.yaml
 - minecraft_service.yaml
+- minecraft_patch_config.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

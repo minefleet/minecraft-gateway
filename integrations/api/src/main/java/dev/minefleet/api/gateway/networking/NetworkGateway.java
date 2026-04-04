@@ -7,7 +7,11 @@ import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshot;
 import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshotContext;
 import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshotReconciler;
 import io.grpc.Channel;
+import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolverRegistry;
+import io.grpc.internal.DnsNameResolverProvider;
+import io.grpc.internal.PickFirstLoadBalancerProvider;
 
 public class NetworkGateway {
 
@@ -93,7 +97,9 @@ public class NetworkGateway {
                 throw new IllegalStateException(
                         "Missing required environment variables: GATEWAY_NETWORK_XDS_HOST, GATEWAY_NETWORK_XDS_PORT");
             }
-            return ManagedChannelBuilder.forAddress(host, Integer.parseInt(portStr))
+            NameResolverRegistry.getDefaultRegistry().register(new DnsNameResolverProvider());
+            LoadBalancerRegistry.getDefaultRegistry().register(new PickFirstLoadBalancerProvider());
+            return ManagedChannelBuilder.forTarget("dns:///" + host + ":" + portStr)
                     .usePlaintext()
                     .build();
         }

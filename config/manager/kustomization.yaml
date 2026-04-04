@@ -1,6 +1,7 @@
 resources:
 - manager.yaml
-- xds_service.yaml
+- edge_xds_service.yaml
+- network_xds_service.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:

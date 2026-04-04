@@ -7,6 +7,7 @@ import (
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
+	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -61,10 +62,18 @@ func (e Executor) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	plane := CreateDataplane(ctx, e.Client, Config{Edge: edge.Config{
-		Namespace: string(controllerNamespace),
-		XDSPort:   18000,
-	}})
+	plane := CreateDataplane(ctx, e.Client, Config{
+		Edge: edge.Config{
+			Namespace: string(controllerNamespace),
+			XDSPort:   18000,
+		},
+		Network: network.Config{
+			Namespace: string(controllerNamespace),
+			XDSPort:   18001,
+			// TODO: make this dynamic
+			ProxyImage: "minefleet.dev/minecraft-proxy:v0.0.1",
+		},
+	})
 	*e.Dataplane = plane
 	return nil
 }

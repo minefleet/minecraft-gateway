@@ -19,6 +19,7 @@ type NetworkDataplane struct {
 	updates       chan network.Snapshot
 	mu            sync.Mutex
 	snapshotCache network.GatewaySnapshotCache
+	proxyMgr      *network.ProxyManager
 }
 
 func newNetworkDataplane(ctx context.Context, c client.Client, cfg network.Config) Dataplane {
@@ -28,6 +29,7 @@ func newNetworkDataplane(ctx context.Context, c client.Client, cfg network.Confi
 		cfg:           cfg,
 		updates:       make(chan network.Snapshot, 1),
 		snapshotCache: make(network.GatewaySnapshotCache),
+		proxyMgr:      network.NewProxyManager(c, cfg),
 	}
 	d.SetupDataplane()
 	return &d
@@ -39,17 +41,53 @@ func (d *NetworkDataplane) SetupDataplane() {
 
 func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
 	d.mu.Lock()
-	d.snapshotCache[name] = nil
+	d.snapshotCache[name] = make(map[string]network.ListenerSnapshot)
 	for listener, bag := range routes {
 		d.snapshotCache[name][string(listener.Name)] = network.BuildListenerSnapshot(name, listener, bag, backends)
 	}
+	snap := network.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
-	return nil
+
+	select {
+	case d.updates <- snap:
+	default:
+		select {
+		case <-d.updates:
+		default:
+		}
+		select {
+		case d.updates <- snap:
+		case <-d.ctx.Done():
+			return d.ctx.Err()
+		}
+	}
+
+	listeners := make([]gatewayv1.Listener, 0, len(routes))
+	for l := range routes {
+		listeners = append(listeners, l)
+	}
+	return d.proxyMgr.Sync(d.ctx, name, listeners)
 }
 
 func (d *NetworkDataplane) DeleteGateway(name types.NamespacedName) error {
 	d.mu.Lock()
 	delete(d.snapshotCache, name)
+	snap := network.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
-	return nil
+
+	select {
+	case d.updates <- snap:
+	default:
+		select {
+		case <-d.updates:
+		default:
+		}
+		select {
+		case d.updates <- snap:
+		case <-d.ctx.Done():
+			return d.ctx.Err()
+		}
+	}
+
+	return d.proxyMgr.Delete(d.ctx, name)
 }

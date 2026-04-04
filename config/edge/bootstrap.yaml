@@ -50,5 +50,5 @@ data:
                   - endpoint:
                       address:
                         socket_address:
-                          address: minecraft-gateway-xds.minecraft-gateway-system.svc.cluster.local
+                          address: minecraft-gateway-edge-xds.minecraft-gateway-system.svc.cluster.local
                           port_value: 18000

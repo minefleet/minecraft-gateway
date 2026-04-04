@@ -1,6 +1,7 @@
 # Image URL to use all building/pushing image targets
 CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
 EDGE_IMG ?= minefleet.dev/minecraft-edge:v0.0.1
+NETWORK_IMG ?= minefleet.dev/minecraft-proxy:v0.0.1
 
 PLATFORMS ?= linux/arm64,linux/amd64
 
@@ -174,6 +175,11 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 	- $(CONTAINER_TOOL) buildx rm minecraft-edge-builder
 	rm Dockerfile.edge.cross
 
+##@ Build Network Integrations
+.PHONY: velocity-docker-build
+velocity-docker-build:
+	$(CONTAINER_TOOL) build -t ${NETWORK_IMG} . -f Dockerfile.velocity
+
 ##@ Build
 .PHONY: docker-build
 docker-build: controller-docker-build edge-docker-build
@@ -200,6 +206,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 image-load: manifests
 	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
 	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
+	$(KIND) load docker-image ${NETWORK_IMG} --name ${KIND_CLUSTER}
 
 
 .PHONY: deploy
