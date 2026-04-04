@@ -7,6 +7,7 @@ import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshot;
 import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshotContext;
 import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshotReconciler;
 import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
 
 public class NetworkGateway {
 
@@ -51,7 +52,7 @@ public class NetworkGateway {
         private NetworkSnapshotContext context;
         private ServerRegistrar registrar;
         private int retries = 3;
-        private int intervalSeconds = 30;
+        private int intervalSeconds = 5;
 
         public Builder channel(Channel channel) {
             this.channel = channel;
@@ -79,10 +80,22 @@ public class NetworkGateway {
         }
 
         public NetworkGateway build() {
-            if (channel == null) throw new IllegalStateException("channel is required");
-            if (context == null) throw new IllegalStateException("context is required");
+            if (channel == null) channel = channelFromEnv();
+            if (context == null) context = NetworkSnapshotContext.fromEnv();
             if (registrar == null) throw new IllegalStateException("registrar is required");
             return new NetworkGateway(this);
+        }
+
+        private static Channel channelFromEnv() {
+            String host = System.getenv("GATEWAY_NETWORK_XDS_HOST");
+            String portStr = System.getenv("GATEWAY_NETWORK_XDS_PORT");
+            if (host == null || portStr == null) {
+                throw new IllegalStateException(
+                        "Missing required environment variables: GATEWAY_NETWORK_XDS_HOST, GATEWAY_NETWORK_XDS_PORT");
+            }
+            return ManagedChannelBuilder.forAddress(host, Integer.parseInt(portStr))
+                    .usePlaintext()
+                    .build();
         }
     }
 }

@@ -52,9 +52,11 @@ message ManagedService {
 message ManagedServer {
   string unique_id = 1;
   string name = 2;
-  optional uint32 numerical_id = 3;
-  optional uint32 max_players = 4;
-  optional uint32 current_players = 5;
+  string ip = 3;
+  uint32 port = 4;
+  optional uint32 numerical_id = 5;
+  optional uint32 max_players = 6;
+  optional uint32 current_players = 7;
 }
 
 message Snapshot {

@@ -5237,34 +5237,52 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         getNameBytes();
 
     /**
-     * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+     * <code>string ip = 3 [json_name = "ip"];</code>
+     * @return The ip.
+     */
+    java.lang.String getIp();
+    /**
+     * <code>string ip = 3 [json_name = "ip"];</code>
+     * @return The bytes for ip.
+     */
+    com.google.protobuf.ByteString
+        getIpBytes();
+
+    /**
+     * <code>uint32 port = 4 [json_name = "port"];</code>
+     * @return The port.
+     */
+    int getPort();
+
+    /**
+     * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
      * @return Whether the numericalId field is set.
      */
     boolean hasNumericalId();
     /**
-     * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+     * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
      * @return The numericalId.
      */
     int getNumericalId();
 
     /**
-     * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+     * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
      * @return Whether the maxPlayers field is set.
      */
     boolean hasMaxPlayers();
     /**
-     * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+     * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
      * @return The maxPlayers.
      */
     int getMaxPlayers();
 
     /**
-     * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+     * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
      * @return Whether the currentPlayers field is set.
      */
     boolean hasCurrentPlayers();
     /**
-     * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+     * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
      * @return The currentPlayers.
      */
     int getCurrentPlayers();
@@ -5293,6 +5311,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
     private ManagedServer() {
       uniqueId_ = "";
       name_ = "";
+      ip_ = "";
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -5392,10 +5411,60 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       }
     }
 
-    public static final int NUMERICAL_ID_FIELD_NUMBER = 3;
+    public static final int IP_FIELD_NUMBER = 3;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object ip_ = "";
+    /**
+     * <code>string ip = 3 [json_name = "ip"];</code>
+     * @return The ip.
+     */
+    @java.lang.Override
+    public java.lang.String getIp() {
+      java.lang.Object ref = ip_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        ip_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string ip = 3 [json_name = "ip"];</code>
+     * @return The bytes for ip.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getIpBytes() {
+      java.lang.Object ref = ip_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        ip_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PORT_FIELD_NUMBER = 4;
+    private int port_ = 0;
+    /**
+     * <code>uint32 port = 4 [json_name = "port"];</code>
+     * @return The port.
+     */
+    @java.lang.Override
+    public int getPort() {
+      return port_;
+    }
+
+    public static final int NUMERICAL_ID_FIELD_NUMBER = 5;
     private int numericalId_ = 0;
     /**
-     * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+     * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
      * @return Whether the numericalId field is set.
      */
     @java.lang.Override
@@ -5403,7 +5472,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+     * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
      * @return The numericalId.
      */
     @java.lang.Override
@@ -5411,10 +5480,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return numericalId_;
     }
 
-    public static final int MAX_PLAYERS_FIELD_NUMBER = 4;
+    public static final int MAX_PLAYERS_FIELD_NUMBER = 6;
     private int maxPlayers_ = 0;
     /**
-     * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+     * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
      * @return Whether the maxPlayers field is set.
      */
     @java.lang.Override
@@ -5422,7 +5491,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+     * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
      * @return The maxPlayers.
      */
     @java.lang.Override
@@ -5430,10 +5499,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return maxPlayers_;
     }
 
-    public static final int CURRENT_PLAYERS_FIELD_NUMBER = 5;
+    public static final int CURRENT_PLAYERS_FIELD_NUMBER = 7;
     private int currentPlayers_ = 0;
     /**
-     * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+     * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
      * @return Whether the currentPlayers field is set.
      */
     @java.lang.Override
@@ -5441,7 +5510,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+     * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
      * @return The currentPlayers.
      */
     @java.lang.Override
@@ -5469,14 +5538,20 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       if (!com.google.protobuf.GeneratedMessage.isStringEmpty(name_)) {
         com.google.protobuf.GeneratedMessage.writeString(output, 2, name_);
       }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(ip_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, ip_);
+      }
+      if (port_ != 0) {
+        output.writeUInt32(4, port_);
+      }
       if (((bitField0_ & 0x00000001) != 0)) {
-        output.writeUInt32(3, numericalId_);
+        output.writeUInt32(5, numericalId_);
       }
       if (((bitField0_ & 0x00000002) != 0)) {
-        output.writeUInt32(4, maxPlayers_);
+        output.writeUInt32(6, maxPlayers_);
       }
       if (((bitField0_ & 0x00000004) != 0)) {
-        output.writeUInt32(5, currentPlayers_);
+        output.writeUInt32(7, currentPlayers_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -5493,17 +5568,24 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       if (!com.google.protobuf.GeneratedMessage.isStringEmpty(name_)) {
         size += com.google.protobuf.GeneratedMessage.computeStringSize(2, name_);
       }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(ip_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, ip_);
+      }
+      if (port_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(4, port_);
+      }
       if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(3, numericalId_);
+          .computeUInt32Size(5, numericalId_);
       }
       if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(4, maxPlayers_);
+          .computeUInt32Size(6, maxPlayers_);
       }
       if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(5, currentPlayers_);
+          .computeUInt32Size(7, currentPlayers_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -5524,6 +5606,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
           .equals(other.getUniqueId())) return false;
       if (!getName()
           .equals(other.getName())) return false;
+      if (!getIp()
+          .equals(other.getIp())) return false;
+      if (getPort()
+          != other.getPort()) return false;
       if (hasNumericalId() != other.hasNumericalId()) return false;
       if (hasNumericalId()) {
         if (getNumericalId()
@@ -5554,6 +5640,10 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       hash = (53 * hash) + getUniqueId().hashCode();
       hash = (37 * hash) + NAME_FIELD_NUMBER;
       hash = (53 * hash) + getName().hashCode();
+      hash = (37 * hash) + IP_FIELD_NUMBER;
+      hash = (53 * hash) + getIp().hashCode();
+      hash = (37 * hash) + PORT_FIELD_NUMBER;
+      hash = (53 * hash) + getPort();
       if (hasNumericalId()) {
         hash = (37 * hash) + NUMERICAL_ID_FIELD_NUMBER;
         hash = (53 * hash) + getNumericalId();
@@ -5699,6 +5789,8 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         bitField0_ = 0;
         uniqueId_ = "";
         name_ = "";
+        ip_ = "";
+        port_ = 0;
         numericalId_ = 0;
         maxPlayers_ = 0;
         currentPlayers_ = 0;
@@ -5741,16 +5833,22 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         if (((from_bitField0_ & 0x00000002) != 0)) {
           result.name_ = name_;
         }
-        int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.ip_ = ip_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.port_ = port_;
+        }
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000010) != 0)) {
           result.numericalId_ = numericalId_;
           to_bitField0_ |= 0x00000001;
         }
-        if (((from_bitField0_ & 0x00000008) != 0)) {
+        if (((from_bitField0_ & 0x00000020) != 0)) {
           result.maxPlayers_ = maxPlayers_;
           to_bitField0_ |= 0x00000002;
         }
-        if (((from_bitField0_ & 0x00000010) != 0)) {
+        if (((from_bitField0_ & 0x00000040) != 0)) {
           result.currentPlayers_ = currentPlayers_;
           to_bitField0_ |= 0x00000004;
         }
@@ -5778,6 +5876,14 @@ public final class Types extends com.google.protobuf.GeneratedFile {
           name_ = other.name_;
           bitField0_ |= 0x00000002;
           onChanged();
+        }
+        if (!other.getIp().isEmpty()) {
+          ip_ = other.ip_;
+          bitField0_ |= 0x00000004;
+          onChanged();
+        }
+        if (other.getPort() != 0) {
+          setPort(other.getPort());
         }
         if (other.hasNumericalId()) {
           setNumericalId(other.getNumericalId());
@@ -5824,21 +5930,31 @@ public final class Types extends com.google.protobuf.GeneratedFile {
                 bitField0_ |= 0x00000002;
                 break;
               } // case 18
-              case 24: {
-                numericalId_ = input.readUInt32();
+              case 26: {
+                ip_ = input.readStringRequireUtf8();
                 bitField0_ |= 0x00000004;
                 break;
-              } // case 24
+              } // case 26
               case 32: {
-                maxPlayers_ = input.readUInt32();
+                port_ = input.readUInt32();
                 bitField0_ |= 0x00000008;
                 break;
               } // case 32
               case 40: {
-                currentPlayers_ = input.readUInt32();
+                numericalId_ = input.readUInt32();
                 bitField0_ |= 0x00000010;
                 break;
               } // case 40
+              case 48: {
+                maxPlayers_ = input.readUInt32();
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 48
+              case 56: {
+                currentPlayers_ = input.readUInt32();
+                bitField0_ |= 0x00000040;
+                break;
+              } // case 56
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -6000,17 +6116,121 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return this;
       }
 
+      private java.lang.Object ip_ = "";
+      /**
+       * <code>string ip = 3 [json_name = "ip"];</code>
+       * @return The ip.
+       */
+      public java.lang.String getIp() {
+        java.lang.Object ref = ip_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          ip_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string ip = 3 [json_name = "ip"];</code>
+       * @return The bytes for ip.
+       */
+      public com.google.protobuf.ByteString
+          getIpBytes() {
+        java.lang.Object ref = ip_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          ip_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string ip = 3 [json_name = "ip"];</code>
+       * @param value The ip to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIp(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ip_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string ip = 3 [json_name = "ip"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearIp() {
+        ip_ = getDefaultInstance().getIp();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string ip = 3 [json_name = "ip"];</code>
+       * @param value The bytes for ip to set.
+       * @return This builder for chaining.
+       */
+      public Builder setIpBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        ip_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
+      private int port_ ;
+      /**
+       * <code>uint32 port = 4 [json_name = "port"];</code>
+       * @return The port.
+       */
+      @java.lang.Override
+      public int getPort() {
+        return port_;
+      }
+      /**
+       * <code>uint32 port = 4 [json_name = "port"];</code>
+       * @param value The port to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPort(int value) {
+
+        port_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 port = 4 [json_name = "port"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPort() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        port_ = 0;
+        onChanged();
+        return this;
+      }
+
       private int numericalId_ ;
       /**
-       * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+       * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
        * @return Whether the numericalId field is set.
        */
       @java.lang.Override
       public boolean hasNumericalId() {
-        return ((bitField0_ & 0x00000004) != 0);
+        return ((bitField0_ & 0x00000010) != 0);
       }
       /**
-       * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+       * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
        * @return The numericalId.
        */
       @java.lang.Override
@@ -6018,23 +6238,23 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return numericalId_;
       }
       /**
-       * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+       * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
        * @param value The numericalId to set.
        * @return This builder for chaining.
        */
       public Builder setNumericalId(int value) {
 
         numericalId_ = value;
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000010;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint32 numerical_id = 3 [json_name = "numericalId"];</code>
+       * <code>optional uint32 numerical_id = 5 [json_name = "numericalId"];</code>
        * @return This builder for chaining.
        */
       public Builder clearNumericalId() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000010);
         numericalId_ = 0;
         onChanged();
         return this;
@@ -6042,15 +6262,15 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
       private int maxPlayers_ ;
       /**
-       * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+       * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
        * @return Whether the maxPlayers field is set.
        */
       @java.lang.Override
       public boolean hasMaxPlayers() {
-        return ((bitField0_ & 0x00000008) != 0);
+        return ((bitField0_ & 0x00000020) != 0);
       }
       /**
-       * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+       * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
        * @return The maxPlayers.
        */
       @java.lang.Override
@@ -6058,23 +6278,23 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return maxPlayers_;
       }
       /**
-       * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+       * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
        * @param value The maxPlayers to set.
        * @return This builder for chaining.
        */
       public Builder setMaxPlayers(int value) {
 
         maxPlayers_ = value;
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000020;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint32 max_players = 4 [json_name = "maxPlayers"];</code>
+       * <code>optional uint32 max_players = 6 [json_name = "maxPlayers"];</code>
        * @return This builder for chaining.
        */
       public Builder clearMaxPlayers() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000020);
         maxPlayers_ = 0;
         onChanged();
         return this;
@@ -6082,15 +6302,15 @@ public final class Types extends com.google.protobuf.GeneratedFile {
 
       private int currentPlayers_ ;
       /**
-       * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+       * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
        * @return Whether the currentPlayers field is set.
        */
       @java.lang.Override
       public boolean hasCurrentPlayers() {
-        return ((bitField0_ & 0x00000010) != 0);
+        return ((bitField0_ & 0x00000040) != 0);
       }
       /**
-       * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+       * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
        * @return The currentPlayers.
        */
       @java.lang.Override
@@ -6098,23 +6318,23 @@ public final class Types extends com.google.protobuf.GeneratedFile {
         return currentPlayers_;
       }
       /**
-       * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+       * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
        * @param value The currentPlayers to set.
        * @return This builder for chaining.
        */
       public Builder setCurrentPlayers(int value) {
 
         currentPlayers_ = value;
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000040;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint32 current_players = 5 [json_name = "currentPlayers"];</code>
+       * <code>optional uint32 current_players = 7 [json_name = "currentPlayers"];</code>
        * @return This builder for chaining.
        */
       public Builder clearCurrentPlayers() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000040);
         currentPlayers_ = 0;
         onChanged();
         return this;
@@ -7430,23 +7650,24 @@ public final class Types extends com.google.protobuf.GeneratedFile {
       "gyR\024distributionStrategy\0229\n\007servers\030\005 \003(" +
       "\0132\037.network.v1alpha1.ManagedServerR\007serv" +
       "ers\022/\n\006routes\030\006 \003(\0132\027.network.v1alpha1.R" +
-      "outeR\006routes\"\361\001\n\rManagedServer\022\033\n\tunique" +
+      "outeR\006routes\"\225\002\n\rManagedServer\022\033\n\tunique" +
       "_id\030\001 \001(\tR\010uniqueId\022\022\n\004name\030\002 \001(\tR\004name\022" +
-      "&\n\014numerical_id\030\003 \001(\rH\000R\013numericalId\210\001\001\022" +
-      "$\n\013max_players\030\004 \001(\rH\001R\nmaxPlayers\210\001\001\022,\n" +
-      "\017current_players\030\005 \001(\rH\002R\016currentPlayers" +
-      "\210\001\001B\017\n\r_numerical_idB\016\n\014_max_playersB\022\n\020" +
-      "_current_players\"\277\001\n\010Snapshot\022!\n\014gateway" +
-      "_name\030\001 \001(\tR\013gatewayName\022#\n\rlistener_nam" +
-      "e\030\002 \001(\tR\014listenerName\022-\n\022current_generat" +
-      "ion\030\003 \001(\tR\021currentGeneration\022<\n\010services" +
-      "\030\004 \003(\0132 .network.v1alpha1.ManagedService" +
-      "R\010services*&\n\010RuleType\022\010\n\004NONE\020\000\022\007\n\003ANY\020" +
-      "\001\022\007\n\003ALL\020\002*5\n\024DistributionStrategy\022\n\n\006RA" +
-      "NDOM\020\000\022\021\n\rLEAST_PLAYERS\020\001Bl\n-dev.minefle" +
-      "et.api.gateway.networking.v1alpha1Z;gith" +
-      "ub.com/minefleet/minecraft-gateway/api/n" +
-      "etwork/v1alpha1b\006proto3"
+      "\016\n\002ip\030\003 \001(\tR\002ip\022\022\n\004port\030\004 \001(\rR\004port\022&\n\014n" +
+      "umerical_id\030\005 \001(\rH\000R\013numericalId\210\001\001\022$\n\013m" +
+      "ax_players\030\006 \001(\rH\001R\nmaxPlayers\210\001\001\022,\n\017cur" +
+      "rent_players\030\007 \001(\rH\002R\016currentPlayers\210\001\001B" +
+      "\017\n\r_numerical_idB\016\n\014_max_playersB\022\n\020_cur" +
+      "rent_players\"\277\001\n\010Snapshot\022!\n\014gateway_nam" +
+      "e\030\001 \001(\tR\013gatewayName\022#\n\rlistener_name\030\002 " +
+      "\001(\tR\014listenerName\022-\n\022current_generation\030" +
+      "\003 \001(\tR\021currentGeneration\022<\n\010services\030\004 \003" +
+      "(\0132 .network.v1alpha1.ManagedServiceR\010se" +
+      "rvices*&\n\010RuleType\022\010\n\004NONE\020\000\022\007\n\003ANY\020\001\022\007\n" +
+      "\003ALL\020\002*5\n\024DistributionStrategy\022\n\n\006RANDOM" +
+      "\020\000\022\021\n\rLEAST_PLAYERS\020\001Bl\n-dev.minefleet.a" +
+      "pi.gateway.networking.v1alpha1Z;github.c" +
+      "om/minefleet/minecraft-gateway/api/netwo" +
+      "rk/v1alpha1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -7487,7 +7708,7 @@ public final class Types extends com.google.protobuf.GeneratedFile {
     internal_static_network_v1alpha1_ManagedServer_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ManagedServer_descriptor,
-        new java.lang.String[] { "UniqueId", "Name", "NumericalId", "MaxPlayers", "CurrentPlayers", });
+        new java.lang.String[] { "UniqueId", "Name", "Ip", "Port", "NumericalId", "MaxPlayers", "CurrentPlayers", });
     internal_static_network_v1alpha1_Snapshot_descriptor =
       getDescriptor().getMessageType(6);
     internal_static_network_v1alpha1_Snapshot_fieldAccessorTable = new

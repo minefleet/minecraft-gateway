@@ -429,9 +429,11 @@ type ManagedServer struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UniqueId       string                 `protobuf:"bytes,1,opt,name=unique_id,json=uniqueId,proto3" json:"unique_id,omitempty"`
 	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	NumericalId    *uint32                `protobuf:"varint,3,opt,name=numerical_id,json=numericalId,proto3,oneof" json:"numerical_id,omitempty"`
-	MaxPlayers     *uint32                `protobuf:"varint,4,opt,name=max_players,json=maxPlayers,proto3,oneof" json:"max_players,omitempty"`
-	CurrentPlayers *uint32                `protobuf:"varint,5,opt,name=current_players,json=currentPlayers,proto3,oneof" json:"current_players,omitempty"`
+	Ip             string                 `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
+	Port           uint32                 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	NumericalId    *uint32                `protobuf:"varint,5,opt,name=numerical_id,json=numericalId,proto3,oneof" json:"numerical_id,omitempty"`
+	MaxPlayers     *uint32                `protobuf:"varint,6,opt,name=max_players,json=maxPlayers,proto3,oneof" json:"max_players,omitempty"`
+	CurrentPlayers *uint32                `protobuf:"varint,7,opt,name=current_players,json=currentPlayers,proto3,oneof" json:"current_players,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -478,6 +480,20 @@ func (x *ManagedServer) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *ManagedServer) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *ManagedServer) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
 }
 
 func (x *ManagedServer) GetNumericalId() uint32 {
@@ -601,14 +617,16 @@ const file_network_v1alpha1_types_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12[\n" +
 	"\x15distribution_strategy\x18\x04 \x01(\x0e2&.network.v1alpha1.DistributionStrategyR\x14distributionStrategy\x129\n" +
 	"\aservers\x18\x05 \x03(\v2\x1f.network.v1alpha1.ManagedServerR\aservers\x12/\n" +
-	"\x06routes\x18\x06 \x03(\v2\x17.network.v1alpha1.RouteR\x06routes\"\xf1\x01\n" +
+	"\x06routes\x18\x06 \x03(\v2\x17.network.v1alpha1.RouteR\x06routes\"\x95\x02\n" +
 	"\rManagedServer\x12\x1b\n" +
 	"\tunique_id\x18\x01 \x01(\tR\buniqueId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12&\n" +
-	"\fnumerical_id\x18\x03 \x01(\rH\x00R\vnumericalId\x88\x01\x01\x12$\n" +
-	"\vmax_players\x18\x04 \x01(\rH\x01R\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x0e\n" +
+	"\x02ip\x18\x03 \x01(\tR\x02ip\x12\x12\n" +
+	"\x04port\x18\x04 \x01(\rR\x04port\x12&\n" +
+	"\fnumerical_id\x18\x05 \x01(\rH\x00R\vnumericalId\x88\x01\x01\x12$\n" +
+	"\vmax_players\x18\x06 \x01(\rH\x01R\n" +
 	"maxPlayers\x88\x01\x01\x12,\n" +
-	"\x0fcurrent_players\x18\x05 \x01(\rH\x02R\x0ecurrentPlayers\x88\x01\x01B\x0f\n" +
+	"\x0fcurrent_players\x18\a \x01(\rH\x02R\x0ecurrentPlayers\x88\x01\x01B\x0f\n" +
 	"\r_numerical_idB\x0e\n" +
 	"\f_max_playersB\x12\n" +
 	"\x10_current_players\"\xbf\x01\n" +

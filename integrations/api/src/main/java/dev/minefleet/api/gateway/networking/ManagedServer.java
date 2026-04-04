@@ -26,6 +26,14 @@ public final class ManagedServer {
         return proto.getName();
     }
 
+    public String ipAddress() {
+        return proto.getIp();
+    }
+
+    public int port() {
+        return proto.getPort();
+    }
+
     public OptionalInt numericalId() {
         return proto.hasNumericalId() ? OptionalInt.of(proto.getNumericalId()) : OptionalInt.empty();
     }
