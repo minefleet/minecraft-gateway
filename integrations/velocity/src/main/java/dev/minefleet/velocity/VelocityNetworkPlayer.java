@@ -15,7 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-class VelocityNetworkPlayer implements NetworkPlayer<Player> {
+class VelocityNetworkPlayer implements NetworkPlayer {
 
     private final Player player;
     private final ProxyServer proxy;

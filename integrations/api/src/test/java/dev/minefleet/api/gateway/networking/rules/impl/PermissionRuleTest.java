@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PermissionRuleTest {
 
-    @Mock NetworkPlayer<?> player;
+    @Mock NetworkPlayer player;
     @Mock ManagedService service;
 
     private static final String PERM = "minefleet.vip";

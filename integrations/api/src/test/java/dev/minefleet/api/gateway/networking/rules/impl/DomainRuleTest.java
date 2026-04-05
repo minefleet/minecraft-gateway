@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class DomainRuleTest {
 
-    @Mock NetworkPlayer<?> player;
+    @Mock NetworkPlayer player;
     @Mock dev.minefleet.api.gateway.networking.ManagedService service;
 
     private RuleContext ctx(String domain) {

@@ -37,12 +37,12 @@ public class NetworkGateway {
         reconciler.stop();
     }
 
-    public void routeJoin(NetworkPlayer<?> player) {
+    public void routeJoin(NetworkPlayer player) {
         if (currentSnapshot == null) { player.kick(KickReason.NO_JOIN); return; }
         new NetworkRouter(currentSnapshot).routeJoin(player);
     }
 
-    public void routeFallback(NetworkPlayer<?> player) {
+    public void routeFallback(NetworkPlayer player) {
         if (currentSnapshot == null) { player.kick(KickReason.NO_FALLBACK); return; }
         new NetworkRouter(currentSnapshot).routeFallback(player);
     }

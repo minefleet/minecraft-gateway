@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AvailabilityRuleTest {
 
-    @Mock NetworkPlayer<?> player;
+    @Mock NetworkPlayer player;
     @Mock ManagedService service;
 
     private final AvailabilityRule rule = new AvailabilityRule();

@@ -4,7 +4,7 @@ import dev.minefleet.api.gateway.networking.ManagedServer;
 
 import java.util.Optional;
 
-public interface NetworkPlayer<P> {
+public interface NetworkPlayer {
     String connectedDomain();
 
     Optional<ManagedServer> connectedServer();

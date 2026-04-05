@@ -21,15 +21,15 @@ public class NetworkRouter {
         this.snapshot = snapshot;
     }
 
-    public void routeJoin(NetworkPlayer<?> networkPlayer) {
+    public void routeJoin(NetworkPlayer networkPlayer) {
         route(networkPlayer, ManagedService::isJoinService, ManagedService::joinRoutes, KickReason.NO_JOIN);
     }
 
-    public void routeFallback(NetworkPlayer<?> networkPlayer) {
+    public void routeFallback(NetworkPlayer networkPlayer) {
         route(networkPlayer, ManagedService::isFallbackService, ManagedService::fallbackRoutes, KickReason.NO_FALLBACK);
     }
 
-    private void route(NetworkPlayer<?> networkPlayer,
+    private void route(NetworkPlayer networkPlayer,
                        Predicate<ManagedService> filter,
                        Function<ManagedService, List<ManagedService.RouteEntry>> routeGetter,
                        KickReason kickReason) {
@@ -46,7 +46,7 @@ public class NetworkRouter {
         }
     }
 
-    private int matchedPriority(ManagedService service, List<ManagedService.RouteEntry> routes, NetworkPlayer<?> networkPlayer) {
+    private int matchedPriority(ManagedService service, List<ManagedService.RouteEntry> routes, NetworkPlayer networkPlayer) {
         return routes.stream()
                 .filter(r -> r.rules().evaluate(new RuleContext(networkPlayer, service)))
                 .mapToInt(ManagedService.RouteEntry::priority)
