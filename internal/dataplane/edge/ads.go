@@ -11,7 +11,7 @@ import (
 //   - the xDS gRPC server (ADS) on cfg.XDSPort
 //   - a one-shot health check verifying the edge DaemonSet and xDS Service are present
 //   - a loop that applies incoming DomainSnapshots to the xDS cache
-func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg ProxyConfig, c client.Client) {
+func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, c client.Client) {
 	log := logf.FromContext(ctx)
 	xds := newXDSServer(ctx)
 

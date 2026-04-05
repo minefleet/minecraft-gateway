@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftJoinRoute
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+  name: minecraftjoinroute-lobby
+spec:
+  priority: 1
+  parentRefs:
+    - name: minefleet-gateway-sample
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  backendRefs:
+    - name: lobby
+      port: 25565
+  filterRules:
+    - type: any
+      rules:
+        - domain: "*.staging.localhost"
+        - domain: "staging.localhost"

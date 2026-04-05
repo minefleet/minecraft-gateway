@@ -1,4 +1,4 @@
-apiVersion: gateway.networking.minefleet.dev/v1
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
 kind: MinecraftFallbackRoute
 metadata:
   labels:
@@ -12,7 +12,7 @@ spec:
       kind: Gateway
       group: gateway.networking.k8s.io
   backendRefs:
-    - name: minecraft-service-sample
+    - name: lobby
       port: 25565
   filterRules:
     - type: any

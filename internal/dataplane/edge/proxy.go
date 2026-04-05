@@ -12,17 +12,15 @@ import (
 
 const (
 	daemonSetName  = "minecraft-gateway-edge"
-	xdsServiceName = "minecraft-gateway-xds"
-	componentLabel = "app.kubernetes.io/component"
-	componentValue = "minecraft-gateway-edge"
+	xdsServiceName = "minecraft-gateway-edge-xds"
 )
 
 type proxyManager struct {
 	client client.Client
-	cfg    ProxyConfig
+	cfg    Config
 }
 
-func newProxyManager(c client.Client, cfg ProxyConfig) *proxyManager {
+func newProxyManager(c client.Client, cfg Config) *proxyManager {
 	return &proxyManager{client: c, cfg: cfg}
 }
 

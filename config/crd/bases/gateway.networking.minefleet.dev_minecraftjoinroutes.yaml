@@ -14,7 +14,7 @@ spec:
     singular: minecraftjoinroute
   scope: Namespaced
   versions:
-  - name: v1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: MinecraftJoinRoute is the Schema for the minecraftjoinroutes
@@ -470,7 +470,7 @@ spec:
 
                         * The Route refers to a nonexistent parent.
                         * The Route is of a type that the controller does not support.
-                        * The Route is in a namespace the controller does not have access to.
+                        * The Route is in a namespace to which the controller does not have access.
 
                         <gateway:util:excludeFromCRD>
 

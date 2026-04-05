@@ -9,19 +9,20 @@ import (
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type EdgeDataplane struct {
 	ctx           context.Context
 	c             client.Client
-	cfg           edge.ProxyConfig
+	cfg           edge.Config
 	updates       chan edge.Snapshot
 	mu            sync.Mutex
 	snapshotCache edge.GatewaySnapshotCache
 }
 
-func newEdgeDataplane(ctx context.Context, c client.Client, cfg edge.ProxyConfig) Dataplane {
+func newEdgeDataplane(ctx context.Context, c client.Client, cfg edge.Config) Dataplane {
 	d := &EdgeDataplane{
 		ctx:           ctx,
 		c:             c,
@@ -37,18 +38,22 @@ func (d *EdgeDataplane) SetupDataplane() {
 	edge.StartADS(d.ctx, d.updates, d.cfg, d.c)
 }
 
-func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, _ []discoveryv1.EndpointSlice) ([]types.NamespacedName, error) {
+func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, _ []discoveryv1.EndpointSlice) error {
+	log := logf.FromContext(d.ctx)
+	for listener, bag := range routes {
+		log.Info("Got Routes", "listener", listener, "routes", bag)
+	}
 	d.mu.Lock()
 	tmp := edge.BuildGatewaySnapshot(name, routes)
 	d.snapshotCache[name] = tmp
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
 	if len(conflicting) != 0 {
-		return conflicting, nil
+		return RouteConflictError{Conflicting: conflicting}
 	}
 	select {
 	case d.updates <- snap:
-		return nil, nil
+		return nil
 	default:
 		select {
 		case <-d.updates:
@@ -57,23 +62,23 @@ func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes map[gatewa
 		select {
 		case d.updates <- snap:
 		case <-d.ctx.Done():
-			return nil, d.ctx.Err()
+			return d.ctx.Err()
 		}
-		return nil, nil
+		return nil
 	}
 }
 
-func (d *EdgeDataplane) DeleteGateway(name types.NamespacedName) ([]types.NamespacedName, error) {
+func (d *EdgeDataplane) DeleteGateway(name types.NamespacedName) error {
 	d.mu.Lock()
 	delete(d.snapshotCache, name)
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
 	if len(conflicting) != 0 {
-		return conflicting, nil
+		return RouteConflictError{Conflicting: conflicting}
 	}
 	select {
 	case d.updates <- snap:
-		return nil, nil
+		return nil
 	default:
 		select {
 		case <-d.updates:
@@ -82,8 +87,8 @@ func (d *EdgeDataplane) DeleteGateway(name types.NamespacedName) ([]types.Namesp
 		select {
 		case d.updates <- snap:
 		case <-d.ctx.Done():
-			return nil, d.ctx.Err()
+			return d.ctx.Err()
 		}
-		return nil, nil
+		return nil
 	}
 }

@@ -1,6 +1,7 @@
 # Image URL to use all building/pushing image targets
 CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
 EDGE_IMG ?= minefleet.dev/minecraft-edge:v0.0.1
+NETWORK_IMG ?= minefleet.dev/minecraft-proxy:v0.0.1
 
 PLATFORMS ?= linux/arm64,linux/amd64
 
@@ -49,8 +50,16 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: controller-gen proto ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+
+.PHONY: proto
+proto: buf ## Generate Go and Java code from proto files in api/.
+	cd api && $(BUF) generate
+
+.PHONY: integrations-build
+integrations-build: proto ## Build integrations Java library.
+	cd integrations && ./gradlew build
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -166,6 +175,11 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 	- $(CONTAINER_TOOL) buildx rm minecraft-edge-builder
 	rm Dockerfile.edge.cross
 
+##@ Build Network Integrations
+.PHONY: velocity-docker-build
+velocity-docker-build:
+	$(CONTAINER_TOOL) build -t ${NETWORK_IMG} . -f Dockerfile.velocity
+
 ##@ Build
 .PHONY: docker-build
 docker-build: controller-docker-build edge-docker-build
@@ -192,6 +206,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 image-load: manifests
 	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
 	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
+	$(KIND) load docker-image ${NETWORK_IMG} --name ${KIND_CLUSTER}
 
 
 .PHONY: deploy
@@ -225,10 +240,12 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
+BUF ?= $(LOCALBIN)/buf
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.6.0
 CONTROLLER_TOOLS_VERSION ?= v0.18.0
+BUF_VERSION ?= v1.50.0
 #ENVTEST_VERSION is the version of controller-runtime release branch to fetch the envtest setup script (i.e. release-0.20)
 ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller-runtime | awk -F'[v.]' '{printf "release-%d.%d", $$2, $$3}')
 #ENVTEST_K8S_VERSION is the version of Kubernetes to use for setting up ENVTEST binaries (i.e. 1.31)
@@ -262,6 +279,11 @@ $(ENVTEST): $(LOCALBIN)
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
 	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/v2/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+
+.PHONY: buf
+buf: $(BUF) ## Download buf locally if necessary.
+$(BUF): $(LOCALBIN)
+	$(call go-install-tool,$(BUF),github.com/bufbuild/buf/cmd/buf,$(BUF_VERSION))
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary

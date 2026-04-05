@@ -8,15 +8,15 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/utils/ptr"
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type Bag struct {
-	Join     []mcgatewayv1.MinecraftJoinRoute
-	Fallback []mcgatewayv1.MinecraftFallbackRoute
+	Join     []mcgatewayv1alpha1.MinecraftJoinRoute
+	Fallback []mcgatewayv1alpha1.MinecraftFallbackRoute
 }
 
 const (
@@ -30,10 +30,10 @@ func keyGW(ns, name string) string             { return ns + "/" + name }
 func keyGWListener(ns, name, ln string) string { return ns + "/" + name + "#" + ln }
 
 func IndexRoutes(mgr ctrl.Manager) error {
-	if err := indexRouteParents(mgr, &mcgatewayv1.MinecraftJoinRoute{}); err != nil {
+	if err := indexRouteParents(mgr, &mcgatewayv1alpha1.MinecraftJoinRoute{}); err != nil {
 		return err
 	}
-	if err := indexRouteParents(mgr, &mcgatewayv1.MinecraftFallbackRoute{}); err != nil {
+	if err := indexRouteParents(mgr, &mcgatewayv1alpha1.MinecraftFallbackRoute{}); err != nil {
 		return err
 	}
 	return nil
@@ -97,14 +97,14 @@ func extractGatewayParentKeys(o client.Object, withListener bool) []string {
 	return parentKeysFromRefs(ns, route.ParentRefs, withListener)
 }
 
-func extractRouteAndNamespace(o client.Object) (mcgatewayv1.MinecraftRoute, string, error) {
+func extractRouteAndNamespace(o client.Object) (mcgatewayv1alpha1.MinecraftRoute, string, error) {
 	switch r := o.(type) {
-	case *mcgatewayv1.MinecraftJoinRoute:
+	case *mcgatewayv1alpha1.MinecraftJoinRoute:
 		return r.Spec.MinecraftRoute, o.GetNamespace(), nil
-	case *mcgatewayv1.MinecraftFallbackRoute:
+	case *mcgatewayv1alpha1.MinecraftFallbackRoute:
 		return r.Spec.MinecraftRoute, o.GetNamespace(), nil
 	default:
-		return mcgatewayv1.MinecraftRoute{}, "", fmt.Errorf("no such minecraft route: %T", r)
+		return mcgatewayv1alpha1.MinecraftRoute{}, "", fmt.Errorf("no such minecraft route: %T", r)
 	}
 }
 
@@ -191,8 +191,8 @@ func ListRoutesByGateway[T client.ObjectList](c client.Client, ctx context.Conte
 }
 
 func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *Bag) error {
-	var join mcgatewayv1.MinecraftJoinRouteList
-	var fallback mcgatewayv1.MinecraftFallbackRouteList
+	var join mcgatewayv1alpha1.MinecraftJoinRouteList
+	var fallback mcgatewayv1alpha1.MinecraftFallbackRouteList
 	if err := ListRoutesByGateway(c, ctx, gw, &join); err != nil {
 		return err
 	}
@@ -214,8 +214,8 @@ func ListRoutesByService[T client.ObjectList](c client.Client, ctx context.Conte
 }
 
 func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Service, into *Bag) error {
-	var join mcgatewayv1.MinecraftJoinRouteList
-	var fallback mcgatewayv1.MinecraftFallbackRouteList
+	var join mcgatewayv1alpha1.MinecraftJoinRouteList
+	var fallback mcgatewayv1alpha1.MinecraftFallbackRouteList
 	if err := ListRoutesByService(c, ctx, svc, &join); err != nil {
 		return err
 	}

@@ -6,15 +6,13 @@ import (
 
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/route"
-	"minefleet.dev/minecraft-gateway/internal/util"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-// ProxyConfig holds the configuration for the edge dataplane.
-type ProxyConfig struct {
+// Config holds the configuration for the edge dataplane.
+type Config struct {
 	// Namespace where the edge DaemonSet and ConfigMap will be created.
 	Namespace string
-	// Image is the edge container image (e.g., minefleet.dev/minecraft-edge:v0.0.1).
 	// XDSPort is the local port the xDS gRPC server listens on (default: 18000).
 	XDSPort int
 }
@@ -86,23 +84,25 @@ func fromClusterName(clusterName string) types.NamespacedName {
 
 // BuildSnapshot constructs a Snapshot for all gateways.
 // It returns the snapshot and a list of Gateways that cant be applied due to a conflicting Domain setup.
-func BuildSnapshot(cache GatewaySnapshotCache) (Snapshot, []types.NamespacedName) {
+func BuildSnapshot(cache GatewaySnapshotCache) (Snapshot, map[types.NamespacedName]types.NamespacedName) {
 	mapping := make(map[string]string)
 	clusters := make([]ClusterConfig, 0)
-	conflicting := util.NewSet[types.NamespacedName]()
+	conflicting := make(map[types.NamespacedName]types.NamespacedName)
 	for gateway, snap := range cache {
-		isConflicting := false
+		isFullyConflicting := true
 		for domain, key := range snap.DomainMapping {
 			// Check if there is a conflict for the current domain (same domain dropped twice)
 			if mapping[domain] != "" && mapping[domain] != key {
-				conflicting.Add(gateway)
-				conflicting.Add(fromClusterName(mapping[domain]))
-				isConflicting = true
-				break
+				// TODO: choose the actual route, nothing else, have to restructure everything for that though
+				conflict := fromClusterName(mapping[domain])
+				conflicting[gateway] = conflict
+				conflicting[conflict] = gateway
+				continue
 			}
+			isFullyConflicting = false
 			mapping[domain] = key
 		}
-		if isConflicting {
+		if isFullyConflicting {
 			continue
 		}
 		clusters = append(clusters, snap.Clusters...)
@@ -114,5 +114,5 @@ func BuildSnapshot(cache GatewaySnapshotCache) (Snapshot, []types.NamespacedName
 			Clusters:      clusters,
 		},
 		RejectUnknown: false,
-	}, conflicting.List()
+	}, conflicting
 }

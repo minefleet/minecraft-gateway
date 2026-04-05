@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+  name: minecraft-patch-config
+data:
+  velocity_patch.json: |
+    {
+      "file": "/data/config/paper-global.yml",
+      "ops": [
+        {
+          "$put": {
+            "path": "$.proxies.velocity",
+            "key": "enabled",
+            "value": true
+          }
+        },
+        {
+          "$put": {
+            "path": "$.proxies.velocity",
+            "key": "secret",
+            "value": "minefleet"
+          }
+        }
+      ]
+    }

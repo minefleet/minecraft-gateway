@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package network.v1alpha1;
+
+option go_package = "github.com/minefleet/minecraft-gateway/api/network/v1alpha1";
+option java_package = "dev.minefleet.api.gateway.networking.v1alpha1";
+
+
+// Rule Configuration
+enum RuleType {
+  NONE = 0;
+  ANY = 1;
+  ALL = 2;
+}
+
+message FallbackRule {
+  optional string fallback_for = 1;
+}
+
+message Rule {
+  optional string domain = 1;
+  optional string permission = 2;
+  optional string fallback_for = 3;
+}
+
+message OptionRuleSet {
+  RuleType type = 1;
+  repeated Rule rules = 2;
+}
+
+enum DistributionStrategy {
+  RANDOM = 0;
+  LEAST_PLAYERS = 1;
+}
+
+message Route {
+  uint32 priority = 1;
+  bool is_join = 2;
+  bool is_fallback = 3;
+  repeated OptionRuleSet rules = 4;
+}
+
+message ManagedService {
+  string namespaced_name = 1;
+  string namespace = 2;
+  string name = 3;
+  DistributionStrategy distribution_strategy = 4;
+  repeated ManagedServer servers = 5;
+  repeated Route routes = 6;
+}
+
+message ManagedServer {
+  string unique_id = 1;
+  string name = 2;
+  string ip = 3;
+  uint32 port = 4;
+  optional uint32 numerical_id = 5;
+  optional uint32 max_players = 6;
+  optional uint32 current_players = 7;
+}
+
+message Snapshot {
+  string gateway_name = 1;
+  string listener_name = 2;
+  string current_generation = 3;
+  repeated ManagedService services = 4;
+}

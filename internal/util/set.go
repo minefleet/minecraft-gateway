@@ -17,6 +17,13 @@ func (s *Set[T]) Add(value T) {
 	s.elements[value] = struct{}{}
 }
 
+// AddAll inserts an element array into the set
+func (s *Set[T]) AddAll(value []T) {
+	for _, element := range value {
+		s.Add(element)
+	}
+}
+
 // Remove deletes an element from the set
 func (s *Set[T]) Remove(value T) {
 	delete(s.elements, value)

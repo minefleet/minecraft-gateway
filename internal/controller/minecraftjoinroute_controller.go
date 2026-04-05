@@ -19,9 +19,8 @@ package controller
 import (
 	"context"
 
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
-
 	"k8s.io/apimachinery/pkg/runtime"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -58,7 +57,7 @@ func (r *MinecraftJoinRouteReconciler) Reconcile(ctx context.Context, req ctrl.R
 func (r *MinecraftJoinRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
-		For(&mcgatewayv1.MinecraftJoinRoute{}).
+		For(&mcgatewayv1alpha1.MinecraftJoinRoute{}).
 		Named("minecraftjoinroute").
 		Complete(r)
 }

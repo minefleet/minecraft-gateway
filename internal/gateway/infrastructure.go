@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	mcgatewayv1 "minefleet.dev/minecraft-gateway/api/v1"
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -15,7 +15,7 @@ import (
 type Infrastructure struct {
 	Labels      map[gatewayv1.LabelKey]gatewayv1.LabelValue           `json:"labels,omitempty"`
 	Annotations map[gatewayv1.AnnotationKey]gatewayv1.AnnotationValue `json:"annotations,omitempty"`
-	Status      mcgatewayv1.MinecraftServerDiscoveryStatus            `json:"config,omitempty"`
+	Status      mcgatewayv1alpha1.MinecraftServerDiscoveryStatus      `json:"config,omitempty"`
 }
 
 func GetInfrastructureForGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (Infrastructure, error) {
