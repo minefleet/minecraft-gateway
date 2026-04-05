@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-  name: minecraftjoinroute-sample
+  name: minecraftjoinroute-game
 spec:
   priority: 0
   parentRefs:
@@ -12,10 +12,9 @@ spec:
       kind: Gateway
       group: gateway.networking.k8s.io
   backendRefs:
-    - name: minecraft-service-sample
+    - name: example-gameserver
       port: 25565
   filterRules:
     - type: any
       rules:
-        - domain: "localhost"
-        - domain: "test.localhost"
+        - domain: "play.staging.localhost"

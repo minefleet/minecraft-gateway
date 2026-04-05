@@ -95,9 +95,6 @@ func coveredByWildcard(domain string, wildcards map[string]struct{}) bool {
 }
 
 func matchesSuffix(domain, suffix string) bool {
-	if domain == suffix {
-		return true
-	}
 	if len(domain) <= len(suffix) {
 		return false
 	}

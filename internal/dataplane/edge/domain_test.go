@@ -136,6 +136,18 @@ func TestDomains_WildcardAcrossRoutes_CoversSpecific(t *testing.T) {
 	assertElementsMatch(t, got, []string{"*.b.com"})
 }
 
+func TestDomains_WildcardAcrossRoutes_NotCoversParent(t *testing.T) {
+	bag := route.Bag{
+		Join: []v1alpha1.MinecraftJoinRoute{
+			joinRoute(setAny("b.com")),
+			joinRoute(setAny("*.b.com")),
+		},
+	}
+
+	got := Domains(bag)
+	assertElementsMatch(t, got, []string{"b.com", "*.b.com"})
+}
+
 func TestDomains_AllBeatsAnyWithinASetOnly(t *testing.T) {
 	// This test clarifies current semantics:
 	// - A set of type All returns ONLY the first non-empty domain in that set.

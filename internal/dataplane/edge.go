@@ -9,6 +9,7 @@ import (
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
@@ -38,6 +39,10 @@ func (d *EdgeDataplane) SetupDataplane() {
 }
 
 func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, _ []discoveryv1.EndpointSlice) error {
+	log := logf.FromContext(d.ctx)
+	for listener, bag := range routes {
+		log.Info("Got Routes", "listener", listener, "routes", bag)
+	}
 	d.mu.Lock()
 	tmp := edge.BuildGatewaySnapshot(name, routes)
 	d.snapshotCache[name] = tmp

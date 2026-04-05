@@ -1,12 +1,12 @@
 apiVersion: gateway.networking.minefleet.dev/v1alpha1
-kind: MinecraftFallbackRoute
+kind: MinecraftJoinRoute
 metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-  name: minecraftfallbackroute-sample
+  name: minecraftjoinroute-lobby
 spec:
-  priority: 0
+  priority: 1
   parentRefs:
     - name: minefleet-gateway-sample
       kind: Gateway
@@ -17,6 +17,5 @@ spec:
   filterRules:
     - type: any
       rules:
-        - fallbackFor:
-            matchLabels:
-              minefleet.dev/environment: sample
+        - domain: "*.staging.localhost"
+        - domain: "staging.localhost"

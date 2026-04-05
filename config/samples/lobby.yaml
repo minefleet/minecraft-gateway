@@ -4,16 +4,16 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-    app: minecraft-sample
-  name: minecraft-deployment-sample
+    app: lobby
+  name: lobby
 spec:
   selector:
     matchLabels:
-      app: minecraft-sample
+      app: lobby
   template:
     metadata:
       labels:
-        app: minecraft-sample
+        app: lobby
     spec:
       containers:
         - name: minecraft

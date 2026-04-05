@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+    app: example-gameserver
+  name: example-gameserver
+spec:
+  selector:
+    matchLabels:
+      app: example-gameserver
+  template:
+    metadata:
+      labels:
+        app: example-gameserver
+    spec:
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:2026.1.1-java21-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: minecraft
+              containerPort: 25565
+          env:
+            - name: EULA
+              value: "true"
+            - name: VERSION
+              value: "1.21.11"
+            - name: TYPE
+              value: "PAPER"
+            - name: ONLINE_MODE
+              value: "false"
+            - name: PATCH_DEFINITIONS
+              value: /patches
+          volumeMounts:
+            - name: patch-config
+              mountPath: /patches
+      volumes:
+        - name: patch-config
+          configMap:
+            name: minecraft-patch-config

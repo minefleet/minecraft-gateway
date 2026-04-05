@@ -2,10 +2,13 @@
 resources:
 - gateway.networking_v1_minecraftfallbackroute.yaml
 - gateway.networking_v1_minecraftserverdiscovery.yaml
-- gateway.networking_v1_minecraftjoinroute.yaml
+- gateway.networking_v1_minecraftjoinroute_lobby.yaml
+- gateway.networking_v1_minecraftjoinroute_game.yaml
 - gateway.networking_v1_gateway.yaml
 - gateway.networking_v1_gatewayclass.yaml
-- minecraft_deployment.yaml
-- minecraft_service.yaml
+- lobby.yaml
+- lobby_service.yaml
+- example_gameserver.yaml
+- example_gameserver_service.yaml
 - minecraft_patch_config.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples
