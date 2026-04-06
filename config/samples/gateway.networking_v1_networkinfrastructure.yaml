@@ -1,0 +1,46 @@
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: NetworkInfrastructure
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+  name: infrastructure-sample
+spec:
+  discovery:
+    labelSelector:
+      matchLabels:
+        minefleet.dev/environment: sample
+    namespaceSelector:
+      from: Same
+  networkTemplate:
+    template:
+      spec:
+        containers:
+          - name: network
+            volumeMounts:
+              - mountPath: "/velocity/forwarding.secret"
+                subPath: forwarding.secret
+                name: forwarding-secret
+                readOnly: true
+              - mountPath: "/velocity/velocity.toml"
+                subPath: velocity.toml
+                name: network-config
+                readOnly: true
+              - mountPath: "/velocity/server-icon.png"
+                subPath: server-icon.png
+                name: network-config
+                readOnly: true
+
+        volumes:
+          - name: forwarding-secret
+            secret:
+              secretName: network-forwarding-secret
+              items:
+                - key: MF_FORWARDING_SECRET
+                  path: forwarding.secret
+          - name: network-config
+            configMap:
+              name: network-config
+    selector:
+      matchLabels:
+        minefleet.dev/environment: sample

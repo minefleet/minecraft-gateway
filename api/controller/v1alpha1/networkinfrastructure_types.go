@@ -27,9 +27,41 @@ import (
 
 // NetworkInfrastructureSpec defines the desired state of NetworkInfrastructure
 type NetworkInfrastructureSpec struct {
-	Discovery Discovery         `json:"discovery"`
-	Edge      v1.DaemonSetSpec  `json:"edgeTemplate"`
-	Network   v1.DeploymentSpec `json:"networkTemplate"`
+	Discovery Discovery `json:"discovery"`
+
+	// networkTemplate optionally customizes the Deployment created for each
+	// gateway listener. Fields set here are merged into the controller-managed
+	// default. The Selector and required proxy container env vars are always
+	// enforced and cannot be overridden.
+	// +optional
+	// +kubebuilder:pruning:PreserveUnknownFields
+	Network *v1.DeploymentSpec `json:"networkTemplate,omitempty"`
+
+	// edgeTemplate optionally configures the edge proxy DaemonSet and xDS
+	// behavior for gateways using this infrastructure.
+	// +optional
+	Edge *EdgeSpec `json:"edgeTemplate,omitempty"`
+}
+
+// EdgeSpec configures the edge proxy DaemonSet and the xDS resources the
+// controller pushes to it.
+type EdgeSpec struct {
+	// daemonSet optionally customizes the edge DaemonSet. Fields set here are
+	// merged into the controller-managed default via strategic merge patch.
+	// The selector labels and bootstrap volume/mount are always enforced.
+	// +optional
+	// +kubebuilder:pruning:PreserveUnknownFields
+	DaemonSet *v1.DaemonSetSpec `json:"daemonSet,omitempty"`
+
+	// proxyProtocol enables the PROXY protocol v2 transport socket on upstream
+	// clusters, so backend servers receive the real client IP.
+	// +optional
+	ProxyProtocol bool `json:"proxyProtocol,omitempty"`
+
+	// rejectUnknown drops connections whose hostname is not matched by any
+	// route. Defaults to false (connections fall through to the default cluster).
+	// +optional
+	RejectUnknown bool `json:"rejectUnknown,omitempty"`
 }
 
 type Discovery struct {
@@ -46,7 +78,7 @@ type NetworkInfrastructureStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// NetworkInfrastructure is the Schema for the minecraftserverdiscoveries API
+// NetworkInfrastructure is the Schema for the networkinfrastructures API
 type NetworkInfrastructure struct {
 	metav1.TypeMeta `json:",inline"`
 

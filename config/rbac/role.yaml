@@ -7,6 +7,7 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
   - services
   verbs:
   - create
@@ -20,13 +21,6 @@ rules:
   - apps
   resources:
   - daemonsets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
   - deployments
   verbs:
   - create
@@ -86,7 +80,6 @@ rules:
   resources:
   - minecraftfallbackroutes
   - minecraftjoinroutes
-  - minecraftserverdiscoveries
   - networkinfrastructures
   verbs:
   - create
@@ -101,7 +94,6 @@ rules:
   resources:
   - minecraftfallbackroutes/finalizers
   - minecraftjoinroutes/finalizers
-  - minecraftserverdiscoveries/finalizers
   - networkinfrastructures/finalizers
   verbs:
   - update
@@ -110,7 +102,6 @@ rules:
   resources:
   - minecraftfallbackroutes/status
   - minecraftjoinroutes/status
-  - minecraftserverdiscoveries/status
   - networkinfrastructures/status
   verbs:
   - get

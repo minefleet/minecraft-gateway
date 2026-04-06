@@ -24,8 +24,6 @@ type Config struct {
 	XDSPort int
 	// Namespace is the namespace where the controller runs.
 	Namespace string
-	// ProxyImage is the container image for the Velocity proxy Deployment.
-	ProxyImage string
 }
 
 // ListenerSnapshot is the routing snapshot for one gateway listener.

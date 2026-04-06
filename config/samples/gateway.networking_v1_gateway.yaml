@@ -10,8 +10,8 @@ spec:
   infrastructure:
     parametersRef:
       group: gateway.networking.minefleet.dev
-      kind: MinecraftServerDiscovery
-      name: minecraftserverdiscovery-sample
+      kind: NetworkInfrastructure
+      name: infrastructure-sample
   listeners:
     - name: "minecraft"
       port: 25565

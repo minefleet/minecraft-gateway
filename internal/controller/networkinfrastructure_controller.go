@@ -240,6 +240,6 @@ func (r *NetworkInfrastructureReconciler) SetupWithManager(mgr ctrl.Manager) err
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.watchEndpointsForDiscovery)).
 		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.watchGateways)).
 		// TODO: add gateway class verification when this becomes standard channel
-		Named("minecraftserverdiscovery").
+		Named("networkinfrastructure").
 		Complete(r)
 }

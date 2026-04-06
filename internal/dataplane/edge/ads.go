@@ -22,14 +22,6 @@ func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, c clie
 		}
 	}()
 
-	// Verify edge infrastructure is present and healthy.
-	pm := newProxyManager(c, cfg)
-	go func() {
-		if err := pm.CheckHealth(ctx); err != nil {
-			log.Error(err, "edge proxy health check failed")
-		}
-	}()
-
 	// Feed snapshots into the xDS cache.
 	go func() {
 		for {
