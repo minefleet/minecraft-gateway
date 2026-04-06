@@ -182,7 +182,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 	}
 
 	// Requeue gateways whose infrastructure (NetworkInfrastructure) includes this service.
-	discoveries, err := mfdiscovery.GetMinecraftServerDiscoveriesByService(r.Client, ctx, svc)
+	discoveries, err := mfdiscovery.GetNetworkInfrastructuresByService(r.Client, ctx, svc)
 	if err == nil {
 		for _, disc := range discoveries {
 			var gws gatewayv1.GatewayList

@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
@@ -26,6 +27,12 @@ import (
 
 // NetworkInfrastructureSpec defines the desired state of NetworkInfrastructure
 type NetworkInfrastructureSpec struct {
+	Discovery Discovery         `json:"discovery"`
+	Edge      v1.DaemonSetSpec  `json:"edgeTemplate"`
+	Network   v1.DeploymentSpec `json:"networkTemplate"`
+}
+
+type Discovery struct {
 	NamespaceSelector *gatewayv1.RouteNamespaces `json:"namespaceSelector"`
 	LabelSelector     metav1.LabelSelector       `json:"labelSelector"`
 }

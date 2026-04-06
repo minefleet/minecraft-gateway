@@ -47,9 +47,9 @@ type NetworkInfrastructureReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftserverdiscoveries,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftserverdiscoveries/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftserverdiscoveries/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=networkinfrastructures,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=networkinfrastructures/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=networkinfrastructures/finalizers,verbs=update
 // +kubebuilder:rbac:groups=discovery.k8s.io,resources=endpointslices,verbs=get;list;watch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/status,verbs=get;update;patch
@@ -130,13 +130,13 @@ func backendRefCompareFunc(first gatewayv1.BackendObjectReference, second gatewa
 	return string(*first.Kind) == string(*second.Kind) && string(*first.Group) == string(*second.Group) && string(*first.Namespace) == string(*second.Namespace) && first.Name == second.Name
 }
 
-func (r *NetworkInfrastructureReconciler) getServices(ctx context.Context, discovery mcgatewayv1alpha1.NetworkInfrastructure) ([]corev1.Service, error) {
-	allNs, err := util.SelectNamespace(r.Client, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
+func (r *NetworkInfrastructureReconciler) getServices(ctx context.Context, infrastructure mcgatewayv1alpha1.NetworkInfrastructure) ([]corev1.Service, error) {
+	allNs, err := util.SelectNamespace(r.Client, ctx, infrastructure.Namespace, infrastructure.Spec.Discovery.NamespaceSelector)
 	if err != nil {
 		return nil, err
 	}
 
-	selector, err := metav1.LabelSelectorAsSelector(&discovery.Spec.LabelSelector)
+	selector, err := metav1.LabelSelectorAsSelector(&infrastructure.Spec.Discovery.LabelSelector)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func minecraftPort(svc corev1.Service) *gatewayv1.PortNumber {
 func (r *NetworkInfrastructureReconciler) watchGateways(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
 	gw := obj.(*gatewayv1.Gateway)
-	discovery, err := mfdiscovery.GetMinecraftServerDiscoveryByGateway(r.Client, ctx, *gw)
+	infrastructure, err := mfdiscovery.GetNetworkInfrastructureByGateway(r.Client, ctx, *gw)
 	if err != nil {
 		log.Error(err, "can not get NetworkInfrastructure from gateway", "gateway", gw)
 		return nil
@@ -183,8 +183,8 @@ func (r *NetworkInfrastructureReconciler) watchGateways(ctx context.Context, obj
 	return []reconcile.Request{
 		{
 			NamespacedName: types.NamespacedName{
-				Namespace: discovery.Namespace,
-				Name:      discovery.Name,
+				Namespace: infrastructure.Namespace,
+				Name:      infrastructure.Name,
 			},
 		},
 	}
@@ -198,15 +198,15 @@ func (r *NetworkInfrastructureReconciler) watchEndpointsForDiscovery(ctx context
 		log.Error(err, "failed to get services for endpoint slice", "EndpointSlice", slice)
 		return nil
 	}
-	var discoveries mcgatewayv1alpha1.NetworkInfrastructureList
-	// TODO: discoveries by label index
-	if err := r.List(ctx, &discoveries); err != nil {
+	var infrastructures mcgatewayv1alpha1.NetworkInfrastructureList
+	// TODO: infrastructures by label index
+	if err := r.List(ctx, &infrastructures); err != nil {
 		return nil
 	}
 
 	reqs := make([]reconcile.Request, 0)
-	for _, disc := range discoveries.Items {
-		namespaces, err := util.SelectNamespace(r.Client, ctx, disc.Namespace, disc.Spec.NamespaceSelector)
+	for _, infra := range infrastructures.Items {
+		namespaces, err := util.SelectNamespace(r.Client, ctx, infra.Namespace, infra.Spec.Discovery.NamespaceSelector)
 		if err != nil {
 			continue
 		}
@@ -214,7 +214,7 @@ func (r *NetworkInfrastructureReconciler) watchEndpointsForDiscovery(ctx context
 			if svc.Namespace != ns {
 				continue
 			}
-			selector, err := metav1.LabelSelectorAsSelector(&disc.Spec.LabelSelector)
+			selector, err := metav1.LabelSelectorAsSelector(&infra.Spec.Discovery.LabelSelector)
 			if err != nil {
 				log.Error(err, "can not create label selector", "selector", selector)
 				continue
@@ -224,8 +224,8 @@ func (r *NetworkInfrastructureReconciler) watchEndpointsForDiscovery(ctx context
 			}
 			reqs = append(reqs, reconcile.Request{
 				NamespacedName: types.NamespacedName{
-					Namespace: disc.Namespace,
-					Name:      disc.Name,
+					Namespace: infra.Namespace,
+					Name:      infra.Name,
 				},
 			})
 		}

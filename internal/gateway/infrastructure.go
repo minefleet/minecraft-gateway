@@ -15,7 +15,8 @@ import (
 type Infrastructure struct {
 	Labels      map[gatewayv1.LabelKey]gatewayv1.LabelValue           `json:"labels,omitempty"`
 	Annotations map[gatewayv1.AnnotationKey]gatewayv1.AnnotationValue `json:"annotations,omitempty"`
-	Status      mcgatewayv1alpha1.NetworkInfrastructureStatus         `json:"config,omitempty"`
+	Config      mcgatewayv1alpha1.NetworkInfrastructureSpec           `json:"config,omitempty"`
+	Status      mcgatewayv1alpha1.NetworkInfrastructureStatus         `json:"status,omitempty"`
 }
 
 func GetInfrastructureForGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (Infrastructure, error) {
@@ -44,9 +45,12 @@ func GetInfrastructureForGateway(c client.Client, ctx context.Context, gw gatewa
 }
 
 func GetInfrastructureByGateway(c client.Client, ctx context.Context, gateway gatewayv1.Gateway) (Infrastructure, error) {
-	if config, err := mfdiscovery.GetMinecraftServerDiscoveryByGateway(c, ctx, gateway); err == nil {
+	if config, err := mfdiscovery.GetNetworkInfrastructureByGateway(c, ctx, gateway); err == nil {
 		return Infrastructure{
-			Status: config.Status,
+			Status:      config.Status,
+			Config:      config.Spec,
+			Labels:      gateway.Spec.Infrastructure.Labels,
+			Annotations: gateway.Spec.Infrastructure.Annotations,
 		}, nil
 	} else {
 		return Infrastructure{}, err
@@ -54,9 +58,10 @@ func GetInfrastructureByGateway(c client.Client, ctx context.Context, gateway ga
 }
 
 func GetInfrastructureByClass(c client.Client, ctx context.Context, class gatewayv1.GatewayClass) (Infrastructure, error) {
-	if config, err := mfdiscovery.GetMinecraftServerDiscoveryByRef(c, ctx, class.Spec.ParametersRef); err == nil {
+	if config, err := mfdiscovery.GetNetworkInfrastructureByRef(c, ctx, class.Spec.ParametersRef); err == nil {
 		return Infrastructure{
 			Status: config.Status,
+			Config: config.Spec,
 		}, nil
 	} else {
 		return Infrastructure{}, err
