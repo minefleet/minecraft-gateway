@@ -15,7 +15,7 @@ import (
 type Infrastructure struct {
 	Labels      map[gatewayv1.LabelKey]gatewayv1.LabelValue           `json:"labels,omitempty"`
 	Annotations map[gatewayv1.AnnotationKey]gatewayv1.AnnotationValue `json:"annotations,omitempty"`
-	Status      mcgatewayv1alpha1.MinecraftServerDiscoveryStatus      `json:"config,omitempty"`
+	Status      mcgatewayv1alpha1.NetworkInfrastructureStatus         `json:"config,omitempty"`
 }
 
 func GetInfrastructureForGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (Infrastructure, error) {

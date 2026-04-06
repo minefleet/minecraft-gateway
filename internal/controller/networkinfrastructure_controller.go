@@ -41,8 +41,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-// MinecraftServerDiscoveryReconciler reconciles a MinecraftServerDiscovery object
-type MinecraftServerDiscoveryReconciler struct {
+// NetworkInfrastructureReconciler reconciles a NetworkInfrastructure object
+type NetworkInfrastructureReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -58,16 +58,16 @@ type MinecraftServerDiscoveryReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the MinecraftServerDiscovery object against the actual cluster state, and then
+// the NetworkInfrastructure object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
-func (r *MinecraftServerDiscoveryReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *NetworkInfrastructureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	var discovery mcgatewayv1alpha1.MinecraftServerDiscovery
+	var discovery mcgatewayv1alpha1.NetworkInfrastructure
 	if err := r.Get(ctx, req.NamespacedName, &discovery); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -130,7 +130,7 @@ func backendRefCompareFunc(first gatewayv1.BackendObjectReference, second gatewa
 	return string(*first.Kind) == string(*second.Kind) && string(*first.Group) == string(*second.Group) && string(*first.Namespace) == string(*second.Namespace) && first.Name == second.Name
 }
 
-func (r *MinecraftServerDiscoveryReconciler) getServices(ctx context.Context, discovery mcgatewayv1alpha1.MinecraftServerDiscovery) ([]corev1.Service, error) {
+func (r *NetworkInfrastructureReconciler) getServices(ctx context.Context, discovery mcgatewayv1alpha1.NetworkInfrastructure) ([]corev1.Service, error) {
 	allNs, err := util.SelectNamespace(r.Client, ctx, discovery.Namespace, discovery.Spec.NamespaceSelector)
 	if err != nil {
 		return nil, err
@@ -172,12 +172,12 @@ func minecraftPort(svc corev1.Service) *gatewayv1.PortNumber {
 	return fallback
 }
 
-func (r *MinecraftServerDiscoveryReconciler) watchGateways(ctx context.Context, obj client.Object) []reconcile.Request {
+func (r *NetworkInfrastructureReconciler) watchGateways(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
 	gw := obj.(*gatewayv1.Gateway)
 	discovery, err := mfdiscovery.GetMinecraftServerDiscoveryByGateway(r.Client, ctx, *gw)
 	if err != nil {
-		log.Error(err, "can not get MinecraftServerDiscovery from gateway", "gateway", gw)
+		log.Error(err, "can not get NetworkInfrastructure from gateway", "gateway", gw)
 		return nil
 	}
 	return []reconcile.Request{
@@ -190,7 +190,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchGateways(ctx context.Context, 
 	}
 }
 
-func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
+func (r *NetworkInfrastructureReconciler) watchEndpointsForDiscovery(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
 	slice := obj.(*discoveryv1.EndpointSlice)
 	svc, err := endpoint.GetServiceByEndpointSlice(r.Client, ctx, *slice)
@@ -198,7 +198,7 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 		log.Error(err, "failed to get services for endpoint slice", "EndpointSlice", slice)
 		return nil
 	}
-	var discoveries mcgatewayv1alpha1.MinecraftServerDiscoveryList
+	var discoveries mcgatewayv1alpha1.NetworkInfrastructureList
 	// TODO: discoveries by label index
 	if err := r.List(ctx, &discoveries); err != nil {
 		return nil
@@ -234,9 +234,9 @@ func (r *MinecraftServerDiscoveryReconciler) watchEndpointsForDiscovery(ctx cont
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *MinecraftServerDiscoveryReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *NetworkInfrastructureReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&mcgatewayv1alpha1.MinecraftServerDiscovery{}).
+		For(&mcgatewayv1alpha1.NetworkInfrastructure{}).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.watchEndpointsForDiscovery)).
 		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.watchGateways)).
 		// TODO: add gateway class verification when this becomes standard channel

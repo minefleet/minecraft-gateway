@@ -24,14 +24,14 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// MinecraftServerDiscoverySpec defines the desired state of MinecraftServerDiscovery
-type MinecraftServerDiscoverySpec struct {
+// NetworkInfrastructureSpec defines the desired state of NetworkInfrastructure
+type NetworkInfrastructureSpec struct {
 	NamespaceSelector *gatewayv1.RouteNamespaces `json:"namespaceSelector"`
 	LabelSelector     metav1.LabelSelector       `json:"labelSelector"`
 }
 
-// MinecraftServerDiscoveryStatus defines the observed state of MinecraftServerDiscovery.
-type MinecraftServerDiscoveryStatus struct {
+// NetworkInfrastructureStatus defines the observed state of NetworkInfrastructure.
+type NetworkInfrastructureStatus struct {
 	BackendRefs []gatewayv1.BackendObjectReference `json:"backendRefs"`
 	Conditions  []metav1.Condition                 `json:"conditions"`
 }
@@ -39,32 +39,32 @@ type MinecraftServerDiscoveryStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// MinecraftServerDiscovery is the Schema for the minecraftserverdiscoveries API
-type MinecraftServerDiscovery struct {
+// NetworkInfrastructure is the Schema for the minecraftserverdiscoveries API
+type NetworkInfrastructure struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// metadata is a standard object metadata
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty,omitzero"`
 
-	// spec defines the desired state of MinecraftServerDiscovery
+	// spec defines the desired state of NetworkInfrastructure
 	// +required
-	Spec MinecraftServerDiscoverySpec `json:"spec"`
+	Spec NetworkInfrastructureSpec `json:"spec"`
 
-	// status defines the observed state of MinecraftServerDiscovery
+	// status defines the observed state of NetworkInfrastructure
 	// +optional
-	Status MinecraftServerDiscoveryStatus `json:"status,omitempty,omitzero"`
+	Status NetworkInfrastructureStatus `json:"status,omitempty,omitzero"`
 }
 
 // +kubebuilder:object:root=true
 
-// MinecraftServerDiscoveryList contains a list of MinecraftServerDiscovery
-type MinecraftServerDiscoveryList struct {
+// NetworkInfrastructureList contains a list of NetworkInfrastructure
+type NetworkInfrastructureList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []MinecraftServerDiscovery `json:"items"`
+	Items           []NetworkInfrastructure `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&MinecraftServerDiscovery{}, &MinecraftServerDiscoveryList{})
+	SchemeBuilder.Register(&NetworkInfrastructure{}, &NetworkInfrastructureList{})
 }

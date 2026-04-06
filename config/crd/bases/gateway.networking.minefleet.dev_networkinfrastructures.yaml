@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  name: minecraftserverdiscoveries.gateway.networking.minefleet.dev
+  name: networkinfrastructures.gateway.networking.minefleet.dev
 spec:
   group: gateway.networking.minefleet.dev
   names:
-    kind: MinecraftServerDiscovery
-    listKind: MinecraftServerDiscoveryList
-    plural: minecraftserverdiscoveries
-    singular: minecraftserverdiscovery
+    kind: NetworkInfrastructure
+    listKind: NetworkInfrastructureList
+    plural: networkinfrastructures
+    singular: networkinfrastructure
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: MinecraftServerDiscovery is the Schema for the minecraftserverdiscoveries
+        description: NetworkInfrastructure is the Schema for the minecraftserverdiscoveries
           API
         properties:
           apiVersion:
@@ -38,7 +38,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: spec defines the desired state of MinecraftServerDiscovery
+            description: spec defines the desired state of NetworkInfrastructure
             properties:
               labelSelector:
                 description: |-
@@ -167,7 +167,7 @@ spec:
             - namespaceSelector
             type: object
           status:
-            description: status defines the observed state of MinecraftServerDiscovery
+            description: status defines the observed state of NetworkInfrastructure
             properties:
               backendRefs:
                 items:

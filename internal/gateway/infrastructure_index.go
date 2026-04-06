@@ -33,7 +33,7 @@ func IndexGatewayByInfrastructure(mgr manager.Manager) error {
 	})
 }
 
-func ListGatewaysByInfrastructure(c client.Client, ctx context.Context, list *gatewayv1.GatewayList, infra mcgatewayv1alpha1.MinecraftServerDiscovery) error {
+func ListGatewaysByInfrastructure(c client.Client, ctx context.Context, list *gatewayv1.GatewayList, infra mcgatewayv1alpha1.NetworkInfrastructure) error {
 	key := keyGWByInfrastructure(infra.GetObjectKind().GroupVersionKind().Group, infra.GetObjectKind().GroupVersionKind().Kind, infra.GetName())
 	return c.List(ctx, list, client.InNamespace(infra.Namespace), client.MatchingFields{
 		gatewayByInfrastructure: key,

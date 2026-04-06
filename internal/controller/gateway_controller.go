@@ -181,7 +181,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		}
 	}
 
-	// Requeue gateways whose infrastructure (MinecraftServerDiscovery) includes this service.
+	// Requeue gateways whose infrastructure (NetworkInfrastructure) includes this service.
 	discoveries, err := mfdiscovery.GetMinecraftServerDiscoveriesByService(r.Client, ctx, svc)
 	if err == nil {
 		for _, disc := range discoveries {
@@ -220,7 +220,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 
 func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
-	infrastructure := obj.(*mcgatewayv1alpha1.MinecraftServerDiscovery)
+	infrastructure := obj.(*mcgatewayv1alpha1.NetworkInfrastructure)
 	var gws gatewayv1.GatewayList
 	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, *infrastructure); err != nil {
 		if client.IgnoreNotFound(err) != nil {
@@ -269,7 +269,7 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Named("gateway").
 		Watches(&gatewayv1.GatewayClass{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayClass)).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
-		Watches(&mcgatewayv1alpha1.MinecraftServerDiscovery{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
+		Watches(&mcgatewayv1alpha1.NetworkInfrastructure{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
 		Watches(&mcgatewayv1alpha1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1alpha1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Complete(r)
