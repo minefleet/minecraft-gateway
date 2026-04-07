@@ -2,19 +2,21 @@ package dataplane
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
+	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type Dataplane interface {
-	SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error
+	SyncGateway(name types.NamespacedName, infrastructure gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error
 	DeleteGateway(name types.NamespacedName) error
 }
 
@@ -22,9 +24,9 @@ type dataplanes struct {
 	items []Dataplane
 }
 
-func (d dataplanes) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
+func (d dataplanes) SyncGateway(name types.NamespacedName, infrastructure gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
 	for _, dataplane := range d.items {
-		if err := dataplane.SyncGateway(name, routes, backends); err != nil {
+		if err := dataplane.SyncGateway(name, infrastructure, routes, backends); err != nil {
 			return err
 		}
 	}
@@ -62,16 +64,19 @@ func (e Executor) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	podIP := os.Getenv("POD_IP")
+	if podIP == "" {
+		return fmt.Errorf("POD_IP env var not set; add downward API fieldRef status.podIP to the manager pod")
+	}
 	plane := CreateDataplane(ctx, e.Client, Config{
 		Edge: edge.Config{
 			Namespace: string(controllerNamespace),
 			XDSPort:   18000,
+			PodIP:     podIP,
 		},
 		Network: network.Config{
 			Namespace: string(controllerNamespace),
-			XDSPort:   18001,
-			// TODO: make this dynamic
-			ProxyImage: "minefleet.dev/minecraft-proxy:v0.0.1",
+			XDSPort:   19000,
 		},
 	})
 	*e.Dataplane = plane

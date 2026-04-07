@@ -56,7 +56,10 @@ func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap Snapshot) error {
 		return fmt.Errorf("build listener: %w", err)
 	}
 
-	clusters := buildClusterResources(snap)
+	clusters, err := buildClusterResources(snap)
+	if err != nil {
+		return fmt.Errorf("build clusters: %w", err)
+	}
 	clusterResources := make([]cachetypes.Resource, len(clusters))
 	for i, c := range clusters {
 		clusterResources[i] = c
@@ -72,6 +75,6 @@ func (x *xdsServer) UpdateSnapshot(ctx context.Context, snap Snapshot) error {
 	if err != nil {
 		return fmt.Errorf("new xds snapshot: %w", err)
 	}
-	log.Info("updated edge xDS snapshot", "clusters", len(snapshot.GetResources(resourcev3.ClusterType)), "mapping", snap.DomainMapping)
+	log.V(1).Info("updated edge xDS snapshot", "clusters", len(snapshot.GetResources(resourcev3.ClusterType)), "mapping", snap.DomainMapping)
 	return x.cache.SetSnapshot(ctx, NodeID, snapshot)
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/types"
+	v1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
@@ -15,6 +16,9 @@ type Config struct {
 	Namespace string
 	// XDSPort is the local port the xDS gRPC server listens on (default: 18000).
 	XDSPort int
+	// PodIP is the controller pod's IP, injected via the downward API.
+	// Edge proxies connect to this address for xDS.
+	PodIP string
 }
 
 // GatewaySnapshot is the full routing config for one gateway sync cycle.
@@ -23,12 +27,16 @@ type GatewaySnapshot struct {
 	DomainMapping map[string]string
 	// Clusters defines the upstream clusters with their endpoints.
 	Clusters []ClusterConfig
+	// RejectUnknown drops connections to unmapped domains.
+	RejectUnknown bool
 }
 
 // ClusterConfig holds the Envoy cluster definition.
 type ClusterConfig struct {
 	Name      string
 	Endpoints []EndpointConfig
+	// ProxyProtocol enables PROXY protocol v2 on this upstream cluster.
+	ProxyProtocol bool
 }
 
 // EndpointConfig is a single upstream address.
@@ -39,14 +47,19 @@ type EndpointConfig struct {
 
 type Snapshot struct {
 	GatewaySnapshot
-	// RejectUnknown controls whether connections to unmapped domains are rejected.
-	RejectUnknown bool
 }
 
 type GatewaySnapshotCache = map[types.NamespacedName]GatewaySnapshot
 
 // BuildGatewaySnapshot constructs a GatewaySnapshot for one Gateway.
-func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag) GatewaySnapshot {
+// edge may be nil, in which case defaults are used.
+func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, edge *v1alpha1.EdgeSpec) GatewaySnapshot {
+	var proxyProtocol, rejectUnknown bool
+	if edge != nil {
+		proxyProtocol = edge.ProxyProtocol
+		rejectUnknown = edge.RejectUnknown
+	}
+
 	domainMapping := make(map[string]string)
 	clusters := make([]ClusterConfig, 0, len(routes))
 	for listener, bag := range routes {
@@ -58,6 +71,7 @@ func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listen
 					Port:    uint32(listener.Port),
 				},
 			},
+			ProxyProtocol: proxyProtocol,
 		}
 		clusters = append(clusters, cluster)
 		for _, domain := range Domains(bag) {
@@ -67,6 +81,7 @@ func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listen
 	return GatewaySnapshot{
 		DomainMapping: domainMapping,
 		Clusters:      clusters,
+		RejectUnknown: rejectUnknown,
 	}
 }
 
@@ -108,11 +123,19 @@ func BuildSnapshot(cache GatewaySnapshotCache) (Snapshot, map[types.NamespacedNa
 		clusters = append(clusters, snap.Clusters...)
 	}
 
+	rejectUnknown := false
+	for _, snap := range cache {
+		if snap.RejectUnknown {
+			rejectUnknown = true
+			break
+		}
+	}
+
 	return Snapshot{
 		GatewaySnapshot: GatewaySnapshot{
 			DomainMapping: mapping,
 			Clusters:      clusters,
+			RejectUnknown: rejectUnknown,
 		},
-		RejectUnknown: false,
 	}, conflicting
 }

@@ -11,12 +11,12 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft-gateway
     app.kubernetes.io/managed-by: kustomize
-  name: minecraftserverdiscovery-editor-role
+  name: networkinfrastructure-editor-role
 rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - minecraftserverdiscoveries
+  - networkinfrastructures
   verbs:
   - create
   - delete
@@ -28,6 +28,6 @@ rules:
 - apiGroups:
   - gateway.networking.minefleet.dev
   resources:
-  - minecraftserverdiscoveries/status
+  - networkinfrastructures/status
   verbs:
   - get

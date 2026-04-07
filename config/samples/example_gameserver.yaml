@@ -31,8 +31,15 @@ spec:
               value: "PAPER"
             - name: ONLINE_MODE
               value: "false"
+            - name: REPLACE_ENV_VARS
+              value: "TRUE"
+            - name: ENV_VARIABLE_PREFIX
+              value: "MF_"
             - name: PATCH_DEFINITIONS
               value: /patches
+          envFrom:
+            - secretRef:
+                name: network-forwarding-secret
           volumeMounts:
             - name: patch-config
               mountPath: /patches

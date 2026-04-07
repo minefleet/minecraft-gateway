@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/apimachinery/pkg/runtime"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -33,9 +34,13 @@ func IndexGatewayByInfrastructure(mgr manager.Manager) error {
 	})
 }
 
-func ListGatewaysByInfrastructure(c client.Client, ctx context.Context, list *gatewayv1.GatewayList, infra mcgatewayv1alpha1.MinecraftServerDiscovery) error {
-	key := keyGWByInfrastructure(infra.GetObjectKind().GroupVersionKind().Group, infra.GetObjectKind().GroupVersionKind().Kind, infra.GetName())
-	return c.List(ctx, list, client.InNamespace(infra.Namespace), client.MatchingFields{
+func ListGatewaysByInfrastructure(c client.Client, ctx context.Context, scheme *runtime.Scheme, list *gatewayv1.GatewayList, infra *mcgatewayv1alpha1.NetworkInfrastructure) error {
+	gvks, _, err := scheme.ObjectKinds(infra)
+	if err != nil {
+		return err
+	}
+	key := keyGWByInfrastructure(gvks[0].Group, gvks[0].Kind, infra.GetName())
+	return c.List(ctx, list, client.MatchingFields{
 		gatewayByInfrastructure: key,
 	})
 }

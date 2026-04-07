@@ -1,9 +1,0 @@
-resources:
-- edge.yaml
-- bootstrap.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-images:
-- name: edge
-  newName: minefleet.dev/minecraft-edge
-  newTag: v0.0.1

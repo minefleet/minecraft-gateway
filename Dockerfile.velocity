@@ -13,9 +13,6 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /velocity
 COPY --from=build /velocity.jar ./velocity.jar
-COPY integrations/velocity/velocity.toml velocity.toml
-COPY integrations/velocity/forwarding.secret forwarding.secret
-COPY integrations/resources/server-icon.png server-icon.png
 RUN mkdir -p plugins
 COPY --from=build /workspace/velocity/build/libs/velocity-*-all.jar plugins/minefleet.jar
 

@@ -21,7 +21,7 @@ data:
           "$put": {
             "path": "$.proxies.velocity",
             "key": "secret",
-            "value": "minefleet"
+            "value": "${MF_FORWARDING_SECRET}"
           }
         }
       ]

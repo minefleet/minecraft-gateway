@@ -7,6 +7,7 @@ import (
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
+	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -39,7 +40,7 @@ func (d *NetworkDataplane) SetupDataplane() {
 	network.StartADS(d.ctx, d.updates, d.cfg, d.c)
 }
 
-func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
+func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, infra gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
 	d.mu.Lock()
 	d.snapshotCache[name] = make(map[string]network.ListenerSnapshot)
 	for listener, bag := range routes {
@@ -66,7 +67,7 @@ func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, routes map[gat
 	for l := range routes {
 		listeners = append(listeners, l)
 	}
-	return d.proxyMgr.Sync(d.ctx, name, listeners)
+	return d.proxyMgr.Sync(d.ctx, name, listeners, infra)
 }
 
 func (d *NetworkDataplane) DeleteGateway(name types.NamespacedName) error {
@@ -89,5 +90,5 @@ func (d *NetworkDataplane) DeleteGateway(name types.NamespacedName) error {
 		}
 	}
 
-	return d.proxyMgr.Delete(d.ctx, name)
+	return nil
 }

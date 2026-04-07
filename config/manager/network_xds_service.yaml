@@ -13,5 +13,5 @@ spec:
     app.kubernetes.io/name: minecraft-gateway
   ports:
     - name: network-xds
-      port: 18001
-      targetPort: 18001
+      port: 19000
+      targetPort: 19000

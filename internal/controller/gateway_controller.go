@@ -51,11 +51,13 @@ type GatewayReconciler struct {
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=referencegrants,verbs=get;list;watch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/status;gatewayclasses/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/finalizers;gatewayclasses/finalizers,verbs=update
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes;minecraftjoinroutes;minecraftserverdiscoveries,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/status;minecraftjoinroutes/status;minecraftserverdiscoveries/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/finalizers;minecraftjoinroutes/finalizers;minecraftserverdiscoveries/finalizers,verbs=update
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes;minecraftjoinroutes;networkinfrastructures,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/status;minecraftjoinroutes/status;networkinfrastructures/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/finalizers;minecraftjoinroutes/finalizers;networkinfrastructures/finalizers,verbs=update
 // +kubebuilder:rbac:groups=discovery.k8s.io,resources=endpointslices,verbs=get;list;watch
 // +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -67,7 +69,10 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	var gw gatewayv1.Gateway
 	if err := r.Get(ctx, req.NamespacedName, &gw); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		if client.IgnoreNotFound(err) == nil {
+			return ctrl.Result{}, (*r.Dataplane).DeleteGateway(req.NamespacedName)
+		}
+		return ctrl.Result{}, err
 	}
 	verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, gw)
 	if err != nil {
@@ -102,7 +107,7 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
 	if r.Dataplane != nil {
-		err := (*r.Dataplane).SyncGateway(req.NamespacedName, network, backends)
+		err := (*r.Dataplane).SyncGateway(req.NamespacedName, infrastructure, network, backends)
 		if err != nil {
 			var conflictError dataplane.RouteConflictError
 			if !errors.As(err, &conflictError) {
@@ -181,12 +186,12 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		}
 	}
 
-	// Requeue gateways whose infrastructure (MinecraftServerDiscovery) includes this service.
-	discoveries, err := mfdiscovery.GetMinecraftServerDiscoveriesByService(r.Client, ctx, svc)
+	// Requeue gateways whose infrastructure (NetworkInfrastructure) includes this service.
+	discoveries, err := mfdiscovery.GetNetworkInfrastructuresByService(r.Client, ctx, svc)
 	if err == nil {
 		for _, disc := range discoveries {
 			var gws gatewayv1.GatewayList
-			if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, disc); err != nil {
+			if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, r.Scheme, &gws, &disc); err != nil {
 				continue
 			}
 			for _, gw := range gws.Items {
@@ -220,12 +225,10 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 
 func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
-	infrastructure := obj.(*mcgatewayv1alpha1.MinecraftServerDiscovery)
+	infrastructure := obj.(*mcgatewayv1alpha1.NetworkInfrastructure)
 	var gws gatewayv1.GatewayList
-	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, *infrastructure); err != nil {
-		if client.IgnoreNotFound(err) != nil {
-			log.Error(err, "failed to list gateways by infrastructure")
-		}
+	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, r.Scheme, &gws, infrastructure); err != nil {
+		log.Error(err, "failed to list gateways by infrastructure")
 		return nil
 	}
 	result := make([]reconcile.Request, 0, len(gws.Items))
@@ -269,7 +272,7 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Named("gateway").
 		Watches(&gatewayv1.GatewayClass{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayClass)).
 		Watches(&discoveryv1.EndpointSlice{}, handler.EnqueueRequestsFromMapFunc(r.mapEndpoints)).
-		Watches(&mcgatewayv1alpha1.MinecraftServerDiscovery{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
+		Watches(&mcgatewayv1alpha1.NetworkInfrastructure{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
 		Watches(&mcgatewayv1alpha1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1alpha1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Complete(r)

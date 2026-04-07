@@ -2,11 +2,13 @@ package dataplane
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
+	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -20,6 +22,7 @@ type EdgeDataplane struct {
 	updates       chan edge.Snapshot
 	mu            sync.Mutex
 	snapshotCache edge.GatewaySnapshotCache
+	manager       *edge.ProxyManager
 }
 
 func newEdgeDataplane(ctx context.Context, c client.Client, cfg edge.Config) Dataplane {
@@ -29,6 +32,7 @@ func newEdgeDataplane(ctx context.Context, c client.Client, cfg edge.Config) Dat
 		cfg:           cfg,
 		updates:       make(chan edge.Snapshot, 1),
 		snapshotCache: make(edge.GatewaySnapshotCache),
+		manager:       edge.NewProxyManager(c, cfg),
 	}
 	d.SetupDataplane()
 	return d
@@ -36,15 +40,19 @@ func newEdgeDataplane(ctx context.Context, c client.Client, cfg edge.Config) Dat
 
 func (d *EdgeDataplane) SetupDataplane() {
 	edge.StartADS(d.ctx, d.updates, d.cfg, d.c)
+	go func() {
+		if err := d.manager.SyncBootstrap(d.ctx); err != nil {
+			logf.FromContext(d.ctx).Error(err, "failed to sync edge bootstrap ConfigMap")
+		}
+	}()
 }
 
-func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, _ []discoveryv1.EndpointSlice) error {
-	log := logf.FromContext(d.ctx)
-	for listener, bag := range routes {
-		log.Info("Got Routes", "listener", listener, "routes", bag)
+func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, infra gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, _ []discoveryv1.EndpointSlice) error {
+	if err := d.manager.SyncDaemonSet(d.ctx, infra.Config.Edge); err != nil {
+		return fmt.Errorf("sync edge daemonset: %w", err)
 	}
 	d.mu.Lock()
-	tmp := edge.BuildGatewaySnapshot(name, routes)
+	tmp := edge.BuildGatewaySnapshot(name, routes, infra.Config.Edge)
 	d.snapshotCache[name] = tmp
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()

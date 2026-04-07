@@ -14,12 +14,12 @@ import (
 )
 
 const (
-	ServerDiscoveryKind = "MinecraftServerDiscovery"
+	ServerDiscoveryKind = "NetworkInfrastructure"
 )
 
-func GetMinecraftServerDiscoveryByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (mcgatewayv1alpha1.MinecraftServerDiscovery, error) {
+func GetNetworkInfrastructureByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway) (mcgatewayv1alpha1.NetworkInfrastructure, error) {
 	if gw.Spec.Infrastructure == nil || gw.Spec.Infrastructure.ParametersRef == nil {
-		return mcgatewayv1alpha1.MinecraftServerDiscovery{}, errors.New("no infrastructure provided")
+		return mcgatewayv1alpha1.NetworkInfrastructure{}, errors.New("no infrastructure provided")
 	}
 	ref := gatewayv1.ParametersReference{
 		Group:     gw.Spec.Infrastructure.ParametersRef.Group,
@@ -27,17 +27,17 @@ func GetMinecraftServerDiscoveryByGateway(c client.Client, ctx context.Context, 
 		Name:      gw.Spec.Infrastructure.ParametersRef.Name,
 		Namespace: ptr.To(gatewayv1.Namespace(gw.Namespace)),
 	}
-	return GetMinecraftServerDiscoveryByRef(c, ctx, &ref)
+	return GetNetworkInfrastructureByRef(c, ctx, &ref)
 }
 
-// GetMinecraftServerDiscoveriesByService returns all MinecraftServerDiscovery objects
+// GetNetworkInfrastructuresByService returns all NetworkInfrastructure objects
 // that have resolved the given service into their Status.BackendRefs.
-func GetMinecraftServerDiscoveriesByService(c client.Client, ctx context.Context, svc corev1.Service) ([]mcgatewayv1alpha1.MinecraftServerDiscovery, error) {
-	var all mcgatewayv1alpha1.MinecraftServerDiscoveryList
+func GetNetworkInfrastructuresByService(c client.Client, ctx context.Context, svc corev1.Service) ([]mcgatewayv1alpha1.NetworkInfrastructure, error) {
+	var all mcgatewayv1alpha1.NetworkInfrastructureList
 	if err := c.List(ctx, &all); err != nil {
 		return nil, err
 	}
-	result := make([]mcgatewayv1alpha1.MinecraftServerDiscovery, 0)
+	result := make([]mcgatewayv1alpha1.NetworkInfrastructure, 0)
 	for _, disc := range all.Items {
 		for _, ref := range disc.Status.BackendRefs {
 			refNs := disc.Namespace
@@ -53,20 +53,20 @@ func GetMinecraftServerDiscoveriesByService(c client.Client, ctx context.Context
 	return result, nil
 }
 
-func GetMinecraftServerDiscoveryByRef(c client.Client, ctx context.Context, ref *gatewayv1.ParametersReference) (mcgatewayv1alpha1.MinecraftServerDiscovery, error) {
+func GetNetworkInfrastructureByRef(c client.Client, ctx context.Context, ref *gatewayv1.ParametersReference) (mcgatewayv1alpha1.NetworkInfrastructure, error) {
 	if ref == nil {
-		return mcgatewayv1alpha1.MinecraftServerDiscovery{}, errors.New("no infrastructure provided")
+		return mcgatewayv1alpha1.NetworkInfrastructure{}, errors.New("no infrastructure provided")
 	}
 	if string(ref.Group) != mcgatewayv1alpha1.GroupVersion.Group || string(ref.Kind) != ServerDiscoveryKind {
-		return mcgatewayv1alpha1.MinecraftServerDiscovery{}, fmt.Errorf("invalid infrastructure type: %s/%s", ref.Group, ref.Kind)
+		return mcgatewayv1alpha1.NetworkInfrastructure{}, fmt.Errorf("invalid infrastructure type: %s/%s", ref.Group, ref.Kind)
 	}
-	var discovery mcgatewayv1alpha1.MinecraftServerDiscovery
+	var discovery mcgatewayv1alpha1.NetworkInfrastructure
 	err := c.Get(ctx, types.NamespacedName{
 		Namespace: string(*ref.Namespace),
 		Name:      ref.Name,
 	}, &discovery)
 	if err != nil {
-		return mcgatewayv1alpha1.MinecraftServerDiscovery{}, err
+		return mcgatewayv1alpha1.NetworkInfrastructure{}, err
 	}
 	return discovery, nil
 }

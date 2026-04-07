@@ -13,6 +13,8 @@ import (
 	dynmodlistenerv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/listener/dynamic_modules/v3"
 	dynmodnetworkv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/dynamic_modules/v3"
 	tcpproxyv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
+	proxyprotocolv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/proxy_protocol/v3"
+	rawbufferv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/raw_buffer/v3"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -108,7 +110,7 @@ func buildListenerResources(snap Snapshot) (*listenerv3.Listener, error) {
 }
 
 // buildClusterResources builds Envoy Cluster xDS resources from a GatewaySnapshot.
-func buildClusterResources(snap Snapshot) []*clusterv3.Cluster {
+func buildClusterResources(snap Snapshot) ([]*clusterv3.Cluster, error) {
 	result := make([]*clusterv3.Cluster, 0, len(snap.Clusters))
 	for _, c := range snap.Clusters {
 		lbEndpoints := make([]*endpointv3.LbEndpoint, 0, len(c.Endpoints))
@@ -128,7 +130,7 @@ func buildClusterResources(snap Snapshot) []*clusterv3.Cluster {
 				},
 			})
 		}
-		result = append(result, &clusterv3.Cluster{
+		cluster := &clusterv3.Cluster{
 			Name:           c.Name,
 			ConnectTimeout: durationpb.New(time.Second),
 			ClusterDiscoveryType: &clusterv3.Cluster_Type{
@@ -140,7 +142,27 @@ func buildClusterResources(snap Snapshot) []*clusterv3.Cluster {
 					{LbEndpoints: lbEndpoints},
 				},
 			},
-		})
+		}
+		if c.ProxyProtocol {
+			rawBufAny, err := anypb.New(&rawbufferv3.RawBuffer{})
+			if err != nil {
+				return nil, fmt.Errorf("marshal raw buffer transport socket: %w", err)
+			}
+			ppAny, err := anypb.New(&proxyprotocolv3.ProxyProtocolUpstreamTransport{
+				TransportSocket: &corev3.TransportSocket{
+					Name:       "envoy.transport_sockets.raw_buffer",
+					ConfigType: &corev3.TransportSocket_TypedConfig{TypedConfig: rawBufAny},
+				},
+			})
+			if err != nil {
+				return nil, fmt.Errorf("marshal proxy protocol transport socket: %w", err)
+			}
+			cluster.TransportSocket = &corev3.TransportSocket{
+				Name:       "envoy.transport_sockets.upstream_proxy_protocol",
+				ConfigType: &corev3.TransportSocket_TypedConfig{TypedConfig: ppAny},
+			}
+		}
+		result = append(result, cluster)
 	}
-	return result
+	return result, nil
 }

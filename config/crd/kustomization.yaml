@@ -3,7 +3,7 @@
 # It should be run by config/default
 resources:
 - bases/gateway.networking.minefleet.dev_minecraftfallbackroutes.yaml
-- bases/gateway.networking.minefleet.dev_minecraftserverdiscoveries.yaml
+- bases/gateway.networking.minefleet.dev_networkinfrastructures.yaml
 - bases/gateway.networking.minefleet.dev_minecraftjoinroutes.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
