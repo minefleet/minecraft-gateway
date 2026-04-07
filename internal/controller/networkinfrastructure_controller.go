@@ -72,7 +72,7 @@ func (r *NetworkInfrastructureReconciler) Reconcile(ctx context.Context, req ctr
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	var gws gatewayv1.GatewayList
-	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, discovery); err != nil {
+	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, r.Scheme, &gws, &discovery); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	// TODO: add gateway class validation when this becomes standard channel

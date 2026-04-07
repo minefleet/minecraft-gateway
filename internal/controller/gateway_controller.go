@@ -191,7 +191,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 	if err == nil {
 		for _, disc := range discoveries {
 			var gws gatewayv1.GatewayList
-			if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, disc); err != nil {
+			if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, r.Scheme, &gws, &disc); err != nil {
 				continue
 			}
 			for _, gw := range gws.Items {
@@ -226,12 +226,9 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Object) []reconcile.Request {
 	log := logf.FromContext(ctx)
 	infrastructure := obj.(*mcgatewayv1alpha1.NetworkInfrastructure)
-	log.Info("Infra", "infra", infrastructure)
 	var gws gatewayv1.GatewayList
-	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, &gws, *infrastructure); err != nil {
-		if client.IgnoreNotFound(err) != nil {
-			log.Error(err, "failed to list gateways by infrastructure")
-		}
+	if err := gateway.ListGatewaysByInfrastructure(r.Client, ctx, r.Scheme, &gws, infrastructure); err != nil {
+		log.Error(err, "failed to list gateways by infrastructure")
 		return nil
 	}
 	result := make([]reconcile.Request, 0, len(gws.Items))

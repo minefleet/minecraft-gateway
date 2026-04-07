@@ -96,6 +96,8 @@ func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, l
 			}
 		} else if err != nil {
 			return fmt.Errorf("get proxy deployment %s: %w", dep.Name, err)
+		} else if updateErr := m.client.Update(ctx, dep); updateErr != nil {
+			return fmt.Errorf("update proxy deployment %s: %w", dep.Name, updateErr)
 		}
 
 		svc, err := m.buildService(gateway, listener, gw)
@@ -110,6 +112,8 @@ func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, l
 			}
 		} else if err != nil {
 			return fmt.Errorf("get proxy service %s: %w", svc.Name, err)
+		} else if updateErr := m.client.Update(ctx, svc); updateErr != nil {
+			return fmt.Errorf("update proxy service %s: %w", svc.Name, updateErr)
 		}
 	}
 	return nil
