@@ -1,4 +1,4 @@
-FROM gradle:9-jdk21 AS build
+FROM gradle:9-jdk25 AS build
 WORKDIR /workspace
 COPY integrations/ .
 COPY --chmod=755 tools/latest_build_url.sh /tools/latest_build_url.sh
@@ -9,7 +9,7 @@ ARG VERSION=3.5.0-SNAPSHOT
 RUN curl -fSL -o /velocity.jar "$(PROJECT=velocity VERSION=${VERSION} sh /tools/latest_build_url.sh)"
 
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25.0.2_10-jre-alpine
 
 WORKDIR /velocity
 COPY --from=build /velocity.jar ./velocity.jar

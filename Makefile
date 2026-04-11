@@ -2,6 +2,13 @@
 CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
 EDGE_IMG ?= minefleet.dev/minecraft-edge:v0.0.1
 NETWORK_IMG ?= minefleet.dev/minecraft-proxy:v0.0.1
+NETWORK_INTEGRATIONS ?= velocity
+
+# Newline used to separate foreach-generated shell commands onto individual lines
+define newline
+
+
+endef
 
 PLATFORMS ?= linux/arm64,linux/amd64
 
@@ -57,10 +64,6 @@ generate: controller-gen proto ## Generate code containing DeepCopy, DeepCopyInt
 proto: buf ## Generate Go and Java code from proto files in api/.
 	cd api && $(BUF) generate
 
-.PHONY: integrations-build
-integrations-build: proto ## Build integrations Java library.
-	cd integrations && ./gradlew build
-
 .PHONY: fmt
 fmt: ## Run go fmt against code.
 	go fmt ./...
@@ -70,7 +73,7 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test
-test: manifests generate fmt vet setup-envtest ## Run tests.
+test: manifests generate fmt vet network-test setup-envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
 # TODO(user): To use a different vendor for e2e tests, modify the setup under 'tests/e2e'.
@@ -78,6 +81,18 @@ test: manifests generate fmt vet setup-envtest ## Run tests.
 # CertManager is installed by default; skip with:
 # - CERT_MANAGER_INSTALL_SKIP=true
 KIND_CLUSTER ?= minecraft-gateway-test-e2e
+
+.PHONY: image-load
+image-load: ## Install all Images onto a given Kind cluster
+	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
+	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
+	$(call foreach-network-integration,network-image-load)
+
+# network-image-load loads a network integration image to a given kind cluster
+# $1 - Integration name
+define network-image-load
+	$(KIND) load docker-image ${NETWORK_IMG}-$(1) --name ${KIND_CLUSTER}
+endef
 
 .PHONY: setup-test-e2e
 setup-test-e2e: ## Set up a Kind cluster for e2e tests if it does not exist
@@ -175,18 +190,51 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 	- $(CONTAINER_TOOL) buildx rm minecraft-edge-builder
 	rm Dockerfile.edge.cross
 
-##@ Build Network Integrations
-.PHONY: velocity-docker-build
-velocity-docker-build:
-	$(CONTAINER_TOOL) build -t ${NETWORK_IMG} . -f Dockerfile.velocity
+##@ Network Integrations
+
+# integration-docker-build builds a docker image for a given integration
+# $1 - Integration name
+define integration-docker-build
+$(CONTAINER_TOOL) build -t ${NETWORK_IMG}-$(1) . -f integrations/$(1)/Dockerfile
+endef
+
+# integration-docker-buildx builds and pushes a multi-platform image for a given integration
+# $1 - Integration name
+define integration-docker-buildx
+sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' integrations/$(1)/Dockerfile > integrations/$(1)/Dockerfile.cross
+- $(CONTAINER_TOOL) buildx create --name minecraft-$(1)-builder
+$(CONTAINER_TOOL) buildx use minecraft-$(1)-builder
+- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${NETWORK_IMG}-$(1) -f integrations/$(1)/Dockerfile.cross .
+- $(CONTAINER_TOOL) buildx rm minecraft-$(1)-builder
+rm integrations/$(1)/Dockerfile.cross
+endef
+
+.PHONY: network-docker-build
+network-docker-build: proto ## Build all network integration docker images
+		$(call foreach-network-integration,integration-docker-build)
+
+.PHONY: network-docker-buildx
+network-docker-buildx: proto ## Build and push all network integration docker images for cross-platform support
+		$(call foreach-network-integration,integration-docker-buildx)
+
+.PHONY: network-build
+network-build: proto ## Build integrations Java library.
+	$(call gradlew,build)
+
+.PHONY: network-test
+network-test: proto ## Run network integration tests.
+	$(call gradlew,:test)
 
 ##@ Build
 .PHONY: docker-build
-docker-build: controller-docker-build edge-docker-build
+docker-build: controller-docker-build edge-docker-build network-docker-build ## Build all docker images
+
+.PHONY: docker-buildx
+docker-buildx: controller-docker-buildx edge-docker-buildx network-docker-buildx ## Build and push all docker images with cross-platform support
 
 ##@ Push
 .PHONY: docker-push
-docker-push: controller-docker-push edge-docker-push
+docker-push: controller-docker-push edge-docker-push ## Push all docker images
 
 ##@ Deployment
 
@@ -201,13 +249,6 @@ install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~
 .PHONY: uninstall
 uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/crd | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
-
-.PHONY: image-load
-image-load: manifests
-	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
-	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
-	$(KIND) load docker-image ${NETWORK_IMG} --name ${KIND_CLUSTER}
-
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
@@ -298,4 +339,16 @@ GOBIN=$(LOCALBIN) go install $${package} ;\
 mv $(1) $(1)-$(3) ;\
 } ;\
 ln -sf $(1)-$(3) $(1)
+endef
+
+# gradlew runs a Gradle task in the integrations directory.
+# $1 - Gradle task(s) to run (e.g. build, test, :api:test)
+define gradlew
+cd integrations && ./gradlew $(1)
+endef
+
+# foreach-network-integration runs a task for each network integration
+# $1 - The Task name
+define foreach-network-integration
+$(foreach i,$(NETWORK_INTEGRATIONS),$(call $(1),$(i))$(newline))
 endef
