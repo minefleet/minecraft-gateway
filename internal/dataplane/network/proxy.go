@@ -168,7 +168,7 @@ func (m *ProxyManager) buildDeployment(gateway types.NamespacedName, listener ga
 				Containers: []corev1.Container{{
 					Name:  "network",
 					Env:   managedEnv,
-					Image: "minefleet.dev/minecraft-proxy:v0.0.1",
+					Image: "minefleet.dev/minecraft-proxy:v0.0.1-velocity",
 					Ports: []corev1.ContainerPort{
 						{
 							Name:          "minecraft",

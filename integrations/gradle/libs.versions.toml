@@ -1,0 +1,53 @@
+[versions]
+# Networking
+protobuf = "4.34.1"
+grpc = "1.80.0"
+
+# Integration Platform APIs
+velocity-api = "3.5.0-SNAPSHOT"
+
+# Utility
+javax-annotations = "6.0.53"
+junit = "5.14.3"
+mockito = "5.23.0"
+shadow = "9.4.1"
+
+[libraries]
+# Networking
+protobuf = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf" }
+grpc-stub = { group = "io.grpc", name = "grpc-stub", version.ref = "grpc" }
+grpc-protobuf = { group = "io.grpc", name = "grpc-protobuf", version.ref = "grpc" }
+grpc-netty-shaded = { group = "io.grpc", name = "grpc-netty-shaded", version.ref = "grpc" }
+
+# Integration Platform APIs
+velocity-api = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity-api" }
+
+# Utility
+javax-annotations = { group = "org.apache.tomcat", name = "annotations-api", version.ref = "javax-annotations" }
+junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+junit-platform-launcher = {group = "org.junit.platform", name = "junit-platform-launcher" }
+mockito-junit = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+
+[bundles]
+# Networking
+grpc = [
+    "grpc-stub",
+    "grpc-protobuf",
+    "grpc-netty-shaded",
+    "protobuf"
+]
+# Utility
+junit = [
+    "junit-api",
+    "junit-engine",
+]
+mockito = [
+    "mockito-core",
+    "mockito-junit"
+]
+
+[plugins]
+# Utility
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
