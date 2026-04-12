@@ -89,11 +89,8 @@ signing {
     }
 }
 
-base {
-    archivesName = "network-integrations-api"
-}
-
 centralPortal {
+    name = "integration-api"
     username = System.getenv("MAVEN_CENTRAL_USERNAME") ?: ""
     password = System.getenv("MAVEN_CENTRAL_PASSWORD") ?: ""
     pom {
