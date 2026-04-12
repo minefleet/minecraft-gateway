@@ -6,8 +6,8 @@ on:
       - 'v*'
 
 jobs:
-  create-release:
-    name: Create GitHub Release
+  update-release:
+    name: Update GitHub Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -39,7 +39,7 @@ jobs:
             integrations/velocity/build/libs/velocity-*-all.jar
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          
   publish-images:
     name: Publish Docker Images
     runs-on: ubuntu-latest
