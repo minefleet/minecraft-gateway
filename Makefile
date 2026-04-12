@@ -217,7 +217,7 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile.edge > Dockerfile.edge.cross
 	- $(CONTAINER_TOOL) buildx create --name minecraft-edge-builder
 	$(CONTAINER_TOOL) buildx use minecraft-edge-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} -f Dockerfile.edge.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${EDGE_IMG} -f Dockerfile.edge.cross .
 	- $(CONTAINER_TOOL) buildx rm minecraft-edge-builder
 	rm Dockerfile.edge.cross
 
@@ -264,7 +264,7 @@ network-build: proto ## Build integrations Java library.
 
 .PHONY: network-test
 network-test: proto ## Run network integration tests.
-	$(call gradlew,:test)
+	$(call gradlew,:api:test)
 
 ##@ Build
 .PHONY: docker-build

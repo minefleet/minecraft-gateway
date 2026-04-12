@@ -89,10 +89,8 @@ signing {
     }
 }
 
-afterEvaluate {
-    publishing.publications.withType<MavenPublication> {
-        artifactId = "network-integrations-api"
-    }
+base {
+    archivesName = "network-integrations-api"
 }
 
 centralPortal {

@@ -29,8 +29,8 @@ jobs:
       - name: Build install.yaml
         run: make build-installer
 
-      - name: Build velocity plugin JAR
-        run: cd integrations && ./gradlew :velocity:shadowJar
+      - name: Build network integrations
+        run: make network-build
 
       - name: Upload release assets
         run: |
