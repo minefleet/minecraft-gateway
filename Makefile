@@ -1,7 +1,14 @@
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+LDFLAGS ?= -X minefleet.dev/minecraft-gateway/internal/version.Version=$(VERSION) \
+           -X minefleet.dev/minecraft-gateway/internal/version.CommitSHA=$(GIT_COMMIT) \
+           -X minefleet.dev/minecraft-gateway/internal/version.BuildDate=$(BUILD_DATE)
+
 # Image URL to use all building/pushing image targets
-CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
-EDGE_IMG ?= minefleet.dev/minecraft-edge:v0.0.1
-NETWORK_IMG ?= minefleet.dev/minecraft-proxy:v0.0.1
+CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:$(VERSION)
+EDGE_IMG ?= minefleet.dev/minecraft-edge:$(VERSION)
+NETWORK_IMG ?= minefleet.dev/minecraft-proxy:$(VERSION)
 NETWORK_INTEGRATIONS ?= velocity
 
 # Newline used to separate foreach-generated shell commands onto individual lines
@@ -133,18 +140,22 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 
 .PHONY: controller-build
 controller-build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/main.go
+	go build -ldflags "$(LDFLAGS)" -o bin/manager cmd/main.go
 
 .PHONY: controller-run
 controller-run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+	go run -ldflags "$(LDFLAGS)" ./cmd/main.go
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: controller-docker-build
 controller-docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${CONTROLLER_IMG} . -f Dockerfile.controller
+	$(CONTAINER_TOOL) build -t ${CONTROLLER_IMG} \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		. -f Dockerfile.controller
 
 .PHONY: controller-docker-push
 controller-docker-push: ## Push docker image with the manager.
@@ -162,7 +173,11 @@ controller-docker-buildx: ## Build and push docker image for the manager for cro
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile.controller > Dockerfile.controller.cross
 	- $(CONTAINER_TOOL) buildx create --name minecraft-gateway-builder
 	$(CONTAINER_TOOL) buildx use minecraft-gateway-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} -f Dockerfile.controller.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		-f Dockerfile.controller.cross .
 	- $(CONTAINER_TOOL) buildx rm minecraft-gateway-builder
 	rm Dockerfile.controller.cross
 

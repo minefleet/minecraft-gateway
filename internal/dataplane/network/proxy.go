@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/utils/ptr"
+	"minefleet.dev/minecraft-gateway/internal/version"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -168,7 +169,7 @@ func (m *ProxyManager) buildDeployment(gateway types.NamespacedName, listener ga
 				Containers: []corev1.Container{{
 					Name:  "network",
 					Env:   managedEnv,
-					Image: "minefleet.dev/minecraft-proxy:v0.0.1-velocity",
+					Image: fmt.Sprintf("minefleet.dev/minecraft-proxy:%s-velocity", version.Version),
 					Ports: []corev1.ContainerPort{
 						{
 							Name:          "minecraft",
