@@ -6,9 +6,10 @@ LDFLAGS ?= -X minefleet.dev/minecraft-gateway/internal/version.Version=$(VERSION
            -X minefleet.dev/minecraft-gateway/internal/version.BuildDate=$(BUILD_DATE)
 
 # Image URL to use all building/pushing image targets
-CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:$(VERSION)
-EDGE_IMG ?= minefleet.dev/minecraft-edge:$(VERSION)
-NETWORK_IMG ?= minefleet.dev/minecraft-proxy:$(VERSION)
+GITHUB_ORG ?= minefleet
+CONTROLLER_IMG ?= ghcr.io/$(GITHUB_ORG)/minecraft-gateway:$(VERSION)
+EDGE_IMG ?= ghcr.io/$(GITHUB_ORG)/minecraft-edge:$(VERSION)
+NETWORK_IMG ?= ghcr.io/$(GITHUB_ORG)/minecraft-proxy:$(VERSION)
 NETWORK_INTEGRATIONS ?= velocity
 
 # Newline used to separate foreach-generated shell commands onto individual lines
@@ -244,6 +245,10 @@ $(CONTAINER_TOOL) buildx use minecraft-$(1)-builder
 - $(CONTAINER_TOOL) buildx rm minecraft-$(1)-builder
 rm integrations/$(1)/Dockerfile.cross
 endef
+
+.PHONY: network-publish
+network-publish: proto ## Publish the network integration API to Maven Central
+	$(call gradlew,:api:publishToCentralPortal --no-configuration-cache -PpluginVersion=$(VERSION) -PcommitHash=$(GIT_COMMIT))
 
 .PHONY: network-docker-build
 network-docker-build: proto ## Build all network integration docker images

@@ -3,6 +3,8 @@ import java.time.Instant
 
 plugins {
     java
+    signing
+    alias(libs.plugins.sonatype.publisher)
 }
 
 abstract class GenerateBuildInfoTask : DefaultTask() {
@@ -50,6 +52,10 @@ tasks.compileJava {
     dependsOn(generateBuildInfo)
 }
 
+tasks.javadoc {
+    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
+}
+
 val mockitoAgent = configurations.create("mockitoAgent")!!
 
 dependencies {
@@ -74,3 +80,40 @@ tasks.test {
         jvmArgs("-javaagent:$agentJar")
     }
 }
+
+signing {
+    val gpgKey = System.getenv("GPG_KEY")
+    val gpgKeyPassword = System.getenv("GPG_KEY_PASSWORD") ?: ""
+    if (gpgKey != null) {
+        useInMemoryPgpKeys(gpgKey, gpgKeyPassword)
+    }
+}
+
+centralPortal {
+    username = System.getenv("MAVEN_CENTRAL_USERNAME") ?: ""
+    password = System.getenv("MAVEN_CENTRAL_PASSWORD") ?: ""
+    pom {
+        name = "Minefleet Network API"
+        description = "Minefleet network integration API"
+        url = "https://github.com/minefleet/minecraft-gateway"
+        licenses {
+            license {
+                name = "Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0"
+            }
+        }
+        developers {
+            developer {
+                id = "minefleet"
+                name = "The Minefleet Authors"
+                url = "https://minefleet.dev"
+            }
+        }
+        scm {
+            connection = "scm:git:git://github.com/minefleet/minecraft-gateway.git"
+            developerConnection = "scm:git:ssh://github.com/minefleet/minecraft-gateway.git"
+            url = "https://github.com/minefleet/minecraft-gateway"
+        }
+    }
+}
+
