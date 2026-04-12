@@ -26,11 +26,11 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
 
-      - name: Build install.yaml
-        run: make build-installer
-
       - name: Build network integrations
         run: make network-build
+
+      - name: Build install.yaml
+        run: make build-installer
 
       - name: Upload release assets
         run: |
