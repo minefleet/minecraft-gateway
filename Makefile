@@ -90,9 +90,18 @@ test: manifests generate fmt vet network-test setup-envtest ## Run tests.
 KIND_CLUSTER ?= minecraft-gateway-test-e2e
 
 .PHONY: image-load
-image-load: ## Install all Images onto a given Kind cluster
+image-load: controller-image-load edge-image-load network-image-load
+
+.PHONY: controller-image-load
+controller-image-load: ## Install the controller image onto a given Kind cluster
 	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
+
+.PHONY: edge-image-load
+edge-image-load: ## Install the edge image onto a given Kind cluster
 	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
+
+.PHONY: network-image-load
+network-image-load: ## Install the network integration images onto a given Kind cluster
 	$(call foreach-network-integration,network-image-load)
 
 # network-image-load loads a network integration image to a given kind cluster
