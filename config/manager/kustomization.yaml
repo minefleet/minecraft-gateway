@@ -6,4 +6,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: minefleet.dev/minecraft-gateway
-  newTag: cc93647-dirty
+  newTag: c0910bd-dirty

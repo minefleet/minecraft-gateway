@@ -110,6 +110,12 @@ define network-image-load
 	$(KIND) load docker-image ${NETWORK_IMG}-$(1) --name ${KIND_CLUSTER}
 endef
 
+KUBECONFIG ?= $(HOME)/.kube/config
+
+.PHONY: kubeconfig
+kubeconfig: ## Export kubeconfig for the Kind cluster into KUBECONFIG (default: ~/.kube/config)
+	$(KIND) export kubeconfig --name $(KIND_CLUSTER) --kubeconfig $(KUBECONFIG)
+
 .PHONY: setup-test-e2e
 setup-test-e2e: ## Set up a Kind cluster for e2e tests if it does not exist
 	@command -v $(KIND) >/dev/null 2>&1 || { \
@@ -219,7 +225,10 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 # integration-docker-build builds a docker image for a given integration
 # $1 - Integration name
 define integration-docker-build
-$(CONTAINER_TOOL) build -t ${NETWORK_IMG}-$(1) . -f integrations/$(1)/Dockerfile
+$(CONTAINER_TOOL) build -t ${NETWORK_IMG}-$(1) \
+	--build-arg PLUGIN_VERSION=$(VERSION) \
+	--build-arg COMMIT_HASH=$(GIT_COMMIT) \
+	. -f integrations/$(1)/Dockerfile
 endef
 
 # integration-docker-buildx builds and pushes a multi-platform image for a given integration
@@ -228,7 +237,10 @@ define integration-docker-buildx
 sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' integrations/$(1)/Dockerfile > integrations/$(1)/Dockerfile.cross
 - $(CONTAINER_TOOL) buildx create --name minecraft-$(1)-builder
 $(CONTAINER_TOOL) buildx use minecraft-$(1)-builder
-- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${NETWORK_IMG}-$(1) -f integrations/$(1)/Dockerfile.cross .
+- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${NETWORK_IMG}-$(1) \
+	--build-arg PLUGIN_VERSION=$(VERSION) \
+	--build-arg COMMIT_HASH=$(GIT_COMMIT) \
+	-f integrations/$(1)/Dockerfile.cross .
 - $(CONTAINER_TOOL) buildx rm minecraft-$(1)-builder
 rm integrations/$(1)/Dockerfile.cross
 endef
