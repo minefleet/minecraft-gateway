@@ -173,7 +173,7 @@ func (m *ProxyManager) defaultDaemonSetSpec() appsv1.DaemonSetSpec {
 				},
 				Containers: []corev1.Container{{
 					Name:    "edge",
-					Image:   fmt.Sprintf("minefleet.dev/minecraft-edge:%s", version.Version),
+					Image:   fmt.Sprintf("ghcr.io/minefleet/minecraft-edge:%s", version.Version),
 					Command: []string{"envoy"},
 					Args:    []string{"-c", bootstrapMountPath, "--log-level", "info"},
 					SecurityContext: &corev1.SecurityContext{
