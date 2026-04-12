@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/utils/ptr"
 	v1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
+	"minefleet.dev/minecraft-gateway/internal/version"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -172,7 +173,7 @@ func (m *ProxyManager) defaultDaemonSetSpec() appsv1.DaemonSetSpec {
 				},
 				Containers: []corev1.Container{{
 					Name:    "edge",
-					Image:   "minefleet.dev/minecraft-edge:v0.0.1",
+					Image:   fmt.Sprintf("minefleet.dev/minecraft-edge:%s", version.Version),
 					Command: []string{"envoy"},
 					Args:    []string{"-c", bootstrapMountPath, "--log-level", "info"},
 					SecurityContext: &corev1.SecurityContext{

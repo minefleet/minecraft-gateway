@@ -9,13 +9,14 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.proxy.ProxyServer;
+import dev.minefleet.api.BuildInfo;
 import dev.minefleet.api.gateway.networking.NetworkGateway;
 import org.slf4j.Logger;
 
 @Plugin(
         id = "minefleet-gateway",
         name = "Minefleet Gateway",
-        version = "0.0.1-SNAPSHOT",
+        version = BuildInfo.VERSION,
         description = "Minefleet gateway integration for Velocity",
         authors = {"The minefleet authors"}
 )

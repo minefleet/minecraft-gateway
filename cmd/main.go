@@ -41,6 +41,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"minefleet.dev/minecraft-gateway/internal/controller"
+	"minefleet.dev/minecraft-gateway/internal/version"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -268,7 +269,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	setupLog.Info("starting manager")
+	setupLog.Info("starting manager",
+		"version", version.Version,
+		"commit", version.CommitSHA,
+		"buildDate", version.BuildDate)
+
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)

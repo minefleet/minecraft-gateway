@@ -1,7 +1,14 @@
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+LDFLAGS ?= -X minefleet.dev/minecraft-gateway/internal/version.Version=$(VERSION) \
+           -X minefleet.dev/minecraft-gateway/internal/version.CommitSHA=$(GIT_COMMIT) \
+           -X minefleet.dev/minecraft-gateway/internal/version.BuildDate=$(BUILD_DATE)
+
 # Image URL to use all building/pushing image targets
-CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:v0.0.1
-EDGE_IMG ?= minefleet.dev/minecraft-edge:v0.0.1
-NETWORK_IMG ?= minefleet.dev/minecraft-proxy:v0.0.1
+CONTROLLER_IMG ?= minefleet.dev/minecraft-gateway:$(VERSION)
+EDGE_IMG ?= minefleet.dev/minecraft-edge:$(VERSION)
+NETWORK_IMG ?= minefleet.dev/minecraft-proxy:$(VERSION)
 NETWORK_INTEGRATIONS ?= velocity
 
 # Newline used to separate foreach-generated shell commands onto individual lines
@@ -83,9 +90,18 @@ test: manifests generate fmt vet network-test setup-envtest ## Run tests.
 KIND_CLUSTER ?= minecraft-gateway-test-e2e
 
 .PHONY: image-load
-image-load: ## Install all Images onto a given Kind cluster
+image-load: controller-image-load edge-image-load network-image-load
+
+.PHONY: controller-image-load
+controller-image-load: ## Install the controller image onto a given Kind cluster
 	$(KIND) load docker-image ${CONTROLLER_IMG} --name ${KIND_CLUSTER}
+
+.PHONY: edge-image-load
+edge-image-load: ## Install the edge image onto a given Kind cluster
 	$(KIND) load docker-image ${EDGE_IMG} --name ${KIND_CLUSTER}
+
+.PHONY: network-image-load
+network-image-load: ## Install the network integration images onto a given Kind cluster
 	$(call foreach-network-integration,network-image-load)
 
 # network-image-load loads a network integration image to a given kind cluster
@@ -93,6 +109,12 @@ image-load: ## Install all Images onto a given Kind cluster
 define network-image-load
 	$(KIND) load docker-image ${NETWORK_IMG}-$(1) --name ${KIND_CLUSTER}
 endef
+
+KUBECONFIG ?= $(HOME)/.kube/config
+
+.PHONY: kubeconfig
+kubeconfig: ## Export kubeconfig for the Kind cluster into KUBECONFIG (default: ~/.kube/config)
+	$(KIND) export kubeconfig --name $(KIND_CLUSTER) --kubeconfig $(KUBECONFIG)
 
 .PHONY: setup-test-e2e
 setup-test-e2e: ## Set up a Kind cluster for e2e tests if it does not exist
@@ -133,18 +155,22 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 
 .PHONY: controller-build
 controller-build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/main.go
+	go build -ldflags "$(LDFLAGS)" -o bin/manager cmd/main.go
 
 .PHONY: controller-run
 controller-run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+	go run -ldflags "$(LDFLAGS)" ./cmd/main.go
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: controller-docker-build
 controller-docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${CONTROLLER_IMG} . -f Dockerfile.controller
+	$(CONTAINER_TOOL) build -t ${CONTROLLER_IMG} \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		. -f Dockerfile.controller
 
 .PHONY: controller-docker-push
 controller-docker-push: ## Push docker image with the manager.
@@ -162,7 +188,11 @@ controller-docker-buildx: ## Build and push docker image for the manager for cro
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile.controller > Dockerfile.controller.cross
 	- $(CONTAINER_TOOL) buildx create --name minecraft-gateway-builder
 	$(CONTAINER_TOOL) buildx use minecraft-gateway-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} -f Dockerfile.controller.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${CONTROLLER_IMG} \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		-f Dockerfile.controller.cross .
 	- $(CONTAINER_TOOL) buildx rm minecraft-gateway-builder
 	rm Dockerfile.controller.cross
 
@@ -195,7 +225,10 @@ edge-docker-buildx: ## Build and push docker image for the edge proxy for cross-
 # integration-docker-build builds a docker image for a given integration
 # $1 - Integration name
 define integration-docker-build
-$(CONTAINER_TOOL) build -t ${NETWORK_IMG}-$(1) . -f integrations/$(1)/Dockerfile
+$(CONTAINER_TOOL) build -t ${NETWORK_IMG}-$(1) \
+	--build-arg PLUGIN_VERSION=$(VERSION) \
+	--build-arg COMMIT_HASH=$(GIT_COMMIT) \
+	. -f integrations/$(1)/Dockerfile
 endef
 
 # integration-docker-buildx builds and pushes a multi-platform image for a given integration
@@ -204,7 +237,10 @@ define integration-docker-buildx
 sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' integrations/$(1)/Dockerfile > integrations/$(1)/Dockerfile.cross
 - $(CONTAINER_TOOL) buildx create --name minecraft-$(1)-builder
 $(CONTAINER_TOOL) buildx use minecraft-$(1)-builder
-- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${NETWORK_IMG}-$(1) -f integrations/$(1)/Dockerfile.cross .
+- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${NETWORK_IMG}-$(1) \
+	--build-arg PLUGIN_VERSION=$(VERSION) \
+	--build-arg COMMIT_HASH=$(GIT_COMMIT) \
+	-f integrations/$(1)/Dockerfile.cross .
 - $(CONTAINER_TOOL) buildx rm minecraft-$(1)-builder
 rm integrations/$(1)/Dockerfile.cross
 endef
