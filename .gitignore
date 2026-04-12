@@ -25,6 +25,9 @@ target
 # Java/Gradle
 .gradle
 integrations/**/build
+# Generated distribution artifacts
+dist/
+
 # editor and IDE paraphernalia
 .idea
 .vscode
