@@ -11,6 +11,7 @@ javax-annotations = "6.0.53"
 junit = "5.14.3"
 mockito = "5.23.0"
 shadow = "9.4.1"
+sonatype-publisher = "1.2.4"
 
 [libraries]
 # Networking
@@ -51,3 +52,4 @@ mockito = [
 [plugins]
 # Utility
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+sonatype-publisher = { id = "net.thebugmc.gradle.sonatype-central-portal-publisher", version.ref = "sonatype-publisher" }
