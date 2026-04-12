@@ -14,6 +14,12 @@ jobs:
       - name: Clone the code
         uses: actions/checkout@v6
 
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
