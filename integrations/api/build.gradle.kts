@@ -89,6 +89,12 @@ signing {
     }
 }
 
+afterEvaluate {
+    publishing.publications.withType<MavenPublication> {
+        artifactId = "network-integrations-api"
+    }
+}
+
 centralPortal {
     username = System.getenv("MAVEN_CENTRAL_USERNAME") ?: ""
     password = System.getenv("MAVEN_CENTRAL_PASSWORD") ?: ""
