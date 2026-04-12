@@ -6,6 +6,40 @@ on:
       - 'v*'
 
 jobs:
+  update-release:
+    name: Update GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Build install.yaml
+        run: make build-installer
+
+      - name: Build velocity plugin JAR
+        run: cd integrations && ./gradlew :velocity:shadowJar
+
+      - name: Upload release assets
+        run: |
+          gh release upload ${{ github.ref_name }} \
+            dist/install.yaml \
+            integrations/velocity/build/libs/velocity-*-all.jar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
   publish-images:
     name: Publish Docker Images
     runs-on: ubuntu-latest
