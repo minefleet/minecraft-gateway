@@ -260,7 +260,7 @@ network-docker-buildx: proto ## Build and push all network integration docker im
 
 .PHONY: network-build
 network-build: proto ## Build integrations Java library.
-	$(call gradlew,build)
+	$(call gradlew,build -PpluginVersion=$(VERSION) -PcommitHash=$(GIT_COMMIT))
 
 .PHONY: network-test
 network-test: proto ## Run network integration tests.

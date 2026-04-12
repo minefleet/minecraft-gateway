@@ -1,5 +1,27 @@
 # minecraft-gateway
+
+[![GitHub Release](https://img.shields.io/github/v/release/minefleet/minecraft-gateway?include_prereleases)](https://github.com/minefleet/minecraft-gateway/releases/latest)
+[![Integration API Version](https://img.shields.io/maven-central/v/dev.minefleet/integration-api)](https://central.sonatype.com/artifact/dev.minefleet/integration-api)
+
+> [!CAUTION]
+> This project is in **very early alpha**. APIs, CRDs, and behavior will change without notice. Do not use in production.
+
+> [!NOTE]
+> Full documentation is/will be available at [docs.minefleet.dev](https://docs.minefleet.dev).
+
 A Kubernetes-native gateway controller that creates minecraft networks and routes Minecraft Java Edition connections to networks based on the hostname in the handshake packet.
+
+## Install
+
+```sh
+kubectl apply --server-side -f https://github.com/minefleet/minecraft-gateway/releases/download/<tag>/install.yaml
+```
+
+For example, to install the latest release:
+
+```sh
+kubectl apply --server-side -f https://github.com/minefleet/minecraft-gateway/releases/latest/download/install.yaml
+```
 
 ## Description
 minecraft-gateway implements the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/) for Minecraft TCP traffic. It consists of three components: 
