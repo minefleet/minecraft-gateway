@@ -1,8 +1,169 @@
-## Quickstart
-TODO
+---
+title: Quickstart
+description: Get minecraft-gateway running on your Kubernetes cluster in minutes.
+---
 
-### Installing Gateway API
-TODO
+This guide walks you through installing minecraft-gateway and routing your first Minecraft connection.
 
-### Installing the minecraft-gateway Controller
-TODO
+## Prerequisites
+
+- A Kubernetes cluster (1.27+)
+- `kubectl` configured to talk to your cluster
+- Cluster-admin permissions
+
+## Install Gateway API CRDs
+
+minecraft-gateway builds on the Kubernetes Gateway API. Install the standard channel CRDs first:
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
+```
+
+## Install minecraft-gateway
+
+Apply the minecraft-gateway install manifest, which includes the controller, CRDs, and RBAC:
+
+```bash
+kubectl apply --server-side -f https://github.com/minefleet/minecraft-gateway/releases/latest/download/install.yaml
+```
+
+Verify the controller is running:
+
+```bash
+kubectl get pods -n minecraft-gateway-system
+```
+
+```
+NAME                                            READY   STATUS    RESTARTS   AGE
+minecraft-gateway-controller-manager-...        1/1     Running   0          30s
+```
+
+## Create a GatewayClass
+
+A `GatewayClass` tells the controller which gateways it should manage.
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: minecraft
+spec:
+  controllerName: minefleet.dev/gateway-controller
+```
+
+Apply it:
+
+```bash
+kubectl apply -f gatewayclass.yaml
+```
+
+## Create a NetworkInfrastructure
+
+`NetworkInfrastructure` configures how the gateway discovers your game servers and how the network proxy is deployed. Create it in the same namespace as your gateway:
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: NetworkInfrastructure
+metadata:
+  name: my-infrastructure
+  namespace: default
+spec:
+  discovery:
+    namespaceSelector:
+      from: Same
+    labelSelector:
+      matchLabels:
+        minefleet.dev/gameserver: "true"
+```
+
+```bash
+kubectl apply -f infrastructure.yaml
+```
+
+## Create a Gateway
+
+A `Gateway` represents your Minecraft entry point. It creates an Envoy edge proxy and a Velocity network proxy for each listener.
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: my-gateway
+  namespace: default
+spec:
+  gatewayClassName: minecraft
+  infrastructure:
+    parametersRef:
+      group: gateway.networking.minefleet.dev
+      kind: NetworkInfrastructure
+      name: my-infrastructure
+  listeners:
+    - name: main
+      port: 25565
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.minefleet.dev
+            kind: MinecraftJoinRoute
+          - group: gateway.networking.minefleet.dev
+            kind: MinecraftFallbackRoute
+```
+
+```bash
+kubectl apply -f gateway.yaml
+```
+
+## Label your game server Service
+
+The controller discovers game servers by label. Add the label to your server's Service:
+
+```bash
+kubectl label service my-gameserver minefleet.dev/gameserver=true
+```
+
+Your Service must expose port 25565 (or a port named `minecraft`).
+
+## Create a MinecraftJoinRoute
+
+A `MinecraftJoinRoute` maps a hostname to a backend game server:
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftJoinRoute
+metadata:
+  name: survival
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  backendRefs:
+    - name: my-gameserver
+      port: 25565
+  filterRules:
+    - type: any
+      rules:
+        - domain: play.example.com
+```
+
+```bash
+kubectl apply -f route.yaml
+```
+
+## Verify
+
+Check that the route was accepted:
+
+```bash
+kubectl get minecraftjoinroute survival
+```
+
+Connect your Minecraft client (Java Edition) to `play.example.com`. The handshake hostname is matched by the edge proxy and your connection is forwarded to `my-gameserver`.
+
+## Next steps
+
+- [Architecture overview](/concepts/overview) — understand how the three layers work together
+- [Domain routing guide](/guides/domain-routing) — wildcards, priorities, and conflict handling
+- [Service discovery guide](/guides/service-discovery) — how backends are discovered
+- [NetworkInfrastructure reference](/reference/network-infrastructure) — full configuration options

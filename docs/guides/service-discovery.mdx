@@ -1,0 +1,106 @@
+---
+title: Service Discovery
+description: How minecraft-gateway discovers game server Services and makes them available as route backends.
+---
+
+minecraft-gateway discovers game server Services automatically using the `discovery` section of a `NetworkInfrastructure`. Discovered services are written into `status.backendRefs` and become available as backends in your routes.
+
+## How discovery works
+
+The `NetworkInfrastructureReconciler` watches Services, Gateways, and EndpointSlices. When it reconciles, it:
+
+1. Determines which namespaces to search based on `discovery.namespaceSelector`.
+2. Lists all Services in those namespaces that match `discovery.labelSelector`.
+3. For each matching Service, selects a port using the priority rules below.
+4. Writes the result into `status.backendRefs`.
+
+## Configuring discovery
+
+```yaml
+spec:
+  discovery:
+    namespaceSelector:
+      from: Same           # Same | All | Selector
+    labelSelector:
+      matchLabels:
+        minefleet.dev/gameserver: "true"
+```
+
+### Namespace scope
+
+| `from` value | Behavior |
+|---|---|
+| `Same` | Only the namespace where the `NetworkInfrastructure` lives. |
+| `All` | All namespaces in the cluster. |
+| `Selector` | Namespaces whose labels match `namespaceSelector.selector`. |
+
+### Label selector
+
+Any standard Kubernetes label selector. Services must have all required labels to be included.
+
+```yaml
+labelSelector:
+  matchLabels:
+    minefleet.dev/gameserver: "true"
+    minefleet.dev/environment: production
+```
+
+## Port selection
+
+For each discovered Service, the controller selects a port in this priority order:
+
+1. A TCP port named `minecraft`
+2. TCP port number `25565`
+3. The first TCP port found on the Service
+
+Services with no TCP ports are excluded.
+
+## Labelling your Services
+
+Add the label that matches your `discovery.labelSelector` to any Service you want the gateway to discover:
+
+```bash
+kubectl label service my-gameserver minefleet.dev/gameserver=true
+```
+
+Or set it in your Service manifest:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: survival-server
+  labels:
+    minefleet.dev/gameserver: "true"
+spec:
+  ports:
+    - name: minecraft
+      port: 25565
+      protocol: TCP
+  selector:
+    app: survival-server
+```
+
+## Checking discovered backends
+
+After the controller reconciles, check the `NetworkInfrastructure` status to see what was discovered:
+
+```bash
+kubectl get networkinfrastructure my-infrastructure -o jsonpath='{.status.backendRefs}'
+```
+
+## Using discovered services in routes
+
+Discovered services can be referenced by name in `backendRefs`:
+
+```yaml
+backendRefs:
+  - name: survival-server
+    port: 25565
+```
+
+The controller validates that the referenced service exists in the gateway's namespace (or the route's namespace if no namespace is specified).
+
+## Dynamic updates
+
+The controller re-reconciles automatically when Services gain or lose the discovery label, when EndpointSlices change (for fallback route `fallbackFor` resolution), or when a `NetworkInfrastructure` is updated. There is no need to restart anything after adding a new game server.

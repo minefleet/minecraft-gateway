@@ -1,0 +1,164 @@
+---
+title: Customizing the Network Proxy
+description: How to mount secrets, config maps, and custom volumes into the Velocity network proxy using networkTemplate.
+---
+
+The Velocity network proxy Deployment created per listener is fully configurable via the `networkTemplate` field in `NetworkInfrastructure`. The template is applied as a strategic merge patch on top of the controller's defaults.
+
+## Adding Velocity modern forwarding
+
+Velocity modern forwarding requires a `forwarding.secret` file inside the proxy container. Mount it from a Kubernetes Secret:
+
+**Create the secret:**
+
+```bash
+kubectl create secret generic velocity-forwarding-secret \
+  --from-file=forwarding.secret=./forwarding.secret
+```
+
+**Reference it in `networkTemplate`:**
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: NetworkInfrastructure
+metadata:
+  name: my-infrastructure
+  namespace: default
+spec:
+  discovery:
+    namespaceSelector:
+      from: Same
+    labelSelector:
+      matchLabels:
+        minefleet.dev/gameserver: "true"
+  networkTemplate:
+    template:
+      spec:
+        containers:
+          - name: network
+            volumeMounts:
+              - mountPath: /velocity/forwarding.secret
+                subPath: forwarding.secret
+                name: forwarding-secret
+                readOnly: true
+        volumes:
+          - name: forwarding-secret
+            secret:
+              secretName: velocity-forwarding-secret
+```
+
+## Mounting a custom velocity.toml
+
+To supply a custom `velocity.toml` configuration file:
+
+**Create the ConfigMap:**
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velocity-config
+  namespace: default
+data:
+  velocity.toml: |
+    config-version = "2.7"
+    bind = "0.0.0.0:25565"
+    online-mode = true
+    player-info-forwarding-mode = "modern"
+    # ... rest of your config
+```
+
+**Mount it in `networkTemplate`:**
+
+```yaml
+networkTemplate:
+  template:
+    spec:
+      containers:
+        - name: network
+          volumeMounts:
+            - mountPath: /velocity/velocity.toml
+              subPath: velocity.toml
+              name: velocity-config
+      volumes:
+        - name: velocity-config
+          configMap:
+            name: velocity-config
+```
+
+## Setting resource requests and limits
+
+```yaml
+networkTemplate:
+  template:
+    spec:
+      containers:
+        - name: network
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+```
+
+## Adding node selectors and tolerations
+
+```yaml
+networkTemplate:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      tolerations:
+        - key: dedicated
+          operator: Equal
+          value: minecraft
+          effect: NoSchedule
+```
+
+## Combining multiple customizations
+
+All customizations within `networkTemplate` are merged together. You can combine volumes, resource limits, and scheduling constraints in a single `NetworkInfrastructure`:
+
+```yaml
+networkTemplate:
+  template:
+    spec:
+      containers:
+        - name: network
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /velocity/forwarding.secret
+              subPath: forwarding.secret
+              name: forwarding-secret
+              readOnly: true
+            - mountPath: /velocity/velocity.toml
+              subPath: velocity.toml
+              name: velocity-config
+      volumes:
+        - name: forwarding-secret
+          secret:
+            secretName: velocity-forwarding-secret
+        - name: velocity-config
+          configMap:
+            name: velocity-config
+```
+
+## Fields you cannot override
+
+The controller always manages the following — setting them in `networkTemplate` has no effect:
+
+- `spec.selector`
+- Environment variables: `NAMESPACE`, `GATEWAY_NAME`, `LISTENER_NAME`, `GATEWAY_NETWORK_XDS_HOST`, `GATEWAY_NETWORK_XDS_PORT`
+
+## Verifying the result
+
+After applying your `NetworkInfrastructure`, check the generated Deployment to confirm your customizations were applied:
+
+```bash
+kubectl get deployment -n default -l gateway.networking.k8s.io/gateway-name=my-gateway -o yaml
+```

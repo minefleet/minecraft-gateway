@@ -1,0 +1,101 @@
+---
+title: Gateway API Integration
+description: How minecraft-gateway extends the Kubernetes Gateway API with Minecraft-specific route types.
+---
+
+minecraft-gateway is built on the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/) (`gateway.networking.k8s.io`). It reuses the standard `GatewayClass` and `Gateway` resources and introduces two custom route kinds.
+
+## Resource hierarchy
+
+```
+GatewayClass  (cluster-scoped)
+  └─ parametersRef → NetworkInfrastructure  (class-level defaults)
+       │
+Gateway  (namespace-scoped)
+  ├─ infrastructure.parametersRef → NetworkInfrastructure  (per-gateway overrides)
+  └─ listeners[]
+       ├─ MinecraftJoinRoute  (attached via parentRefs)
+       └─ MinecraftFallbackRoute  (attached via parentRefs)
+```
+
+## GatewayClass
+
+A `GatewayClass` is a cluster-scoped resource that names a controller. Set `spec.controllerName` to `minefleet.dev/gateway-controller` for minecraft-gateway to manage it.
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: minecraft
+spec:
+  controllerName: minefleet.dev/gateway-controller
+  parametersRef:
+    group: gateway.networking.minefleet.dev
+    kind: NetworkInfrastructure
+    name: class-infrastructure
+    namespace: minecraft-gateway-system
+```
+
+The optional `parametersRef` points to a `NetworkInfrastructure` that provides cluster-wide defaults, including `edgeTemplate` configuration (which is only effective at this level).
+
+## Gateway
+
+A `Gateway` represents a single Minecraft entry point. Each listener in `spec.listeners` gets its own Velocity proxy Deployment and Service.
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: my-gateway
+  namespace: default
+spec:
+  gatewayClassName: minecraft
+  infrastructure:
+    parametersRef:
+      group: gateway.networking.minefleet.dev
+      kind: NetworkInfrastructure
+      name: my-infrastructure
+  listeners:
+    - name: main
+      port: 25565
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.minefleet.dev
+            kind: MinecraftJoinRoute
+          - group: gateway.networking.minefleet.dev
+            kind: MinecraftFallbackRoute
+        namespaces:
+          from: Same
+```
+
+`allowedRoutes.kinds` must reference kinds from group `gateway.networking.minefleet.dev`. `allowedRoutes.namespaces` controls which namespaces can attach routes to this listener.
+
+## Custom route types
+
+minecraft-gateway replaces the standard `HTTPRoute` with two Minecraft-specific route kinds.
+
+### MinecraftJoinRoute
+
+A `MinecraftJoinRoute` routes initial player connections. It uses `filterRules` with domain patterns to match against the hostname the player connected with. The edge proxy uses these rules to build its hostname-to-cluster map.
+
+See the [MinecraftJoinRoute reference](/reference/minecraft-join-route) for full field documentation.
+
+### MinecraftFallbackRoute
+
+A `MinecraftFallbackRoute` defines where players go when a primary server is unavailable or full. It supports a `fallbackFor` selector that dynamically resolves to a set of services at snapshot build time. Fallback routes are evaluated by the Velocity network proxy and do not affect edge-layer routing.
+
+See the [MinecraftFallbackRoute reference](/reference/minecraft-fallback-route) for full field documentation.
+
+## Infrastructure merging
+
+When both the `GatewayClass` and the `Gateway` have a `parametersRef`, the controller merges their `NetworkInfrastructure` specs:
+
+| Field | Behavior |
+|---|---|
+| `edgeTemplate` | Always taken from the GatewayClass level only |
+| `networkTemplate` | Gateway level overrides the GatewayClass level |
+| `discovery` | Gateway level wins if present |
+| Labels/annotations | Merged; gateway level wins on conflict |
+
+This lets you set cluster-wide edge configuration centrally while allowing individual gateways to customize their network proxy and discovery settings.

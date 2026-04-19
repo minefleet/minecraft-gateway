@@ -1,0 +1,118 @@
+---
+title: MinecraftJoinRoute
+description: Reference for the MinecraftJoinRoute CRD, which routes initial player connections based on hostname.
+---
+
+A `MinecraftJoinRoute` maps hostnames to backend game servers. The edge proxy uses the `filterRules` to build its hostname-to-cluster map. When a player connects, their `server_address` handshake field is matched against these rules and they are forwarded to the corresponding backend.
+
+**API group:** `gateway.networking.minefleet.dev/v1alpha1`
+
+## Example
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftJoinRoute
+metadata:
+  name: survival
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  backendRefs:
+    - name: survival-server
+      port: 25565
+      distributionStrategy:
+        type: least-players
+  filterRules:
+    - type: any
+      rules:
+        - domain: survival.example.com
+        - domain: "*.survival.example.com"
+```
+
+## Spec fields
+
+### `parentRefs`
+
+Which `Gateway` listeners this route attaches to. Uses the standard Gateway API `ParentReference` type.
+
+```yaml
+parentRefs:
+  - name: my-gateway
+    namespace: default      # optional, defaults to route's namespace
+    kind: Gateway
+    group: gateway.networking.k8s.io
+    sectionName: main       # optional, targets a specific listener by name
+```
+
+### `backendRefs`
+
+The game server backends to forward matching connections to.
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `string` | Service name. |
+| `namespace` | `string` | Service namespace. Defaults to the route's namespace. |
+| `port` | `int` | Service port number. |
+| `weight` | `int` | Relative weight for load balancing. |
+| `distributionStrategy.type` | `string` | How players are distributed across backend instances. |
+
+**`distributionStrategy.type` values:**
+
+| Value | Description |
+|---|---|
+| `random` | Pick a backend instance at random. |
+| `least-players` | Forward to the instance with the fewest current players. |
+
+### `filterRules`
+
+A list of rule sets that define which hostnames this route matches. Each rule set has a `type` and a list of `rules`.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `string` | `any`, `all`, or `none`. Controls how rules within the set are combined. |
+| `rules` | `[]MinecraftJoinFilterRule` | The individual conditions. |
+
+**Rule set `type` values:**
+
+| Value | Description |
+|---|---|
+| `any` | The connection matches if it satisfies at least one rule in the set. Each rule's domain is added to the edge routing table. |
+| `all` | The connection matches only if it satisfies every rule in the set. Only the first rule's domain is used for edge routing (since all conditions must match, the connection can only arrive on one hostname). |
+| `none` | The connection matches if it satisfies no rule in the set. |
+
+**`MinecraftJoinFilterRule` fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `domain` | `string` | Exact hostname or wildcard pattern (e.g. `play.example.com`, `*.example.com`). |
+| `permission` | `string` | Permission node that the player must have. Evaluated by the network proxy. |
+
+At least one of `domain` or `permission` must be set per rule.
+
+### `priority`
+
+```yaml
+priority: 10
+```
+
+An integer used by the network dataplane to order routes. Higher values take precedence. When two routes could both match a connection, the higher-priority route is evaluated first. Defaults to `0`.
+
+## Domain matching
+
+Domains are matched by the edge proxy using two strategies, tried in order:
+
+1. **Exact match** — `play.example.com` matches only `play.example.com`.
+2. **Wildcard match** — `*.example.com` matches `anything.example.com` but not `example.com` itself.
+
+When building the edge routing table, the controller deduplicates domains and removes exact entries that are already covered by a wildcard in the same rule set.
+
+## Status
+
+The route's status follows the standard Gateway API `RouteStatus` shape with a `parents` list. Each parent reports an `Accepted` condition indicating whether the route successfully attached to the listener.
+
+```bash
+kubectl get minecraftjoinroute survival -o yaml
+```

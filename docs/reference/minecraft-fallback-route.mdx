@@ -1,0 +1,84 @@
+---
+title: MinecraftFallbackRoute
+description: Reference for the MinecraftFallbackRoute CRD, which redirects players when primary servers are unavailable.
+---
+
+A `MinecraftFallbackRoute` defines where players are sent when they cannot reach their primary destination — for example, when a game server is full or offline. Fallback routes are evaluated by the Velocity network proxy and do **not** affect edge-layer hostname routing.
+
+**API group:** `gateway.networking.minefleet.dev/v1alpha1`
+
+## Example
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftFallbackRoute
+metadata:
+  name: lobby-fallback
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  backendRefs:
+    - name: lobby
+      port: 25565
+  filterRules:
+    - type: any
+      rules:
+        - fallbackFor:
+            matchLabels:
+              minefleet.dev/environment: production
+```
+
+## Spec fields
+
+### `parentRefs`
+
+Which `Gateway` listeners this route attaches to. Same structure as `MinecraftJoinRoute.parentRefs`.
+
+### `backendRefs`
+
+The fallback backend(s) to redirect players to. Same structure as `MinecraftJoinRoute.backendRefs`, including optional `distributionStrategy`.
+
+### `filterRules`
+
+A list of rule sets that define when this fallback applies.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `string` | `any`, `all`, or `none`. |
+| `rules` | `[]MinecraftFallbackFilterRule` | The individual conditions. |
+
+**`MinecraftFallbackFilterRule` fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `domain` | `string` | Exact hostname or wildcard. |
+| `permission` | `string` | Permission node the player must have. |
+| `fallbackFor` | `LabelSelector` | Selects which services this route acts as a fallback for. Resolved at snapshot build time by matching EndpointSlice labels. |
+
+`fallbackFor` is the key distinguisher from join routes. It lets you say "when any server matching these labels is unavailable, send players here" without hardcoding service names.
+
+### `priority`
+
+Same as `MinecraftJoinRoute.priority`. Higher values take precedence when multiple fallback routes could match.
+
+## Difference from MinecraftJoinRoute
+
+| | MinecraftJoinRoute | MinecraftFallbackRoute |
+|---|---|---|
+| Used for | Initial player routing | Redirecting when primary is unavailable |
+| Edge routing | Yes — domains build the edge hostname map | No — not used by edge proxy |
+| `fallbackFor` selector | No | Yes |
+| Evaluated by | Edge proxy + Velocity | Velocity only |
+
+## `fallbackFor` resolution
+
+At snapshot build time, the controller evaluates `fallbackFor.matchLabels` against all EndpointSlices in the discovered namespace(s). It uses the `kubernetes.io/service-name` label on EndpointSlices to resolve selectors to concrete `namespace/name` service references.
+
+This means that if you scale a game server down to zero replicas, the EndpointSlice becomes empty and the network proxy can detect the unavailability and activate the fallback route.
+
+## Status
+
+Same structure as `MinecraftJoinRoute` — standard Gateway API `RouteStatus` with a `parents` list and `Accepted` condition.

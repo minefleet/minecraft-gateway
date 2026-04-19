@@ -1,0 +1,106 @@
+---
+title: Fallback Routing
+description: How to configure fallback routes that redirect players when primary game servers are unavailable.
+---
+
+Fallback routes redirect players to an alternative server when their primary destination is unreachable — for example, when a game server is offline, full, or being restarted. This is handled entirely by the Velocity network proxy; the edge layer is not involved.
+
+## When fallback routes activate
+
+The Velocity proxy activates a fallback route when:
+
+- The primary backend server is offline (connection refused / timeout).
+- The primary server is full (player count at maximum).
+
+The network proxy evaluates `MinecraftFallbackRoute` rules in `priority` order after the primary `MinecraftJoinRoute` backend is found to be unavailable.
+
+## Basic fallback route
+
+This example sends players to the `lobby` server whenever a primary route fails:
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftFallbackRoute
+metadata:
+  name: lobby-fallback
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  backendRefs:
+    - name: lobby
+      port: 25565
+  filterRules:
+    - type: any
+      rules:
+        - domain: "*.example.com"
+```
+
+## Using `fallbackFor` to target specific services
+
+The `fallbackFor` field selects which services this fallback applies to using a label selector, without hardcoding service names. The controller resolves the selector against EndpointSlice labels at snapshot build time.
+
+```yaml
+filterRules:
+  - type: any
+    rules:
+      - fallbackFor:
+          matchLabels:
+            minefleet.dev/type: gameserver
+            minefleet.dev/environment: production
+```
+
+This fallback activates when any Service whose EndpointSlices carry those labels is unavailable.
+
+The controller uses the `kubernetes.io/service-name` label on EndpointSlices to resolve the selector to concrete service references. When a matched service scales to zero replicas, its EndpointSlice becomes empty and the network proxy considers it unavailable.
+
+## Combining `fallbackFor` with domain filtering
+
+You can narrow a fallback to only apply for specific hostnames:
+
+```yaml
+filterRules:
+  - type: all
+    rules:
+      - domain: play.example.com
+      - fallbackFor:
+          matchLabels:
+            minefleet.dev/type: survival
+```
+
+With `type: all`, both conditions must match. The fallback only activates when the player connected to `play.example.com` **and** a survival server is unavailable.
+
+## Fallback priority
+
+When multiple fallback routes could apply, `priority` controls which is tried first. Higher values win.
+
+```yaml
+# Try the regional lobby first (priority 10)
+spec:
+  priority: 10
+  backendRefs:
+    - name: lobby-eu
+      port: 25565
+---
+# Fall back to the global lobby if regional is also unavailable (priority 1)
+spec:
+  priority: 1
+  backendRefs:
+    - name: lobby-global
+      port: 25565
+```
+
+## Difference from join routes
+
+Fallback routes and join routes serve different purposes and are evaluated differently:
+
+| | MinecraftJoinRoute | MinecraftFallbackRoute |
+|---|---|---|
+| Purpose | Route the initial connection | Redirect when primary is unavailable |
+| Edge hostname routing | Yes | No |
+| `fallbackFor` selector | No | Yes |
+| Evaluated by | Edge proxy + Velocity | Velocity only |
+
+A fallback route alone does not route a player to your server — a join route must be matched first at the edge layer.

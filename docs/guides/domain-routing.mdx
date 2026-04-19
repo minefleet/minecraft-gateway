@@ -1,0 +1,116 @@
+---
+title: Domain Routing
+description: How to route Minecraft connections by hostname using exact matches, wildcards, priorities, and multiple rules.
+---
+
+The edge proxy routes connections by reading the `server_address` field from the Minecraft handshake packet and matching it against the domain rules defined in your `MinecraftJoinRoute` resources.
+
+## Basic hostname routing
+
+To route players who connect to `play.example.com` to a specific backend:
+
+```yaml
+spec:
+  filterRules:
+    - type: any
+      rules:
+        - domain: play.example.com
+  backendRefs:
+    - name: my-server
+      port: 25565
+```
+
+## Wildcard routing
+
+A wildcard pattern `*.example.com` matches any single subdomain level under `example.com`. It does **not** match `example.com` itself.
+
+```yaml
+filterRules:
+  - type: any
+    rules:
+      - domain: "*.example.com"
+```
+
+This matches `lobby.example.com`, `survival.example.com`, etc., but not `example.com` or `a.b.example.com`.
+
+When both an exact domain and a wildcard cover the same hostname, the exact match is tried first.
+
+## Multiple domains for one route
+
+Use multiple rules within a single rule set to match several hostnames with one route:
+
+```yaml
+filterRules:
+  - type: any
+    rules:
+      - domain: play.example.com
+      - domain: mc.example.com
+      - domain: "*.example.com"
+```
+
+Each rule in an `any` rule set adds its domain to the edge routing table independently. The controller automatically removes exact domains that are already fully covered by a wildcard in the same set.
+
+## Route priority
+
+When multiple routes could match the same connection at the network proxy layer, `priority` controls which is evaluated first. Higher integers win.
+
+```yaml
+# Lobby catches all *.example.com (priority 1)
+---
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftJoinRoute
+metadata:
+  name: lobby
+spec:
+  priority: 1
+  filterRules:
+    - type: any
+      rules:
+        - domain: "*.example.com"
+  backendRefs:
+    - name: lobby
+      port: 25565
+---
+# Survival takes play.example.com at higher priority (priority 10)
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: MinecraftJoinRoute
+metadata:
+  name: survival
+spec:
+  priority: 10
+  filterRules:
+    - type: any
+      rules:
+        - domain: play.example.com
+  backendRefs:
+    - name: survival
+      port: 25565
+```
+
+## Combining conditions with `all`
+
+Use `type: all` when a route should only match if the connection satisfies every condition in the set — for example, a specific hostname **and** a player permission:
+
+```yaml
+filterRules:
+  - type: all
+    rules:
+      - domain: admin.example.com
+      - permission: minefleet.admin
+```
+
+With `type: all`, only the first rule's domain is added to the edge routing table (because all rules must match simultaneously, and a connection can only arrive on one hostname).
+
+## Route conflicts
+
+A route conflict occurs when two `MinecraftJoinRoute` resources from different `Gateway` objects map the same hostname to different clusters. When a conflict is detected:
+
+- The conflicting gateway's routes are excluded from the edge snapshot.
+- The controller logs the conflict but does not mark the route as failed.
+- The remaining (non-conflicting) gateway continues working normally.
+
+Routes within the same `Gateway` can share domains — the network proxy evaluates them in priority order.
+
+## Forge and proxy suffix stripping
+
+The edge filter automatically strips Forge and BungeeCord/Velocity `\0`-separated suffixes from the `server_address` field before matching. For example, `play.example.com\0FML\0` is treated as `play.example.com`.

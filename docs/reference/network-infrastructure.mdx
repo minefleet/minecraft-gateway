@@ -1,0 +1,118 @@
+---
+title: NetworkInfrastructure
+description: Reference for the NetworkInfrastructure CRD, which configures service discovery, network proxy templates, and edge proxy options.
+---
+
+`NetworkInfrastructure` configures how a gateway discovers backend game servers, how its Velocity network proxy Deployments are templated, and (at the GatewayClass level) how the edge proxy DaemonSet is configured.
+
+**API group:** `gateway.networking.minefleet.dev/v1alpha1`
+
+## Example
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: NetworkInfrastructure
+metadata:
+  name: my-infrastructure
+  namespace: default
+spec:
+  discovery:
+    namespaceSelector:
+      from: Same
+    labelSelector:
+      matchLabels:
+        minefleet.dev/gameserver: "true"
+  networkTemplate:
+    template:
+      spec:
+        containers:
+          - name: network
+            volumeMounts:
+              - mountPath: /velocity/forwarding.secret
+                subPath: forwarding.secret
+                name: forwarding-secret
+                readOnly: true
+        volumes:
+          - name: forwarding-secret
+            secret:
+              secretName: velocity-forwarding-secret
+```
+
+## Spec fields
+
+### `discovery`
+
+Controls which Kubernetes Services are discovered as available backends.
+
+| Field | Type | Description |
+|---|---|---|
+| `namespaceSelector` | `RouteNamespaces` | Which namespaces to search. `from: Same` searches the gateway's namespace; `from: All` searches all namespaces; `from: Selector` filters by `namespaceSelector.selector`. |
+| `labelSelector` | `LabelSelector` | Labels that a Service must have to be included. |
+
+A Service is included if it matches the label selector **and** has a TCP port named `minecraft`, a TCP port numbered `25565`, or (as a fallback) any TCP port.
+
+Port selection priority:
+1. TCP port named `minecraft`
+2. TCP port number `25565`
+3. First TCP port found
+
+Discovered services are written into `status.backendRefs` and made available to routes as backends.
+
+### `networkTemplate`
+
+An optional `DeploymentSpec` fragment applied via strategic merge patch to the default Velocity proxy Deployment created for each listener.
+
+Use this to mount secrets and config maps, set resource requests, or configure tolerations.
+
+```yaml
+networkTemplate:
+  template:
+    spec:
+      containers:
+        - name: network
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+```
+
+The following fields are always managed by the controller and cannot be overridden:
+
+- `selector`
+- Environment variables: `NAMESPACE`, `GATEWAY_NAME`, `LISTENER_NAME`, `GATEWAY_NETWORK_XDS_HOST`, `GATEWAY_NETWORK_XDS_PORT`
+
+### `edgeTemplate`
+
+Configures the Envoy edge proxy DaemonSet. **Only effective when set on a `NetworkInfrastructure` referenced by a `GatewayClass`** — per-gateway infrastructure ignores this field.
+
+| Field | Type | Description |
+|---|---|---|
+| `daemonSet` | `DaemonSetSpec` | Applied via strategic merge patch to the default edge DaemonSet. The selector labels and bootstrap volume/mount are always enforced. |
+| `proxyProtocol` | `bool` | Enables PROXY protocol v2 on upstream clusters so game servers receive the real client IP. Default: `false`. |
+| `rejectUnknown` | `bool` | Drops connections whose hostname does not match any route. Default: `false` (unmatched connections pass through to a default cluster). |
+
+```yaml
+# In a GatewayClass-level NetworkInfrastructure
+edgeTemplate:
+  proxyProtocol: true
+  rejectUnknown: true
+```
+
+## Status fields
+
+| Field | Description |
+|---|---|
+| `backendRefs` | List of discovered backend Services, populated by the controller after reconciliation. |
+| `conditions` | Standard Kubernetes condition list. |
+
+## Class-level vs. gateway-level
+
+A `NetworkInfrastructure` can be referenced from a `GatewayClass` (cluster-wide defaults) or from a `Gateway` (per-gateway overrides). When both are present, they are merged:
+
+| Field | Merge behavior |
+|---|---|
+| `edgeTemplate` | GatewayClass only — per-gateway values are ignored |
+| `networkTemplate` | Gateway-level overrides GatewayClass-level |
+| `discovery` | Gateway-level wins if present |
+
+This lets you configure the edge DaemonSet once at the class level while each gateway customizes its own network proxy.

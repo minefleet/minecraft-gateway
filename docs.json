@@ -8,6 +8,30 @@
           {
             "group": "Getting Started",
             "pages": ["quickstart"]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/overview",
+              "concepts/gateway-api"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/domain-routing",
+              "guides/service-discovery",
+              "guides/fallback-routing",
+              "guides/customizing-network-proxy"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/network-infrastructure",
+              "reference/minecraft-join-route",
+              "reference/minecraft-fallback-route"
+            ]
           }
         ]
       }
