@@ -1,0 +1,15 @@
+{
+  "navigation": {
+    "versions": [
+      {
+        "version": "v0.0.3-alpha",
+        "default": true,
+        "products": [
+          {
+            "product": "Gateway"
+          }
+        ]
+      }
+    ]
+  }
+}
