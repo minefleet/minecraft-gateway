@@ -1,9 +1,9 @@
 ---
 title: Customizing the Network Proxy
-description: How to mount secrets, config maps, and custom volumes into the Velocity network proxy using networkTemplate.
+description: How to mount secrets, config maps, and custom volumes into the network proxy using networkTemplate.
 ---
 
-The Velocity network proxy Deployment created per listener is fully configurable via the `networkTemplate` field in `NetworkInfrastructure`. The template is applied as a strategic merge patch on top of the controller's defaults.
+The network proxy Deployment created per listener is fully configurable via the `networkTemplate` field in `NetworkInfrastructure`. The template is applied as a strategic merge patch on top of the controller's defaults. The examples below use the built-in [Velocity](https://papermc.io/software/velocity) integration; the same `networkTemplate` mechanism applies to any [custom proxy integration](/guides/network-integration).
 
 ## Adding Velocity modern forwarding
 

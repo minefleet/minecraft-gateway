@@ -3,16 +3,16 @@ title: Fallback Routing
 description: How to configure fallback routes that redirect players when primary game servers are unavailable.
 ---
 
-Fallback routes redirect players to an alternative server when their primary destination is unreachable — for example, when a game server is offline, full, or being restarted. This is handled entirely by the Velocity network proxy; the edge layer is not involved.
+Fallback routes redirect players to an alternative server when their primary destination is unreachable — for example, when a game server is offline, full, or being restarted. This is handled entirely by the network proxy; the edge layer is not involved.
 
 ## When fallback routes activate
 
-The Velocity proxy activates a fallback route when:
+The network proxy activates a fallback route when:
 
 - The primary backend server is offline (connection refused / timeout).
 - The primary server is full (player count at maximum).
 
-The network proxy evaluates `MinecraftFallbackRoute` rules in `priority` order after the primary `MinecraftJoinRoute` backend is found to be unavailable.
+The network proxy evaluates `MinecraftFallbackRoute` rules in `priority` order after it finds the primary `MinecraftJoinRoute` backend unavailable.
 
 ## Basic fallback route
 
@@ -101,6 +101,6 @@ Fallback routes and join routes serve different purposes and are evaluated diffe
 | Purpose | Route the initial connection | Redirect when primary is unavailable |
 | Edge hostname routing | Yes | No |
 | `fallbackFor` selector | No | Yes |
-| Evaluated by | Edge proxy + Velocity | Velocity only |
+| Evaluated by | Edge proxy + network proxy | Network proxy only |
 
 A fallback route alone does not route a player to your server — a join route must be matched first at the edge layer.

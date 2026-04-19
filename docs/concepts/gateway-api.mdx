@@ -40,7 +40,7 @@ The optional `parametersRef` points to a `NetworkInfrastructure` that provides c
 
 ## Gateway
 
-A `Gateway` represents a single Minecraft entry point. Each listener in `spec.listeners` gets its own Velocity proxy Deployment and Service.
+A `Gateway` represents a single Minecraft entry point. Each listener in `spec.listeners` gets its own network proxy Deployment and Service.
 
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
@@ -83,7 +83,7 @@ See the [MinecraftJoinRoute reference](/reference/minecraft-join-route) for full
 
 ### MinecraftFallbackRoute
 
-A `MinecraftFallbackRoute` defines where players go when a primary server is unavailable or full. It supports a `fallbackFor` selector that dynamically resolves to a set of services at snapshot build time. Fallback routes are evaluated by the Velocity network proxy and do not affect edge-layer routing.
+A `MinecraftFallbackRoute` defines where players go when a primary server is unavailable or full. It supports a `fallbackFor` selector that dynamically resolves to a set of services at snapshot build time. Fallback routes are evaluated by the network proxy and do not affect edge-layer routing.
 
 See the [MinecraftFallbackRoute reference](/reference/minecraft-fallback-route) for full field documentation.
 

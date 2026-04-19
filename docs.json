@@ -22,7 +22,8 @@
               "guides/domain-routing",
               "guides/service-discovery",
               "guides/fallback-routing",
-              "guides/customizing-network-proxy"
+              "guides/customizing-network-proxy",
+              "guides/network-integration"
             ]
           },
           {

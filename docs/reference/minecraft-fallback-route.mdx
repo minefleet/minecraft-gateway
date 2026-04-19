@@ -3,7 +3,7 @@ title: MinecraftFallbackRoute
 description: Reference for the MinecraftFallbackRoute CRD, which redirects players when primary servers are unavailable.
 ---
 
-A `MinecraftFallbackRoute` defines where players are sent when they cannot reach their primary destination — for example, when a game server is full or offline. Fallback routes are evaluated by the Velocity network proxy and do **not** affect edge-layer hostname routing.
+A `MinecraftFallbackRoute` defines where players are sent when they cannot reach their primary destination — for example, when a game server is full or offline. Fallback routes are evaluated by the network proxy and do **not** affect edge-layer hostname routing.
 
 **API group:** `gateway.networking.minefleet.dev/v1alpha1`
 
@@ -71,7 +71,7 @@ Same as `MinecraftJoinRoute.priority`. Higher values take precedence when multip
 | Used for | Initial player routing | Redirecting when primary is unavailable |
 | Edge routing | Yes — domains build the edge hostname map | No — not used by edge proxy |
 | `fallbackFor` selector | No | Yes |
-| Evaluated by | Edge proxy + Velocity | Velocity only |
+| Evaluated by | Edge proxy + network proxy | Network proxy only |
 
 ## `fallbackFor` resolution
 

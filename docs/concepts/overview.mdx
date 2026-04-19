@@ -18,7 +18,7 @@ Minecraft client
           │  TCP (hostname-routed)
           ▼
 ┌─────────────────────┐
-│   Network Proxy     │  Velocity proxy Deployment
+│   Network Proxy     │  Proxy integration (e.g. Velocity)
 │   (per listener)    │  Applies join/fallback rules
 └─────────┬───────────┘
           │  TCP
@@ -42,21 +42,21 @@ The edge proxy operates at layer 4 — it does not terminate the Minecraft proto
 
 ### Network proxy
 
-Each Gateway listener gets a dedicated [Velocity](https://papermc.io/software/velocity) proxy Deployment and Service. The Velocity proxy:
+Each Gateway listener gets a dedicated network proxy Deployment and Service. The network proxy:
 
 - Accepts the Minecraft connection from the edge layer.
 - Queries the controller's network xDS endpoint to get its routing configuration.
 - Applies join and fallback rules to decide which game server to forward the player to.
-- Enables Velocity modern forwarding so game servers can trust the player's identity.
+- Forwards the connection to the selected game server, optionally using player identity forwarding (e.g. Velocity modern forwarding).
 
-The network proxy is the component that understands join routes, fallback routes, priorities, and distribution strategies.
+The built-in integration uses [Velocity](https://papermc.io/software/velocity), but you can implement the [network integration API](/guides/network-integration) to use any proxy. The network proxy is the component that understands join routes, fallback routes, priorities, and distribution strategies.
 
 ### Kubernetes controller
 
 The Go controller watches CRDs and reconciles the desired state:
 
 - **GatewayClass** — marks the controller as the owner.
-- **Gateway** — creates/updates the edge xDS snapshot and the Velocity Deployment + Service per listener.
+- **Gateway** — creates/updates the edge xDS snapshot and the network proxy Deployment + Service per listener.
 - **NetworkInfrastructure** — discovers game server Services and writes their endpoints into status.
 - **MinecraftJoinRoute / MinecraftFallbackRoute** — attach to a Gateway and define routing rules.
 
@@ -69,9 +69,9 @@ The controller pushes configuration to the edge proxy via an xDS gRPC server on 
 3. The `minefleet-edge` Rust filter reads the Minecraft handshake and extracts the `server_address` (e.g. `play.example.com`).
 4. The filter looks up `play.example.com` in the domain map. An exact match is tried first, then a wildcard match (e.g. `*.example.com`).
 5. The matching cluster name is written to Envoy dynamic metadata.
-6. `tcp_proxy` forwards to the Velocity proxy Service for that cluster.
-7. Velocity looks up the player's destination using its xDS snapshot. `MinecraftJoinRoute` rules are evaluated in priority order; `MinecraftFallbackRoute` rules apply when the primary server is unavailable.
-8. Velocity forwards the player to the selected game server using modern forwarding.
+6. `tcp_proxy` forwards to the network proxy Service for that cluster.
+7. The network proxy looks up the player's destination using its xDS snapshot. `MinecraftJoinRoute` rules are evaluated in priority order; `MinecraftFallbackRoute` rules apply when the primary server is unavailable.
+8. The network proxy forwards the player to the selected game server.
 
 ## Key design decisions
 

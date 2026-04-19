@@ -3,7 +3,7 @@ title: NetworkInfrastructure
 description: Reference for the NetworkInfrastructure CRD, which configures service discovery, network proxy templates, and edge proxy options.
 ---
 
-`NetworkInfrastructure` configures how a gateway discovers backend game servers, how its Velocity network proxy Deployments are templated, and (at the GatewayClass level) how the edge proxy DaemonSet is configured.
+`NetworkInfrastructure` configures how a gateway discovers backend game servers, how its network proxy Deployments are templated, and (at the GatewayClass level) how the edge proxy DaemonSet is configured.
 
 **API group:** `gateway.networking.minefleet.dev/v1alpha1`
 
@@ -60,7 +60,7 @@ Discovered services are written into `status.backendRefs` and made available to 
 
 ### `networkTemplate`
 
-An optional `DeploymentSpec` fragment applied via strategic merge patch to the default Velocity proxy Deployment created for each listener.
+An optional `DeploymentSpec` fragment applied via strategic merge patch to the default network proxy Deployment created for each listener.
 
 Use this to mount secrets and config maps, set resource requests, or configure tolerations.
 
@@ -116,3 +116,5 @@ A `NetworkInfrastructure` can be referenced from a `GatewayClass` (cluster-wide 
 | `discovery` | Gateway-level wins if present |
 
 This lets you configure the edge DaemonSet once at the class level while each gateway customizes its own network proxy.
+
+See [Network Integration](/guides/network-integration) if you want to replace the built-in Velocity proxy with your own implementation.

@@ -1,0 +1,381 @@
+---
+title: Network Integration
+description: How to implement a custom network proxy that integrates with minecraft-gateway using the NetworkXDS gRPC API.
+---
+
+minecraft-gateway separates edge routing (hostname matching) from network routing (join/fallback logic). The network proxy is the component responsible for the latter, and the controller exposes a gRPC API — **NetworkXDS** — that any proxy can call to receive its routing configuration.
+
+The built-in integration uses [Velocity](https://papermc.io/software/velocity). This guide explains how to implement your own.
+
+## Prerequisites
+
+- Your proxy runs as a Kubernetes Deployment managed by the controller (via `networkTemplate`)
+- Your proxy can make gRPC calls to the controller's network xDS server
+
+## How it works
+
+When a Gateway listener is reconciled, the controller:
+
+1. Creates a Deployment and Service for your proxy using the image and configuration from `networkTemplate`.
+2. Injects environment variables your proxy uses to identify itself to the xDS server.
+3. Keeps a snapshot of all routes and backends for that listener up to date.
+
+Your proxy calls `NetworkXDS.GetSnapshot` with an infinite timer to retrieve its snapshot, then uses the snapshot to make routing decisions.
+
+## Environment variables
+
+The controller injects these environment variables into every network proxy container:
+
+| Variable | Description |
+|---|---|
+| `NAMESPACE` | Kubernetes namespace of the Gateway |
+| `GATEWAY_NAME` | Name of the Gateway |
+| `LISTENER_NAME` | Name of the listener this proxy serves |
+| `GATEWAY_NETWORK_XDS_HOST` | Hostname of the NetworkXDS gRPC server |
+| `GATEWAY_NETWORK_XDS_PORT` | Port of the NetworkXDS gRPC server (default: `19000`) |
+
+## The NetworkXDS API
+
+The API is defined as a single unary RPC:
+
+```protobuf
+service NetworkXDS {
+  rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse);
+}
+
+message GetSnapshotRequest {
+  string gateway_namespace = 1;
+  string gateway_name = 2;
+  string listener_name = 3;
+}
+
+message GetSnapshotResponse {
+  Snapshot snapshot = 1;
+}
+```
+
+Pass the three injected environment variables (`NAMESPACE`, `GATEWAY_NAME`, `LISTENER_NAME`) as the request fields.
+
+The server returns `UNAVAILABLE` if no snapshot has been built yet and `NOT_FOUND` if the gateway/listener combination does not exist.
+
+## The Snapshot message
+
+```protobuf
+message Snapshot {
+  string gateway_name = 1;
+  string listener_name = 2;
+  string current_generation = 3;
+  repeated ManagedService services = 4;
+}
+```
+
+`current_generation` is an opaque string that changes whenever the snapshot changes. Poll the endpoint periodically and re-apply configuration when the generation changes.
+
+### ManagedService
+
+```protobuf
+message ManagedService {
+  string namespaced_name = 1;   // "namespace/name"
+  string namespace = 2;
+  string name = 3;
+  DistributionStrategy distribution_strategy = 4;
+  repeated ManagedServer servers = 5;
+  repeated Route routes = 6;
+}
+
+enum DistributionStrategy {
+  RANDOM = 0;
+  LEAST_PLAYERS = 1;
+}
+```
+
+Each `ManagedService` represents a Kubernetes Service that was discovered as a backend. `servers` lists the live endpoints; `routes` lists the join and fallback rules that point to this service.
+
+### ManagedServer
+
+```protobuf
+message ManagedServer {
+  string unique_id = 1;
+  string name = 2;
+  string ip = 3;
+  uint32 port = 4;
+  optional uint32 numerical_id = 5;
+  optional uint32 max_players = 6;
+  optional uint32 current_players = 7;
+}
+```
+
+`max_players` and `current_players` are populated when the controller can read them from the game server. Use them together with `distribution_strategy` to implement `LEAST_PLAYERS` routing.
+
+### Route
+
+```protobuf
+message Route {
+  uint32 priority = 1;
+  bool is_join = 2;
+  bool is_fallback = 3;
+  repeated OptionRuleSet rules = 4;
+}
+
+message OptionRuleSet {
+  RuleType type = 1;   // NONE=0, ANY=1, ALL=2
+  repeated Rule rules = 2;
+}
+
+message Rule {
+  optional string domain = 1;
+  optional string permission = 2;
+  optional string fallback_for = 3;  // "namespace/name" of the service this is a fallback for
+}
+```
+
+Join routes (`is_join = true`) route a player's initial connection. Fallback routes (`is_fallback = true`) activate when a primary backend is unavailable. Evaluate routes in descending `priority` order.
+
+## Routing algorithm
+
+A minimal correct implementation:
+
+1. **On connect:** find all join routes across all services whose `rules` match the player (domain, permission). Take the highest-priority match. Select a server from that service using `distribution_strategy`.
+2. **On failure:** if the selected server is unavailable or full, find fallback routes whose `fallback_for` matches the failed service's `namespaced_name` and whose other rules match the player. Take the highest-priority match.
+3. **Generation polling:** re-fetch the snapshot when `current_generation` changes. Apply the new routing table without disconnecting existing players.
+
+## Deploying your proxy
+
+Use `networkTemplate` in `NetworkInfrastructure` to deploy your proxy image:
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: NetworkInfrastructure
+metadata:
+  name: my-infrastructure
+  namespace: default
+spec:
+  discovery:
+    namespaceSelector:
+      from: Same
+    labelSelector:
+      matchLabels:
+        minefleet.dev/gameserver: "true"
+  networkTemplate:
+    template:
+      spec:
+        containers:
+          - name: network
+            image: ghcr.io/your-org/your-proxy:latest
+```
+
+The controller creates one Deployment per listener and injects the environment variables above. Your image should read them at startup to connect to the xDS server.
+
+See [Customizing the Network Proxy](/guides/customizing-network-proxy) for additional `networkTemplate` options such as mounting secrets and setting resource limits.
+
+## Using the Java integration-api
+
+If you are writing a JVM-based proxy plugin, the `integration-api` library wraps the raw gRPC API and handles polling, diffing, and retries for you. The Velocity built-in integration is implemented using it.
+
+### Add the dependency
+
+<CodeGroup>
+```xml Maven
+<dependency>
+  <groupId>dev.minefleet</groupId>
+  <artifactId>integration-api</artifactId>
+  <version>VERSION</version>
+</dependency>
+```
+
+```kotlin Gradle (Kotlin DSL)
+implementation("dev.minefleet:integration-api:VERSION")
+```
+
+```groovy Gradle (Groovy DSL)
+implementation 'dev.minefleet:integration-api:VERSION'
+```
+</CodeGroup>
+
+Replace `VERSION` with the latest version from [Maven Central](https://central.sonatype.com/artifact/dev.minefleet/integration-api).
+
+### Implement `ServerRegistrar`
+
+`ServerRegistrar` is called by the API whenever backend servers appear, update, or disappear in the snapshot. Use `server.name()` as the stable key in your proxy's server registry.
+
+```java
+import dev.minefleet.api.gateway.networking.ManagedServer;
+import dev.minefleet.api.gateway.networking.ServerRegistrar;
+import dev.minefleet.api.gateway.networking.ServerRegistrarException;
+
+import java.net.InetSocketAddress;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class MyServerRegistrar implements ServerRegistrar {
+
+    private final MyProxy proxy;
+    private final ConcurrentHashMap<String, ManagedServer> servers = new ConcurrentHashMap<>();
+
+    public MyServerRegistrar(MyProxy proxy) {
+        this.proxy = proxy;
+    }
+
+    @Override
+    public void registerOrUpdate(ManagedServer server) throws ServerRegistrarException {
+        try {
+            var address = new InetSocketAddress(server.ipAddress(), server.port());
+            if (!proxy.hasServer(server.name())) {
+                proxy.registerServer(server.name(), address);
+            }
+            servers.put(server.name(), server);
+        } catch (Exception e) {
+            throw new ServerRegistrarException(server, e);
+        }
+    }
+
+    @Override
+    public void unregister(ManagedServer server) throws ServerRegistrarException {
+        try {
+            proxy.unregisterServer(server.name());
+            servers.remove(server.name());
+        } catch (Exception e) {
+            throw new ServerRegistrarException(server, e);
+        }
+    }
+
+    // Used by NetworkPlayer to resolve the player's current server
+    public Optional<ManagedServer> findByName(String name) {
+        return Optional.ofNullable(servers.get(name));
+    }
+}
+```
+
+Throw `ServerRegistrarException` to signal a failure for a single server. The library retries failed servers up to `retries` times (default: 3), once per poll interval.
+
+### Implement `NetworkPlayer`
+
+`NetworkPlayer` is a per-event wrapper. Create a new instance for each routing call.
+
+```java
+import dev.minefleet.api.gateway.networking.ManagedServer;
+import dev.minefleet.api.gateway.networking.player.KickReason;
+import dev.minefleet.api.gateway.networking.player.NetworkPlayer;
+
+import java.util.Optional;
+
+public class MyNetworkPlayer implements NetworkPlayer {
+
+    private final MyPlayer player;
+    private final MyServerRegistrar registrar;
+
+    public MyNetworkPlayer(MyPlayer player, MyServerRegistrar registrar) {
+        this.player = player;
+        this.registrar = registrar;
+    }
+
+    @Override
+    public String connectedDomain() {
+        // The virtual hostname from the Minecraft handshake
+        return player.getVirtualHost().getHostString();
+    }
+
+    @Override
+    public Optional<ManagedServer> connectedServer() {
+        // Must resolve via the registrar's map so the returned ManagedServer
+        // has the correct parentNamespacedName for fallback rule matching
+        return player.getCurrentServer()
+            .flatMap(s -> registrar.findByName(s.getName()));
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return player.hasPermission(permission);
+    }
+
+    @Override
+    public void connectToServer(ManagedServer server) {
+        proxy.getServer(server.name())
+            .ifPresent(s -> player.connect(s));
+    }
+
+    @Override
+    public void kick(KickReason reason) {
+        String message = switch (reason) {
+            case NO_JOIN -> "No server is available.";
+            case NO_FALLBACK -> "No fallback server is available.";
+        };
+        player.disconnect(message);
+    }
+}
+```
+
+`connectedServer()` must look up the player's current server through your registrar's internal map. The fallback routing rules match on `parentNamespacedName`, which is only available on `ManagedServer` objects tracked by the registrar — not raw proxy server objects.
+
+### Build and start `NetworkGateway`
+
+Build one `NetworkGateway` at proxy startup. The builder reads the injected environment variables automatically.
+
+```java
+import dev.minefleet.api.gateway.networking.NetworkGateway;
+
+public class MyProxyPlugin {
+
+    private NetworkGateway gateway;
+    private MyServerRegistrar registrar;
+
+    public void onEnable() {
+        // Remove statically configured servers — the gateway is the sole source of truth
+        proxy.getServers().forEach(s -> proxy.unregisterServer(s.getName()));
+
+        registrar = new MyServerRegistrar(proxy);
+        gateway = NetworkGateway.builder()
+            .registrar(registrar)
+            // Optional overrides (all have env-var defaults):
+            // .intervalSeconds(5)
+            // .retries(3)
+            // .context(NetworkSnapshotContext.fromEnv())
+            // .channel(myChannel)
+            .build();
+        gateway.start();
+    }
+
+    public void onDisable() {
+        gateway.stop();
+    }
+}
+```
+
+### Wire routing events
+
+```java
+// Player connects for the first time
+public void onPlayerJoin(PlayerJoinEvent event) {
+    gateway.routeJoin(new MyNetworkPlayer(event.getPlayer(), registrar));
+}
+
+// Player was kicked from a server and needs a fallback
+public void onPlayerKicked(PlayerKickedEvent event) {
+    gateway.routeFallback(new MyNetworkPlayer(event.getPlayer(), registrar));
+}
+```
+
+`routeJoin` evaluates `MinecraftJoinRoute` rules in priority order and calls `player.connectToServer()` on the first match. `routeFallback` evaluates `MinecraftFallbackRoute` rules. Both call `player.kick()` if no matching service is found.
+
+### `ManagedServer` field reference
+
+| Method | Type | Description |
+|---|---|---|
+| `name()` | `String` | Stable server name — use as the key in your proxy registry |
+| `ipAddress()` | `String` | IP address to connect to |
+| `port()` | `int` | Port to connect to |
+| `uniqueId()` | `String` | Globally unique identifier for this server instance |
+| `parentNamespacedName()` | `String` | `"namespace/service-name"` of the Kubernetes Service |
+| `numericalId()` | `OptionalInt` | Optional numerical slot ID |
+| `maxPlayers()` | `OptionalInt` | Configured player capacity |
+| `currentPlayers()` | `OptionalInt` | Current player count (used by `least-players` distribution strategy) |
+
+### `NetworkGateway.Builder` options
+
+| Method | Default | Description |
+|---|---|---|
+| `registrar(ServerRegistrar)` | — (required) | Your `ServerRegistrar` implementation |
+| `intervalSeconds(int)` | `5` | How often to poll the xDS server for snapshot updates |
+| `retries(int)` | `3` | Retry attempts for failed `registerOrUpdate`/`unregister` calls |
+| `context(NetworkSnapshotContext)` | from env | Which gateway/listener to subscribe to |
+| `channel(Channel)` | from env | gRPC channel to the xDS server |

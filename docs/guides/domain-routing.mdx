@@ -113,4 +113,4 @@ Routes within the same `Gateway` can share domains — the network proxy evaluat
 
 ## Forge and proxy suffix stripping
 
-The edge filter automatically strips Forge and BungeeCord/Velocity `\0`-separated suffixes from the `server_address` field before matching. For example, `play.example.com\0FML\0` is treated as `play.example.com`.
+The edge filter automatically strips Forge and BungeeCord/Velocity `\0`-separated suffixes from the `server_address` field before matching. For example, `play.example.com\0FML\0` is treated as `play.example.com`. This applies regardless of which network proxy integration you use.
