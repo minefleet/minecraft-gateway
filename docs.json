@@ -1,12 +1,13 @@
 {
+  "$schema": "https://mintlify.com/docs.json",
   "navigation": {
     "versions": [
       {
         "version": "v0.0.3-alpha",
-        "default": true,
-        "products": [
+        "groups": [
           {
-            "product": "Gateway"
+            "group": "Getting Started",
+            "pages": ["quickstart"]
           }
         ]
       }
