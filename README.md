@@ -7,7 +7,7 @@
 > This project is in **very early alpha**. APIs, CRDs, and behavior will change without notice. Do not use in production.
 
 > [!NOTE]
-> Full documentation is/will be available at [docs.minefleet.dev](https://docs.minefleet.dev).
+> Full documentation is/will be available [here](https://minefleet.dev/docs).
 
 A Kubernetes-native gateway controller that creates minecraft networks and routes Minecraft Java Edition connections to networks based on the hostname in the handshake packet.
 
