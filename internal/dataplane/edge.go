@@ -52,27 +52,45 @@ func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, infra gateway.Inf
 		return fmt.Errorf("sync edge daemonset: %w", err)
 	}
 	d.mu.Lock()
-	tmp := edge.BuildGatewaySnapshot(name, routes, infra.Config.Edge)
-	d.snapshotCache[name] = tmp
+	previous, hadPrevious := d.snapshotCache[name]
+	d.snapshotCache[name] = edge.BuildGatewaySnapshot(name, routes, infra.Config.Edge)
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
+	if _, selfConflicting := conflicting[name]; selfConflicting {
+		// This gateway's domains conflict with an already-programmed gateway.
+		// Revert so the existing snapshot remains in effect.
+		if hadPrevious {
+			d.snapshotCache[name] = previous
+		} else {
+			delete(d.snapshotCache, name)
+		}
+		snap, _ = edge.BuildSnapshot(d.snapshotCache)
+	}
 	d.mu.Unlock()
+
+	if err := d.sendSnapshot(snap); err != nil {
+		return err
+	}
 	if len(conflicting) != 0 {
 		return RouteConflictError{Conflicting: conflicting}
 	}
+	return nil
+}
+
+func (d *EdgeDataplane) sendSnapshot(snap edge.Snapshot) error {
 	select {
 	case d.updates <- snap:
 		return nil
 	default:
-		select {
-		case <-d.updates:
-		default:
-		}
-		select {
-		case d.updates <- snap:
-		case <-d.ctx.Done():
-			return d.ctx.Err()
-		}
+	}
+	select {
+	case <-d.updates:
+	default:
+	}
+	select {
+	case d.updates <- snap:
 		return nil
+	case <-d.ctx.Done():
+		return d.ctx.Err()
 	}
 }
 
@@ -81,22 +99,11 @@ func (d *EdgeDataplane) DeleteGateway(name types.NamespacedName) error {
 	delete(d.snapshotCache, name)
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
+	if err := d.sendSnapshot(snap); err != nil {
+		return err
+	}
 	if len(conflicting) != 0 {
 		return RouteConflictError{Conflicting: conflicting}
 	}
-	select {
-	case d.updates <- snap:
-		return nil
-	default:
-		select {
-		case <-d.updates:
-		default:
-		}
-		select {
-		case d.updates <- snap:
-		case <-d.ctx.Done():
-			return d.ctx.Err()
-		}
-		return nil
-	}
+	return nil
 }

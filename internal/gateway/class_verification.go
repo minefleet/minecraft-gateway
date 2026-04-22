@@ -34,8 +34,14 @@ func NewClassVerifierByGateway(c client.Client, ctx context.Context, gw gatewayv
 	return NewClassVerifier(gwClass), nil
 }
 
+// IsOurs reports whether the GatewayClass is managed by this controller,
+// regardless of whether it has been accepted yet.
+func (v *ClassVerifier) IsOurs() bool {
+	return v.gwClass.Spec.ControllerName == ControllerName
+}
+
 func (v *ClassVerifier) IsVerified() bool {
-	if v.gwClass.Spec.ControllerName != ControllerName {
+	if !v.IsOurs() {
 		return false
 	}
 	return meta.IsStatusConditionTrue(v.gwClass.Status.Conditions, string(gatewayv1.GatewayClassConditionStatusAccepted))
@@ -49,10 +55,11 @@ func (v *ClassVerifier) Verify() *gatewayv1.GatewayClass {
 	// TODO: filter supported stuff only and else dont accept this class
 	// TODO: check valid parentRef (if parent ref is provided)
 	if changed := meta.SetStatusCondition(&class.Status.Conditions, metav1.Condition{
-		Type:    string(gatewayv1.GatewayClassConditionStatusAccepted),
-		Status:  metav1.ConditionTrue,
-		Reason:  string(gatewayv1.GatewayClassReasonAccepted),
-		Message: fmt.Sprintf("Gateway Class accepted by %s.", ControllerName),
+		Type:               string(gatewayv1.GatewayClassConditionStatusAccepted),
+		Status:             metav1.ConditionTrue,
+		Reason:             string(gatewayv1.GatewayClassReasonAccepted),
+		Message:            fmt.Sprintf("Gateway Class accepted by %s.", ControllerName),
+		ObservedGeneration: v.gwClass.Generation,
 	}); !changed {
 		return nil
 	}

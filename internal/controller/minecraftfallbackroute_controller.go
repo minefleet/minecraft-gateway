@@ -19,48 +19,114 @@ package controller
 import (
 	"context"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
+	"minefleet.dev/minecraft-gateway/internal/gateway"
+	"minefleet.dev/minecraft-gateway/internal/route"
+	mcstatus "minefleet.dev/minecraft-gateway/internal/status"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // MinecraftFallbackRouteReconciler reconciles a MinecraftFallbackRoute object
 type MinecraftFallbackRouteReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	tracer trace.Tracer
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the MinecraftFallbackRoute object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *MinecraftFallbackRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
-	var route mcgatewayv1alpha1.MinecraftFallbackRoute
-	if err := r.Get(ctx, req.NamespacedName, &route); err != nil {
+	ctx, span := r.tracer.Start(ctx, "MinecraftFallbackRouteReconciler.Reconcile",
+		trace.WithAttributes(
+			attribute.String("route.namespace", req.Namespace),
+			attribute.String("route.name", req.Name),
+		),
+	)
+	defer span.End()
+
+	log := logf.FromContext(ctx)
+
+	var rt mcgatewayv1alpha1.MinecraftFallbackRoute
+	if err := r.Get(ctx, req.NamespacedName, &rt); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	// TODO(user): your logic here
 
+	rt.TypeMeta = metav1.TypeMeta{
+		APIVersion: mcgatewayv1alpha1.GroupVersion.String(),
+		Kind:       "MinecraftFallbackRoute",
+	}
+	base := rt.DeepCopy()
+
+	for _, ref := range rt.Spec.ParentRefs {
+		gwNN, ok := route.GatewayNNFromRef(ref, rt.Namespace)
+		if !ok {
+			continue
+		}
+
+		var gw gatewayv1.Gateway
+		if err := r.Get(ctx, gwNN, &gw); err != nil {
+			if client.IgnoreNotFound(err) == nil {
+				log.Info("parent gateway not found", "gateway", gwNN)
+				mcstatus.SetFallbackRouteNoMatchingParent(&rt, gwNN)
+				continue
+			}
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			return ctrl.Result{}, err
+		}
+
+		verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, gw)
+		if err != nil || !verifier.IsVerified() {
+			continue
+		}
+
+		ok2, reason, msg := route.CheckBackendRefs(ctx, r.Client, rt.Namespace, &rt, rt.Spec.BackendRefs)
+		mcstatus.SetFallbackRouteResolvedRefs(&rt, gwNN, ok2, reason, msg)
+	}
+
+	if err := r.Status().Patch(ctx, &rt, client.MergeFrom(base)); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 	return ctrl.Result{}, nil
+}
+
+// mapGatewayToFallbackRoutes re-queues all MinecraftFallbackRoutes that
+// reference a changed Gateway.
+func (r *MinecraftFallbackRouteReconciler) mapGatewayToFallbackRoutes(ctx context.Context, obj client.Object) []ctrl.Request {
+	gw := obj.(*gatewayv1.Gateway)
+	var bag route.Bag
+	if err := route.ListAllRoutesByGateway(r.Client, ctx, *gw, &bag); err != nil {
+		return nil
+	}
+	reqs := make([]ctrl.Request, 0, len(bag.Fallback))
+	for _, rt := range bag.Fallback {
+		reqs = append(reqs, ctrl.Request{
+			NamespacedName: types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name},
+		})
+	}
+	return reqs
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *MinecraftFallbackRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	r.tracer = otel.Tracer("minefleet.dev/minecraft-gateway")
+
 	return ctrl.NewControllerManagedBy(mgr).
-		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
 		For(&mcgatewayv1alpha1.MinecraftFallbackRoute{}).
 		Named("minecraftfallbackroute").
+		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayToFallbackRoutes)).
 		Complete(r)
 }

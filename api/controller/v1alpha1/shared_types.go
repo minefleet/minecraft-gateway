@@ -4,6 +4,10 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
+// RouteReasonRouteConflict is set on a route's Accepted condition when another
+// route attached to the same gateway claims an overlapping domain.
+const RouteReasonRouteConflict = gatewayv1.RouteConditionReason("RouteConflict")
+
 type MinecraftRoute struct {
 	gatewayv1.CommonRouteSpec `json:",inline"`
 	// +optional

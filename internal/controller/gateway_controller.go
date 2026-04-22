@@ -30,9 +30,15 @@ import (
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
+	mcstatus "minefleet.dev/minecraft-gateway/internal/status"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -45,6 +51,7 @@ type GatewayReconciler struct {
 	client.Client
 	Scheme    *runtime.Scheme
 	Dataplane *dataplane.Dataplane
+	tracer    trace.Tracer
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways;gatewayclasses,verbs=get;list;watch;create;update;patch;delete
@@ -58,13 +65,17 @@ type GatewayReconciler struct {
 // +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctx, span := r.tracer.Start(ctx, "GatewayReconciler.Reconcile",
+		trace.WithAttributes(
+			attribute.String("gateway.namespace", req.Namespace),
+			attribute.String("gateway.name", req.Name),
+		),
+	)
+	defer span.End()
+
 	log := logf.FromContext(ctx)
 
 	var gw gatewayv1.Gateway
@@ -74,14 +85,32 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 		return ctrl.Result{}, err
 	}
+
+	gwBase := gw.DeepCopy()
+
 	verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, gw)
 	if err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		if client.IgnoreNotFound(err) == nil {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
 	}
-	if !verifier.IsVerified() {
-		log.Info("Gateway Class was not verified or rejected", "gateway", fmt.Sprintf("%s/%s", gw.Namespace, gw.Name), "class", gw.Spec.GatewayClassName)
+	if !verifier.IsOurs() {
 		return ctrl.Result{}, nil
 	}
+	if !verifier.IsVerified() {
+		log.Info("GatewayClass not yet accepted, marking Gateway invalid",
+			"gateway", fmt.Sprintf("%s/%s", gw.Namespace, gw.Name),
+			"class", gw.Spec.GatewayClassName)
+		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayReasonPending,
+			"GatewayClass is not yet accepted by the controller.")
+		if err := r.Status().Patch(ctx, &gw, client.MergeFrom(gwBase)); err != nil {
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		}
+		return ctrl.Result{}, nil
+	}
+
+	mcstatus.SetGatewayAccepted(&gw)
 
 	infrastructure, err := gateway.GetInfrastructureForGateway(r.Client, ctx, gw)
 	if err != nil {
@@ -92,6 +121,7 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if err := route.ListAllRoutesByGateway(r.Client, ctx, gw, &bag); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+
 	backends := make([]discoveryv1.EndpointSlice, 0)
 	for _, ref := range infrastructure.Status.BackendRefs {
 		backend, err := endpoint.GetEndpointSlicesByServiceName(r.Client, ctx, string(ptr.Deref(ref.Namespace, "")), string(ref.Name))
@@ -103,21 +133,127 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			continue
 		}
 		backends = append(backends, backend...)
-
 	}
+
 	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
+
+	var syncErr error
+	var conflictError dataplane.RouteConflictError
+
 	if r.Dataplane != nil {
-		err := (*r.Dataplane).SyncGateway(req.NamespacedName, infrastructure, network, backends)
-		if err != nil {
-			var conflictError dataplane.RouteConflictError
-			if !errors.As(err, &conflictError) {
-				return ctrl.Result{}, err
+		_, syncSpan := r.tracer.Start(ctx, "dataplane.SyncGateway",
+			trace.WithAttributes(
+				attribute.String("gateway.namespace", req.Namespace),
+				attribute.String("gateway.name", req.Name),
+			),
+		)
+		syncErr = (*r.Dataplane).SyncGateway(req.NamespacedName, infrastructure, network, backends)
+		if syncErr != nil {
+			syncSpan.RecordError(syncErr)
+			syncSpan.SetStatus(codes.Error, syncErr.Error())
+		}
+		syncSpan.End()
+	}
+
+	isConflict := errors.As(syncErr, &conflictError)
+	_, selfConflicting := conflictError.Conflicting[req.NamespacedName]
+
+	programmed := syncErr == nil || (isConflict && !selfConflicting)
+
+	if programmed {
+		mcstatus.SetGatewayProgrammed(&gw)
+	} else if isConflict && selfConflicting {
+		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayConditionReason("RouteConflict"),
+			"Gateway has routes that conflict with a higher-priority gateway.")
+		span.SetStatus(codes.Error, conflictError.Error())
+	} else if syncErr != nil {
+		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayReasonInvalid, syncErr.Error())
+		span.RecordError(syncErr)
+		span.SetStatus(codes.Error, syncErr.Error())
+	}
+
+	for listener, listenerBag := range network {
+		attached := int32(len(listenerBag.Join) + len(listenerBag.Fallback))
+		mcstatus.SetListenerStatus(&gw, listener.Name, attached, programmed)
+	}
+
+	if err := r.Status().Patch(ctx, &gw, client.MergeFrom(gwBase)); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	if err := r.updateRouteStatuses(ctx, req.NamespacedName, network, selfConflicting); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if isConflict && !selfConflicting {
+		// Re-queue the gateways that lost so they can recover their Programmed status.
+		for conflicting := range conflictError.Conflicting {
+			if conflicting != req.NamespacedName {
+				log.Info("requeueing conflicting gateway", "gateway", conflicting)
 			}
-			log.Info("the following join routes conflicted when synchronizing", "conflicting", conflictError.Conflicting)
 		}
 	}
 
+	if syncErr != nil && !isConflict {
+		return ctrl.Result{}, syncErr
+	}
 	return ctrl.Result{}, nil
+}
+
+// updateRouteStatuses sets the Accepted condition on every route in the filtered
+// network map. When selfConflicting is true all routes are marked with RouteConflict.
+func (r *GatewayReconciler) updateRouteStatuses(
+	ctx context.Context,
+	gwNN types.NamespacedName,
+	network map[gatewayv1.Listener]route.Bag,
+	selfConflicting bool,
+) error {
+	seen := make(map[types.NamespacedName]struct{})
+
+	for _, bag := range network {
+		for i := range bag.Join {
+			rt := &bag.Join[i]
+			nn := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}
+			if _, ok := seen[nn]; ok {
+				continue
+			}
+			seen[nn] = struct{}{}
+
+			base := rt.DeepCopy()
+			if selfConflicting {
+				mcstatus.SetJoinRouteConflict(rt, gwNN)
+			} else {
+				mcstatus.SetJoinRouteAccepted(rt, gwNN)
+			}
+			if err := r.Status().Patch(ctx, rt, client.MergeFrom(base)); err != nil {
+				if client.IgnoreNotFound(err) != nil {
+					return err
+				}
+			}
+		}
+
+		for i := range bag.Fallback {
+			rt := &bag.Fallback[i]
+			nn := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}
+			if _, ok := seen[nn]; ok {
+				continue
+			}
+			seen[nn] = struct{}{}
+
+			base := rt.DeepCopy()
+			if selfConflicting {
+				mcstatus.SetFallbackRouteConflict(rt, gwNN)
+			} else {
+				mcstatus.SetFallbackRouteAccepted(rt, gwNN)
+			}
+			if err := r.Status().Patch(ctx, rt, client.MergeFrom(base)); err != nil {
+				if client.IgnoreNotFound(err) != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (r *GatewayReconciler) mapGatewayClass(ctx context.Context, obj client.Object) []reconcile.Request {
@@ -186,7 +322,6 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		}
 	}
 
-	// Requeue gateways whose infrastructure (NetworkInfrastructure) includes this service.
 	discoveries, err := mfdiscovery.GetNetworkInfrastructuresByService(r.Client, ctx, svc)
 	if err == nil {
 		for _, disc := range discoveries {
@@ -200,7 +335,6 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		}
 	}
 
-	// Requeue gateways targeted by routes that reference this service.
 	var bag route.Bag
 	if err := route.ListAllRoutesByService(r.Client, ctx, svc, &bag); err != nil {
 		return result
@@ -246,6 +380,8 @@ func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Ob
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	r.tracer = otel.Tracer("minefleet.dev/minecraft-gateway")
+
 	if err := gateway.IndexGatewayByClassName(mgr); err != nil {
 		return err
 	}

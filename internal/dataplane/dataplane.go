@@ -2,6 +2,7 @@ package dataplane
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -25,12 +26,19 @@ type dataplanes struct {
 }
 
 func (d dataplanes) SyncGateway(name types.NamespacedName, infrastructure gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
-	for _, dataplane := range d.items {
-		if err := dataplane.SyncGateway(name, infrastructure, routes, backends); err != nil {
+	var conflictErr error
+	for _, dp := range d.items {
+		if err := dp.SyncGateway(name, infrastructure, routes, backends); err != nil {
+			var rce RouteConflictError
+			if errors.As(err, &rce) {
+				// Preserve conflict error but continue syncing remaining dataplanes.
+				conflictErr = err
+				continue
+			}
 			return err
 		}
 	}
-	return nil
+	return conflictErr
 }
 
 func (d dataplanes) DeleteGateway(name types.NamespacedName) error {
