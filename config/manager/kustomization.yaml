@@ -6,4 +6,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: ghcr.io/minefleet/minecraft-gateway
-  newTag: v0.0.3-alpha-9-gdea6cd2-dirty
+  newTag: dev

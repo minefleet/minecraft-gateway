@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/utils/ptr"
+	v1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/version"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -97,7 +98,10 @@ func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, l
 			}
 		} else if err != nil {
 			return fmt.Errorf("get proxy deployment %s: %w", dep.Name, err)
-		} else if updateErr := m.client.Update(ctx, dep); updateErr != nil {
+		}
+
+		dep.ResourceVersion = found.ResourceVersion
+		if updateErr := m.client.Update(ctx, dep); updateErr != nil {
 			return fmt.Errorf("update proxy deployment %s: %w", dep.Name, updateErr)
 		}
 
@@ -113,7 +117,10 @@ func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, l
 			}
 		} else if err != nil {
 			return fmt.Errorf("get proxy service %s: %w", svc.Name, err)
-		} else if updateErr := m.client.Update(ctx, svc); updateErr != nil {
+		}
+
+		svc.ResourceVersion = foundSvc.ResourceVersion
+		if updateErr := m.client.Update(ctx, svc); updateErr != nil {
 			return fmt.Errorf("update proxy service %s: %w", svc.Name, updateErr)
 		}
 	}
@@ -204,7 +211,7 @@ func (m *ProxyManager) buildDeployment(gateway types.NamespacedName, listener ga
 // mergeDeploymentSpec applies override onto spec using a strategic merge patch.
 // After merging, selectorLabels and managedEnv are re-enforced so they cannot
 // be removed or replaced by user-supplied values.
-func mergeDeploymentSpec(spec *appsv1.DeploymentSpec, override *appsv1.DeploymentSpec, selectorLabels map[string]string, managedEnv []corev1.EnvVar) error {
+func mergeDeploymentSpec(spec *appsv1.DeploymentSpec, override *v1alpha1.NetworkDeploymentTemplate, selectorLabels map[string]string, managedEnv []corev1.EnvVar) error {
 	baseJSON, err := json.Marshal(spec)
 	if err != nil {
 		return fmt.Errorf("marshal base deployment spec: %w", err)

@@ -37,7 +37,7 @@ func SetGatewayNotProgrammed(gw *gatewayv1.Gateway, reason gatewayv1.GatewayCond
 }
 
 // SetListenerStatus upserts the status entry for a single listener by name.
-func SetListenerStatus(gw *gatewayv1.Gateway, name gatewayv1.SectionName, attachedRoutes int32, programmed bool) {
+func SetListenerStatus(gw *gatewayv1.Gateway, name gatewayv1.SectionName, attachedRoutes int32, programmed bool, supportedKinds []gatewayv1.RouteGroupKind, hasInvalidKinds bool) {
 	progStatus := metav1.ConditionTrue
 	progReason := string(gatewayv1.ListenerReasonProgrammed)
 	if !programmed {
@@ -58,6 +58,7 @@ func SetListenerStatus(gw *gatewayv1.Gateway, name gatewayv1.SectionName, attach
 	}
 
 	entry.AttachedRoutes = attachedRoutes
+	entry.SupportedKinds = supportedKinds
 	apimeta.SetStatusCondition(&entry.Conditions, metav1.Condition{
 		Type:               string(gatewayv1.ListenerConditionAccepted),
 		Status:             metav1.ConditionTrue,
@@ -71,4 +72,21 @@ func SetListenerStatus(gw *gatewayv1.Gateway, name gatewayv1.SectionName, attach
 		Reason:             progReason,
 		ObservedGeneration: gw.Generation,
 	})
+	if hasInvalidKinds {
+		apimeta.SetStatusCondition(&entry.Conditions, metav1.Condition{
+			Type:               string(gatewayv1.ListenerConditionResolvedRefs),
+			Status:             metav1.ConditionFalse,
+			Reason:             string(gatewayv1.ListenerReasonInvalidRouteKinds),
+			Message:            "One or more requested route kinds are not supported by this controller.",
+			ObservedGeneration: gw.Generation,
+		})
+	} else {
+		apimeta.SetStatusCondition(&entry.Conditions, metav1.Condition{
+			Type:               string(gatewayv1.ListenerConditionResolvedRefs),
+			Status:             metav1.ConditionTrue,
+			Reason:             string(gatewayv1.ListenerReasonResolvedRefs),
+			Message:            "Listener references resolved.",
+			ObservedGeneration: gw.Generation,
+		})
+	}
 }

@@ -41,6 +41,3 @@ spec:
           - name: network-config
             configMap:
               name: network-config
-    selector:
-      matchLabels:
-        minefleet.dev/environment: sample

@@ -100,7 +100,7 @@ func (m *ProxyManager) buildDaemonSetSpec(edge *v1alpha1.EdgeSpec) (appsv1.Daemo
 	if err != nil {
 		return appsv1.DaemonSetSpec{}, fmt.Errorf("marshal base daemonset spec: %w", err)
 	}
-	overrideJSON, err := json.Marshal(edge.DaemonSet)
+	overrideJSON, err := json.Marshal(&edge.DaemonSet)
 	if err != nil {
 		return appsv1.DaemonSetSpec{}, fmt.Errorf("marshal override daemonset spec: %w", err)
 	}

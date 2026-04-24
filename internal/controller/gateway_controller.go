@@ -163,18 +163,24 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if programmed {
 		mcstatus.SetGatewayProgrammed(&gw)
 	} else if isConflict && selfConflicting {
-		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayConditionReason("RouteConflict"),
+		mcstatus.SetGatewayNotProgrammed(&gw, "RouteConflict",
 			"Gateway has routes that conflict with a higher-priority gateway.")
 		span.SetStatus(codes.Error, conflictError.Error())
-	} else if syncErr != nil {
+	} else {
 		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayReasonInvalid, syncErr.Error())
 		span.RecordError(syncErr)
 		span.SetStatus(codes.Error, syncErr.Error())
 	}
 
-	for listener, listenerBag := range network {
-		attached := int32(len(listenerBag.Join) + len(listenerBag.Fallback))
-		mcstatus.SetListenerStatus(&gw, listener.Name, attached, programmed)
+	listenerBags := make(map[gatewayv1.SectionName]route.Bag, len(network))
+	for listener, bag := range network {
+		listenerBags[listener.Name] = bag
+	}
+	for _, listener := range gw.Spec.Listeners {
+		bag := listenerBags[listener.Name]
+		attached := int32(len(bag.Join) + len(bag.Fallback))
+		supportedKinds, hasInvalidKinds := route.ListenerRouteKindStatus(listener)
+		mcstatus.SetListenerStatus(&gw, listener.Name, attached, programmed, supportedKinds, hasInvalidKinds)
 	}
 
 	if err := r.Status().Patch(ctx, &gw, client.MergeFrom(gwBase)); err != nil {

@@ -10,6 +10,41 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
+var (
+	minefleetGroup      = gatewayv1.Group("gateway.networking.minefleet.dev")
+	SupportedRouteKinds = []gatewayv1.RouteGroupKind{
+		{Group: &minefleetGroup, Kind: "MinecraftJoinRoute"},
+		{Group: &minefleetGroup, Kind: "MinecraftFallbackRoute"},
+	}
+)
+
+// ListenerRouteKindStatus returns the route kinds the controller will honour for
+// this listener and whether any of the listener's requested kinds are unsupported.
+// When allowedRoutes.kinds is unset, all supported kinds are returned.
+func ListenerRouteKindStatus(listener gatewayv1.Listener) (supportedKinds []gatewayv1.RouteGroupKind, hasInvalidKinds bool) {
+	if len(listener.AllowedRoutes.Kinds) == 0 {
+		return SupportedRouteKinds, false
+	}
+	for _, req := range listener.AllowedRoutes.Kinds {
+		rg := gatewayv1.Group(gatewayv1.GroupName)
+		if req.Group != nil {
+			rg = *req.Group
+		}
+		matched := false
+		for _, sk := range SupportedRouteKinds {
+			if rg == *sk.Group && req.Kind == sk.Kind {
+				supportedKinds = append(supportedKinds, sk)
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			hasInvalidKinds = true
+		}
+	}
+	return supportedKinds, hasInvalidKinds
+}
+
 func FilterAllowedRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gateway, routes Bag) map[gatewayv1.Listener]Bag {
 	result := make(map[gatewayv1.Listener]Bag)
 	for _, l := range gw.Spec.Listeners {
