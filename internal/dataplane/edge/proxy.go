@@ -70,7 +70,7 @@ func (m *ProxyManager) SyncDaemonSet(ctx context.Context, edge *v1alpha1.EdgeSpe
 		return err
 	}
 
-	selectorLabels := edgeSelectorLabels()
+	selectorLabels := SelectorLabels()
 	ds := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      edgeDaemonSetName,
@@ -113,7 +113,7 @@ func (m *ProxyManager) buildDaemonSetSpec(edge *v1alpha1.EdgeSpec) (appsv1.Daemo
 	}
 
 	// Re-enforce immutable managed fields.
-	selectorLabels := edgeSelectorLabels()
+	selectorLabels := SelectorLabels()
 	spec.Selector = &metav1.LabelSelector{MatchLabels: selectorLabels}
 	for k, v := range selectorLabels {
 		spec.Template.Labels[k] = v
@@ -159,7 +159,7 @@ func (m *ProxyManager) enforceBootstrapMount(spec *appsv1.DaemonSetSpec) {
 }
 
 func (m *ProxyManager) defaultDaemonSetSpec() appsv1.DaemonSetSpec {
-	selectorLabels := edgeSelectorLabels()
+	selectorLabels := SelectorLabels()
 	return appsv1.DaemonSetSpec{
 		Selector: &metav1.LabelSelector{MatchLabels: selectorLabels},
 		Template: corev1.PodTemplateSpec{
@@ -249,7 +249,7 @@ static_resources:
 `, NodeID, m.cfg.PodIP, m.cfg.XDSPort)
 }
 
-func edgeSelectorLabels() map[string]string {
+func SelectorLabels() map[string]string {
 	return map[string]string{
 		edgeLabelControlPlane: edgeControlPlaneValue,
 		edgeLabelName:         edgeLabelNameValue,

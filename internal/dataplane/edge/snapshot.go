@@ -74,7 +74,7 @@ func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listen
 			ProxyProtocol: proxyProtocol,
 		}
 		clusters = append(clusters, cluster)
-		for _, domain := range Domains(bag) {
+		for _, domain := range filterDomainsByListener(Domains(bag), listener.Hostname) {
 			domainMapping[domain] = cluster.Name
 		}
 	}

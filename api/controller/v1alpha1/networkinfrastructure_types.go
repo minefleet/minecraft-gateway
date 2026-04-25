@@ -53,7 +53,7 @@ type EdgeDaemonSetTemplate struct {
 
 // NetworkInfrastructureSpec defines the desired state of NetworkInfrastructure
 type NetworkInfrastructureSpec struct {
-	Discovery Discovery `json:"discovery"`
+	Discovery Discovery `json:"infrastructure"`
 
 	// networkTemplate optionally customizes the Deployment created for each
 	// gateway listener. Fields set here are merged into the controller-managed

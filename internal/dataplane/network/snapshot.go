@@ -88,10 +88,10 @@ func BuildListenerSnapshot(gateway types.NamespacedName, listener gatewayv1.List
 	}
 
 	for _, joinRoute := range routes.Join {
-		rules := buildJoinRules(joinRoute.Spec.FilterRules)
-		priority := uint32(joinRoute.Spec.Priority)
-		for _, backendRef := range joinRoute.Spec.BackendRefs {
-			svcNS := joinRoute.Namespace
+		rules := buildJoinRules(joinRoute.JoinFilterRules())
+		priority := uint32(joinRoute.Priority())
+		for _, backendRef := range joinRoute.BackendRefs() {
+			svcNS := joinRoute.GetNamespace()
 			if backendRef.Namespace != nil {
 				svcNS = string(*backendRef.Namespace)
 			}
@@ -105,10 +105,10 @@ func BuildListenerSnapshot(gateway types.NamespacedName, listener gatewayv1.List
 	}
 
 	for _, fallbackRoute := range routes.Fallback {
-		rules := buildFallbackRules(fallbackRoute.Spec.FilterRules, backends)
-		priority := uint32(fallbackRoute.Spec.Priority)
-		for _, backendRef := range fallbackRoute.Spec.BackendRefs {
-			svcNS := fallbackRoute.Namespace
+		rules := buildFallbackRules(fallbackRoute.FallbackFilterRules(), backends)
+		priority := uint32(fallbackRoute.Priority())
+		for _, backendRef := range fallbackRoute.BackendRefs() {
+			svcNS := fallbackRoute.GetNamespace()
 			if backendRef.Namespace != nil {
 				svcNS = string(*backendRef.Namespace)
 			}

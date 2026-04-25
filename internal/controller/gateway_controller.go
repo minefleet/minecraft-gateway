@@ -21,17 +21,21 @@ import (
 	"errors"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/dataplane"
-	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
+	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
+	mfdiscovery "minefleet.dev/minecraft-gateway/internal/infrastructure"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	mcstatus "minefleet.dev/minecraft-gateway/internal/status"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
@@ -61,11 +65,12 @@ type GatewayReconciler struct {
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes;minecraftjoinroutes;networkinfrastructures,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/status;minecraftjoinroutes/status;networkinfrastructures/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/finalizers;minecraftjoinroutes/finalizers;networkinfrastructures/finalizers,verbs=update
-// +kubebuilder:rbac:groups=discovery.k8s.io,resources=endpointslices,verbs=get;list;watch
+// +kubebuilder:rbac:groups=infrastructure.k8s.io,resources=endpointslices,verbs=get;list;watch
 // +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 
 func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	ctx, span := r.tracer.Start(ctx, "GatewayReconciler.Reconcile",
@@ -183,6 +188,8 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		mcstatus.SetListenerStatus(&gw, listener.Name, attached, programmed, supportedKinds, hasInvalidKinds)
 	}
 
+	gw.Status.Addresses = r.listEdgeAddresses(ctx)
+
 	if err := r.Status().Patch(ctx, &gw, client.MergeFrom(gwBase)); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -216,46 +223,31 @@ func (r *GatewayReconciler) updateRouteStatuses(
 ) error {
 	seen := make(map[types.NamespacedName]struct{})
 
-	for _, bag := range network {
-		for i := range bag.Join {
-			rt := &bag.Join[i]
-			nn := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}
-			if _, ok := seen[nn]; ok {
-				continue
-			}
-			seen[nn] = struct{}{}
+	patch := func(rt route.Route, listener gatewayv1.Listener) error {
+		nn := types.NamespacedName{Namespace: rt.GetNamespace(), Name: rt.GetName()}
+		if _, ok := seen[nn]; ok {
+			return nil
+		}
+		seen[nn] = struct{}{}
 
-			base := rt.DeepCopy()
-			if selfConflicting {
-				mcstatus.SetJoinRouteConflict(rt, gwNN)
-			} else {
-				mcstatus.SetJoinRouteAccepted(rt, gwNN)
-			}
-			if err := r.Status().Patch(ctx, rt, client.MergeFrom(base)); err != nil {
-				if client.IgnoreNotFound(err) != nil {
-					return err
-				}
+		obj := rt.Object()
+		base := obj.DeepCopyObject().(client.Object)
+		route.StatusFor(rt, route.ParentAttached(listener, selfConflicting)).Apply(gwNN)
+		if err := r.Status().Patch(ctx, obj, client.MergeFrom(base)); err != nil {
+			return client.IgnoreNotFound(err)
+		}
+		return nil
+	}
+
+	for listener, bag := range network {
+		for _, rt := range bag.Join {
+			if err := patch(rt, listener); err != nil {
+				return err
 			}
 		}
-
-		for i := range bag.Fallback {
-			rt := &bag.Fallback[i]
-			nn := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}
-			if _, ok := seen[nn]; ok {
-				continue
-			}
-			seen[nn] = struct{}{}
-
-			base := rt.DeepCopy()
-			if selfConflicting {
-				mcstatus.SetFallbackRouteConflict(rt, gwNN)
-			} else {
-				mcstatus.SetFallbackRouteAccepted(rt, gwNN)
-			}
-			if err := r.Status().Patch(ctx, rt, client.MergeFrom(base)); err != nil {
-				if client.IgnoreNotFound(err) != nil {
-					return err
-				}
+		for _, rt := range bag.Fallback {
+			if err := patch(rt, listener); err != nil {
+				return err
 			}
 		}
 	}
@@ -346,14 +338,14 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		return result
 	}
 	for _, r := range bag.Join {
-		for _, nn := range route.NamespacedNamesByRefs(r.Namespace, r.Spec.ParentRefs) {
+		for _, nn := range route.NamespacedNamesByRefs(r.GetNamespace(), r.ParentRefs()) {
 			if nn.Section == "" {
 				enqueue(types.NamespacedName{Namespace: nn.Namespace, Name: nn.Name})
 			}
 		}
 	}
 	for _, r := range bag.Fallback {
-		for _, nn := range route.NamespacedNamesByRefs(r.Namespace, r.Spec.ParentRefs) {
+		for _, nn := range route.NamespacedNamesByRefs(r.GetNamespace(), r.ParentRefs()) {
 			if nn.Section == "" {
 				enqueue(types.NamespacedName{Namespace: nn.Namespace, Name: nn.Name})
 			}
@@ -384,6 +376,45 @@ func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Ob
 	return result
 }
 
+// listEdgeAddresses returns one IPAddress entry per running edge pod, keyed on
+// the pod's host IP (i.e. the node IP that hostPort 25565 is bound to).
+func (r *GatewayReconciler) listEdgeAddresses(ctx context.Context) []gatewayv1.GatewayStatusAddress {
+	var pods corev1.PodList
+	if err := r.List(ctx, &pods, client.MatchingLabels(edge.SelectorLabels())); err != nil {
+		return nil
+	}
+	seen := make(map[string]struct{})
+	addrs := make([]gatewayv1.GatewayStatusAddress, 0, len(pods.Items))
+	t := gatewayv1.IPAddressType
+	for _, pod := range pods.Items {
+		if pod.Status.Phase != corev1.PodRunning || pod.Status.HostIP == "" {
+			continue
+		}
+		if _, ok := seen[pod.Status.HostIP]; ok {
+			continue
+		}
+		seen[pod.Status.HostIP] = struct{}{}
+		addrs = append(addrs, gatewayv1.GatewayStatusAddress{Type: &t, Value: pod.Status.HostIP})
+	}
+	return addrs
+}
+
+// mapEdgePod requeues all gateways whenever an edge pod changes phase so that
+// status.addresses stays current as DaemonSet pods come and go.
+func (r *GatewayReconciler) mapEdgePod(ctx context.Context, _ client.Object) []reconcile.Request {
+	var gws gatewayv1.GatewayList
+	if err := r.List(ctx, &gws); err != nil {
+		return nil
+	}
+	reqs := make([]reconcile.Request, 0, len(gws.Items))
+	for _, gw := range gws.Items {
+		reqs = append(reqs, reconcile.Request{
+			NamespacedName: types.NamespacedName{Namespace: gw.Namespace, Name: gw.Name},
+		})
+	}
+	return reqs
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	r.tracer = otel.Tracer("minefleet.dev/minecraft-gateway")
@@ -409,6 +440,15 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
+	edgePodPredicate := predicate.NewPredicateFuncs(func(obj client.Object) bool {
+		for k, v := range edge.SelectorLabels() {
+			if obj.GetLabels()[k] != v {
+				return false
+			}
+		}
+		return true
+	})
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&gatewayv1.Gateway{}).
 		Named("gateway").
@@ -417,5 +457,6 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Watches(&mcgatewayv1alpha1.NetworkInfrastructure{}, handler.EnqueueRequestsFromMapFunc(r.mapInfrastructure)).
 		Watches(&mcgatewayv1alpha1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1alpha1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
+		Watches(&corev1.Pod{}, handler.EnqueueRequestsFromMapFunc(r.mapEdgePod), builder.WithPredicates(edgePodPredicate)).
 		Complete(r)
 }

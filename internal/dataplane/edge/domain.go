@@ -1,50 +1,64 @@
 package edge
 
 import (
-	"minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/route"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 func Domains(routes route.Bag) []string {
 	result := make([]string, 0)
 	for _, joinRoute := range routes.Join {
-		result = dedupeDomains(append(result, setListDomains(joinRoute.Spec.FilterRules)...))
+		for _, h := range joinRoute.Hostnames() {
+			result = append(result, string(h))
+		}
 	}
-	return result
+	return dedupeDomains(result)
 }
 
-func setListDomains(rules []v1alpha1.MinecraftJoinFilterRuleSet) []string {
-	result := make([]string, 0)
-	for _, set := range rules {
-		result = dedupeDomains(append(result, setDomains(set)...))
+// filterDomainsByListener narrows a set of route hostnames to those compatible
+// with the listener hostname, following Gateway API intersection semantics.
+// When the listener has no hostname all domains pass through unchanged.
+// A route wildcard that covers an exact listener hostname is narrowed to that
+// exact hostname; other combinations either match as-is or are excluded.
+func filterDomainsByListener(domains []string, listenerHostname *gatewayv1.Hostname) []string {
+	if listenerHostname == nil || *listenerHostname == "" {
+		return domains
 	}
-	return result
+	lh := string(*listenerHostname)
+	result := make([]string, 0, len(domains))
+	for _, domain := range domains {
+		if effective, ok := intersectHostname(lh, domain); ok {
+			result = append(result, effective)
+		}
+	}
+	return dedupeDomains(result)
 }
 
-func setDomains(set v1alpha1.MinecraftJoinFilterRuleSet) []string {
-	switch set.Type {
-	case v1alpha1.MinecraftFilterRuleNone:
-		return nil
-	case v1alpha1.MinecraftFilterRuleAny:
-		result := make([]string, 0)
-		for _, rule := range set.Rules {
-			if rule.Domain == "" {
-				continue
-			}
-			result = append(result, rule.Domain)
+// intersectHostname returns the effective hostname when a listener hostname and
+// a route hostname are combined. Returns ("", false) if they are incompatible.
+func intersectHostname(listener, routeHost string) (string, bool) {
+	listenerWild := isWildcard(listener)
+	routeWild := isWildcard(routeHost)
+	switch {
+	case !listenerWild && !routeWild:
+		if listener == routeHost {
+			return routeHost, true
 		}
-		return dedupeDomains(result)
-	case v1alpha1.MinecraftFilterRuleAll:
-		for _, rule := range set.Rules {
-			if rule.Domain == "" {
-				continue
-			}
-			return []string{rule.Domain}
+	case !listenerWild:
+		// *.example.com covers foo.example.com → narrow to listener
+		if matchesSuffix(listener, routeHost[2:]) {
+			return listener, true
 		}
-		return nil
-	default:
-		return nil
+	default: // both wildcard
+		if listener == routeHost {
+			return routeHost, true
+		}
+		// *.test.example.com is more specific than *.example.com, pass through
+		if matchesSuffix(routeHost[2:], listener[2:]) {
+			return routeHost, true
+		}
 	}
+	return "", false
 }
 
 func dedupeDomains(domains []string) []string {

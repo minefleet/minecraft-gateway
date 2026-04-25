@@ -27,9 +27,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
 	"minefleet.dev/minecraft-gateway/internal/endpoint"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
+	mfdiscovery "minefleet.dev/minecraft-gateway/internal/infrastructure"
 	"minefleet.dev/minecraft-gateway/internal/util"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -50,7 +50,7 @@ type NetworkInfrastructureReconciler struct {
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=networkinfrastructures,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=networkinfrastructures/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=networkinfrastructures/finalizers,verbs=update
-// +kubebuilder:rbac:groups=discovery.k8s.io,resources=endpointslices,verbs=get;list;watch
+// +kubebuilder:rbac:groups=infrastructure.k8s.io,resources=endpointslices,verbs=get;list;watch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways/finalizers,verbs=update
@@ -77,7 +77,7 @@ func (r *NetworkInfrastructureReconciler) Reconcile(ctx context.Context, req ctr
 	}
 	// TODO: add gateway class validation when this becomes standard channel
 	if len(gws.Items) == 0 {
-		log.Info("will not reconcile because no gateways are connected", "discovery", fmt.Sprintf("%s/%s", discovery.Namespace, discovery.Name))
+		log.Info("will not reconcile because no gateways are connected", "infrastructure", fmt.Sprintf("%s/%s", discovery.Namespace, discovery.Name))
 		return ctrl.Result{}, nil
 	}
 

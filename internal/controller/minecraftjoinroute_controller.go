@@ -29,7 +29,6 @@ import (
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
-	mcstatus "minefleet.dev/minecraft-gateway/internal/status"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -71,30 +70,27 @@ func (r *MinecraftJoinRouteReconciler) Reconcile(ctx context.Context, req ctrl.R
 	base := rt.DeepCopy()
 
 	for _, ref := range rt.Spec.ParentRefs {
-		gwNN, ok := route.GatewayNNFromRef(ref, rt.Namespace)
-		if !ok {
-			continue
-		}
-
-		var gw gatewayv1.Gateway
-		if err := r.Get(ctx, gwNN, &gw); err != nil {
-			if client.IgnoreNotFound(err) == nil {
-				log.Info("parent gateway not found", "gateway", gwNN)
-				mcstatus.SetJoinRouteNoMatchingParent(&rt, gwNN)
-				continue
-			}
+		gwNN, parent, err := route.ParentFromRef(ctx, r.Client, ref, rt.Namespace, "MinecraftJoinRoute")
+		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
 			return ctrl.Result{}, err
 		}
-
-		verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, gw)
-		if err != nil || !verifier.IsVerified() {
+		if gwNN.Name == "" {
+			continue
+		}
+		if parent == nil {
+			log.Info("parent gateway not found", "gateway", gwNN)
+			route.StatusFor(route.ForJoin(&rt), route.ParentNotFound()).Apply(gwNN)
 			continue
 		}
 
-		ok2, reason, msg := route.CheckBackendRefs(ctx, r.Client, rt.Namespace, &rt, rt.Spec.BackendRefs)
-		mcstatus.SetJoinRouteResolvedRefs(&rt, gwNN, ok2, reason, msg)
+		verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, parent.Gateway)
+		if err != nil || !verifier.IsVerified() {
+			continue
+		}
+		ok, reason, msg := route.CheckBackendRefs(ctx, r.Client, rt.Namespace, &rt, rt.Spec.BackendRefs)
+		route.StatusFor(route.ForJoin(&rt), route.ParentResolved(parent.Listeners, ok, reason, msg)).Apply(gwNN)
 	}
 
 	if err := r.Status().Patch(ctx, &rt, client.MergeFrom(base)); err != nil {
@@ -114,7 +110,7 @@ func (r *MinecraftJoinRouteReconciler) mapGatewayToJoinRoutes(ctx context.Contex
 	reqs := make([]ctrl.Request, 0, len(bag.Join))
 	for _, rt := range bag.Join {
 		reqs = append(reqs, ctrl.Request{
-			NamespacedName: types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name},
+			NamespacedName: types.NamespacedName{Namespace: rt.GetNamespace(), Name: rt.GetName()},
 		})
 	}
 	return reqs

@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -18,7 +17,7 @@ var (
 	}
 )
 
-// ListenerRouteKindStatus returns the route kinds the controller will honour for
+// ListenerRouteKindStatus returns the route kinds the controller will honor for
 // this listener and whether any of the listener's requested kinds are unsupported.
 // When allowedRoutes.kinds is unset, all supported kinds are returned.
 func ListenerRouteKindStatus(listener gatewayv1.Listener) (supportedKinds []gatewayv1.RouteGroupKind, hasInvalidKinds bool) {
@@ -53,21 +52,19 @@ func FilterAllowedRoutes(c client.Client, ctx context.Context, gw gatewayv1.Gate
 			continue
 		}
 		localBag := Bag{
-			Join:     make([]mcgatewayv1alpha1.MinecraftJoinRoute, 0),
-			Fallback: make([]mcgatewayv1alpha1.MinecraftFallbackRoute, 0),
+			Join:     make([]Route, 0),
+			Fallback: make([]Route, 0),
 		}
-		for _, login := range routes.Join {
-			if IsRouteAllowed(&login, l.AllowedRoutes.Kinds, namespaces) {
-				localBag.Join = append(localBag.Join, login)
+		for _, r := range routes.Join {
+			if IsRouteAllowed(r, l.AllowedRoutes.Kinds, namespaces) {
+				localBag.Join = append(localBag.Join, r)
 			}
 		}
-
-		for _, fallback := range routes.Fallback {
-			if IsRouteAllowed(&fallback, l.AllowedRoutes.Kinds, namespaces) {
-				localBag.Fallback = append(localBag.Fallback, fallback)
+		for _, r := range routes.Fallback {
+			if IsRouteAllowed(r, l.AllowedRoutes.Kinds, namespaces) {
+				localBag.Fallback = append(localBag.Fallback, r)
 			}
 		}
-
 		result[l] = dedupeRoutes(localBag)
 	}
 	return result
@@ -117,10 +114,9 @@ func IsRouteAllowed(obj client.Object, allowedKinds []gatewayv1.RouteGroupKind, 
 func dedupeRoutes(in Bag) Bag {
 	seen := map[string]struct{}{}
 	out := Bag{
-		Join:     make([]mcgatewayv1alpha1.MinecraftJoinRoute, 0),
-		Fallback: make([]mcgatewayv1alpha1.MinecraftFallbackRoute, 0),
+		Join:     make([]Route, 0),
+		Fallback: make([]Route, 0),
 	}
-
 	dedupe := func(ns, name, kind string) bool {
 		k := strings.Join([]string{kind, ns, name}, "/")
 		if _, ok := seen[k]; ok {
@@ -129,17 +125,15 @@ func dedupeRoutes(in Bag) Bag {
 		seen[k] = struct{}{}
 		return true
 	}
-
 	for _, r := range in.Join {
-		if dedupe(r.Namespace, r.Name, "Join") {
+		if dedupe(r.GetNamespace(), r.GetName(), "Join") {
 			out.Join = append(out.Join, r)
 		}
 	}
 	for _, r := range in.Fallback {
-		if dedupe(r.Namespace, r.Name, "Fallback") {
+		if dedupe(r.GetNamespace(), r.GetName(), "Fallback") {
 			out.Fallback = append(out.Fallback, r)
 		}
 	}
-
 	return out
 }

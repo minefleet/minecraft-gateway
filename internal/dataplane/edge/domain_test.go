@@ -7,6 +7,7 @@ import (
 
 	"minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/route"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // --- helpers ---
@@ -24,143 +25,74 @@ func assertElementsMatch(t *testing.T, got, want []string) {
 	}
 }
 
-func rule(domain string) v1alpha1.MinecraftJoinFilterRule {
-	return v1alpha1.MinecraftJoinFilterRule{
-		MinecraftFilterRule: v1alpha1.MinecraftFilterRule{
-			Domain: domain,
-		},
+func joinRouteWithHostnames(hostnames ...string) route.Route {
+	hs := make([]gatewayv1.Hostname, len(hostnames))
+	for i, h := range hostnames {
+		hs[i] = gatewayv1.Hostname(h)
 	}
-}
-
-func setAny(domains ...string) v1alpha1.MinecraftJoinFilterRuleSet {
-	rules := make([]v1alpha1.MinecraftJoinFilterRule, 0, len(domains))
-	for _, d := range domains {
-		rules = append(rules, rule(d))
-	}
-	return v1alpha1.MinecraftJoinFilterRuleSet{
-		MinecraftFilterRuleSet: v1alpha1.MinecraftFilterRuleSet{
-			Type: v1alpha1.MinecraftFilterRuleAny,
-		},
-		Rules: rules,
-	}
-}
-
-func setAll(domains ...string) v1alpha1.MinecraftJoinFilterRuleSet {
-	rules := make([]v1alpha1.MinecraftJoinFilterRule, 0, len(domains))
-	for _, d := range domains {
-		rules = append(rules, rule(d))
-	}
-	return v1alpha1.MinecraftJoinFilterRuleSet{
-		MinecraftFilterRuleSet: v1alpha1.MinecraftFilterRuleSet{
-			Type: v1alpha1.MinecraftFilterRuleAll,
-		},
-		Rules: rules,
-	}
-}
-
-func setNone() v1alpha1.MinecraftJoinFilterRuleSet {
-	return v1alpha1.MinecraftJoinFilterRuleSet{
-		MinecraftFilterRuleSet: v1alpha1.MinecraftFilterRuleSet{
-			Type: v1alpha1.MinecraftFilterRuleNone,
-		},
-	}
-}
-
-func joinRoute(sets ...v1alpha1.MinecraftJoinFilterRuleSet) v1alpha1.MinecraftJoinRoute {
-	return v1alpha1.MinecraftJoinRoute{
+	return route.ForJoin(&v1alpha1.MinecraftJoinRoute{
 		Spec: v1alpha1.MinecraftJoinRouteSpec{
-			FilterRules: sets,
+			Hostnames: hs,
 		},
-	}
+	})
 }
 
-// --- tests ---
-
-func TestSetDomains_None(t *testing.T) {
-	got := setDomains(setNone())
-	assertElementsMatch(t, got, nil)
-}
-
-func TestSetDomains_Any_DedupesAndSkipsEmpty(t *testing.T) {
-	got := setDomains(setAny("a.com", "", "a.com", "b.com"))
-	assertElementsMatch(t, got, []string{"a.com", "b.com"})
-}
-
-func TestSetDomains_All_FirstNonEmptyOnly(t *testing.T) {
-	got := setDomains(setAll("", "a.com", "b.com"))
-	// All: returns first non-empty domain only
-	assertElementsMatch(t, got, []string{"a.com"})
-}
-
-func TestSetDomains_Any_WildcardCoversSpecific(t *testing.T) {
-	got := setDomains(setAny("a.b.com", "*.b.com"))
-	// *.b.com covers a.b.com, so only wildcard remains
-	assertElementsMatch(t, got, []string{"*.b.com"})
-}
-
-func TestSetListDomains_DedupeAcrossSets(t *testing.T) {
-	rules := []v1alpha1.MinecraftJoinFilterRuleSet{
-		setAny("a.b.com"),
-		setAny("*.b.com"),
-	}
-	got := setListDomains(rules)
-	assertElementsMatch(t, got, []string{"*.b.com"})
-}
+// --- Domains() tests ---
 
 func TestDomains_EmptyBag(t *testing.T) {
 	got := Domains(route.Bag{})
 	assertElementsMatch(t, got, nil)
 }
 
-func TestDomains_MultipleJoinRoutes_MergesAndDedupes(t *testing.T) {
+func TestDomains_SingleRoute(t *testing.T) {
 	bag := route.Bag{
-		Join: []v1alpha1.MinecraftJoinRoute{
-			joinRoute(setAny("a.com", "b.com")),
-			joinRoute(setAny("a.com", "c.com")),
+		Join: []route.Route{
+			joinRouteWithHostnames("a.com", "b.com"),
 		},
 	}
+	got := Domains(bag)
+	assertElementsMatch(t, got, []string{"a.com", "b.com"})
+}
 
+func TestDomains_MultipleJoinRoutes_MergesAndDedupes(t *testing.T) {
+	bag := route.Bag{
+		Join: []route.Route{
+			joinRouteWithHostnames("a.com", "b.com"),
+			joinRouteWithHostnames("a.com", "c.com"),
+		},
+	}
 	got := Domains(bag)
 	assertElementsMatch(t, got, []string{"a.com", "b.com", "c.com"})
 }
 
 func TestDomains_WildcardAcrossRoutes_CoversSpecific(t *testing.T) {
 	bag := route.Bag{
-		Join: []v1alpha1.MinecraftJoinRoute{
-			joinRoute(setAny("a.b.com")),
-			joinRoute(setAny("*.b.com")),
+		Join: []route.Route{
+			joinRouteWithHostnames("a.b.com"),
+			joinRouteWithHostnames("*.b.com"),
 		},
 	}
-
 	got := Domains(bag)
 	assertElementsMatch(t, got, []string{"*.b.com"})
 }
 
 func TestDomains_WildcardAcrossRoutes_NotCoversParent(t *testing.T) {
 	bag := route.Bag{
-		Join: []v1alpha1.MinecraftJoinRoute{
-			joinRoute(setAny("b.com")),
-			joinRoute(setAny("*.b.com")),
+		Join: []route.Route{
+			joinRouteWithHostnames("b.com"),
+			joinRouteWithHostnames("*.b.com"),
 		},
 	}
-
 	got := Domains(bag)
 	assertElementsMatch(t, got, []string{"b.com", "*.b.com"})
 }
 
-func TestDomains_AllBeatsAnyWithinASetOnly(t *testing.T) {
-	// This test clarifies current semantics:
-	// - A set of type All returns ONLY the first non-empty domain in that set.
-	// - Domains() merges across routes/sets, then dedupes.
+func TestDomains_SkipsEmptyHostnames(t *testing.T) {
 	bag := route.Bag{
-		Join: []v1alpha1.MinecraftJoinRoute{
-			joinRoute(
-				setAny("a.com", "b.com"),
-				setAll("x.com", "y.com"), // only x.com should appear from this set
-			),
+		Join: []route.Route{
+			joinRouteWithHostnames("", "a.com", ""),
 		},
 	}
-
 	got := Domains(bag)
-	assertElementsMatch(t, got, []string{"a.com", "b.com", "x.com"})
+	assertElementsMatch(t, got, []string{"a.com"})
 }

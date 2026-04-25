@@ -15,8 +15,8 @@ import (
 )
 
 type Bag struct {
-	Join     []mcgatewayv1alpha1.MinecraftJoinRoute
-	Fallback []mcgatewayv1alpha1.MinecraftFallbackRoute
+	Join     []Route
+	Fallback []Route
 }
 
 const (
@@ -69,13 +69,13 @@ func indexRouteParents[T client.Object](mgr ctrl.Manager, zero T) error {
 }
 
 func extractServiceKeys(o client.Object) []string {
-	route, ns, err := extractRouteAndNamespace(o)
+	r, err := extractRouteFromObject(o)
 	if err != nil {
 		return nil
 	}
+	ns := r.GetNamespace()
 	result := make([]string, 0)
-	for _, ref := range route.BackendRefs {
-		// Skip if kind is not a service, only service backends are supported
+	for _, ref := range r.BackendRefs() {
 		if ref.Kind != nil && *ref.Kind != "Service" {
 			continue
 		}
@@ -89,22 +89,22 @@ func extractServiceKeys(o client.Object) []string {
 }
 
 func extractGatewayParentKeys(o client.Object, withListener bool) []string {
-	route, ns, err := extractRouteAndNamespace(o)
+	r, err := extractRouteFromObject(o)
 	if err != nil {
 		log.Print(err)
 		return nil
 	}
-	return parentKeysFromRefs(ns, route.ParentRefs, withListener)
+	return parentKeysFromRefs(r.GetNamespace(), r.ParentRefs(), withListener)
 }
 
-func extractRouteAndNamespace(o client.Object) (mcgatewayv1alpha1.MinecraftRoute, string, error) {
+func extractRouteFromObject(o client.Object) (Route, error) {
 	switch r := o.(type) {
 	case *mcgatewayv1alpha1.MinecraftJoinRoute:
-		return r.Spec.MinecraftRoute, o.GetNamespace(), nil
+		return ForJoin(r), nil
 	case *mcgatewayv1alpha1.MinecraftFallbackRoute:
-		return r.Spec.MinecraftRoute, o.GetNamespace(), nil
+		return ForFallback(r), nil
 	default:
-		return mcgatewayv1alpha1.MinecraftRoute{}, "", fmt.Errorf("no such minecraft route: %T", r)
+		return nil, fmt.Errorf("unsupported route type: %T", o)
 	}
 }
 
@@ -199,10 +199,15 @@ func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.G
 	if err := ListRoutesByGateway(c, ctx, gw, &fallback); err != nil {
 		return err
 	}
-	*into = Bag{
-		Join:     join.Items,
-		Fallback: fallback.Items,
+	joinRoutes := make([]Route, len(join.Items))
+	for i := range join.Items {
+		joinRoutes[i] = ForJoin(&join.Items[i])
 	}
+	fallbackRoutes := make([]Route, len(fallback.Items))
+	for i := range fallback.Items {
+		fallbackRoutes[i] = ForFallback(&fallback.Items[i])
+	}
+	*into = Bag{Join: joinRoutes, Fallback: fallbackRoutes}
 	return nil
 }
 
@@ -234,10 +239,15 @@ func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Ser
 		return err
 	}
 
-	*into = Bag{
-		Join:     filteredJoin.Items,
-		Fallback: filteredFallback.Items,
+	joinRoutes := make([]Route, len(filteredJoin.Items))
+	for i := range filteredJoin.Items {
+		joinRoutes[i] = ForJoin(&filteredJoin.Items[i])
 	}
+	fallbackRoutes := make([]Route, len(filteredFallback.Items))
+	for i := range filteredFallback.Items {
+		fallbackRoutes[i] = ForFallback(&filteredFallback.Items[i])
+	}
+	*into = Bag{Join: joinRoutes, Fallback: fallbackRoutes}
 	return nil
 }
 

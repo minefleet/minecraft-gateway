@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
+	mfdiscovery "minefleet.dev/minecraft-gateway/internal/infrastructure"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"

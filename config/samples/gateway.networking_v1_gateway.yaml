@@ -14,8 +14,9 @@ spec:
       name: infrastructure-sample
   listeners:
     - name: "minecraft"
+      hostname: "*.localhost"
       port: 25565
-      protocol: TCP
+      protocol: minecraft-java
       allowedRoutes:
         kinds:
           - kind: MinecraftFallbackRoute

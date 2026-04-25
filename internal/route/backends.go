@@ -12,27 +12,6 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-// GatewayNNFromRef resolves the NamespacedName of the Gateway a ParentReference
-// points to. Returns false if the reference does not target a Gateway.
-func GatewayNNFromRef(ref gatewayv1.ParentReference, routeNS string) (types.NamespacedName, bool) {
-	g := ""
-	if ref.Group != nil {
-		g = string(*ref.Group)
-	}
-	k := ""
-	if ref.Kind != nil {
-		k = string(*ref.Kind)
-	}
-	if (g != "" && g != gatewayv1.GroupName) || (k != "" && k != "Gateway") {
-		return types.NamespacedName{}, false
-	}
-	ns := routeNS
-	if ref.Namespace != nil && *ref.Namespace != "" {
-		ns = string(*ref.Namespace)
-	}
-	return types.NamespacedName{Namespace: ns, Name: string(ref.Name)}, true
-}
-
 // CheckBackendRefs verifies that every BackendRef in refs resolves to an
 // existing Service and that cross-namespace references are covered by a
 // ReferenceGrant. routeObj must have its TypeMeta set so the verifier can
