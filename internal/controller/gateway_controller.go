@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -111,130 +112,143 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, tree.PatchGatewayStatus(ctx, r.Client)
 	}
 
-	// Validate listener protocols before touching the dataplane. A gateway with
-	// any invalid listener cannot produce a valid snapshot, so delete any stale
-	// dataplane state and short-circuit.
-	anyInvalidProtocol := false
-	for _, lt := range tree.Listeners() {
-		if _, err := lt.Listener.GetProtocol(); err != nil {
-			anyInvalidProtocol = true
-			break
-		}
-	}
-	if anyInvalidProtocol {
-		tree.StatusWriter().
-			SetAcceptedListenersNotValid().
-			SetNotProgrammed(gatewayv1.GatewayReasonInvalid, "One or more listeners have an unsupported protocol.")
-		for _, lt := range tree.Listeners() {
-			kinds, _ := lt.Listener.SupportedKinds()
-			lsw := lt.StatusWriter()
-			if _, protoErr := lt.Listener.GetProtocol(); protoErr != nil {
-				lsw.SetNotAccepted(gatewayv1.ListenerReasonUnsupportedProtocol, protoErr.Error()).
-					SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Listener has an unsupported protocol.").
-					SetAttachedRoutes(0).SetSupportedKinds(kinds).SetNoConflicts()
-			} else {
-				lsw.SetAccepted().SetNoConflicts().SetAttachedRoutes(lt.AttachedRoutes()).SetSupportedKinds(kinds).
-					SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Gateway not programmed.")
-			}
-		}
-		if r.Dataplane != nil {
-			if err := (*r.Dataplane).DeleteGateway(req.NamespacedName); err != nil {
-				log.Error(err, "failed to delete gateway from dataplane after protocol validation failure")
-			}
-		}
-		return ctrl.Result{}, tree.PatchGatewayStatus(ctx, r.Client)
+	if invalid := r.hasInvalidProtocol(tree); invalid {
+		return ctrl.Result{}, r.reconcileInvalidProtocols(ctx, log, tree, req.NamespacedName)
 	}
 
-	var syncErr error
-	var conflictError dataplane.RouteConflictError
-
-	if r.Dataplane != nil {
-		_, syncSpan := r.tracer.Start(ctx, "dataplane.SyncGateway",
-			trace.WithAttributes(
-				attribute.String("gateway.namespace", req.Namespace),
-				attribute.String("gateway.name", req.Name),
-			),
-		)
-		syncErr = (*r.Dataplane).SyncGateway(tree)
-		if syncErr != nil {
-			syncSpan.RecordError(syncErr)
-			syncSpan.SetStatus(codes.Error, syncErr.Error())
-		}
-		syncSpan.End()
-	}
-
-	isConflict := errors.As(syncErr, &conflictError)
-	_, selfConflicting := conflictError.Conflicting[req.NamespacedName]
+	isConflict, selfConflicting, syncErr := r.dataplaneSync(ctx, tree, req.NamespacedName, log)
 	programmed := syncErr == nil || (isConflict && !selfConflicting)
 
-	// Remove stale dataplane state when this gateway loses a hostname conflict so
-	// its routes don't keep serving traffic.
-	if selfConflicting && r.Dataplane != nil {
-		if err := (*r.Dataplane).DeleteGateway(req.NamespacedName); err != nil {
-			log.Error(err, "failed to delete conflicting gateway from dataplane")
-		}
-	}
-
-	statusWriter := tree.StatusWriter()
-	if programmed {
-		statusWriter.SetProgrammed()
-	} else if isConflict && selfConflicting {
-		statusWriter.SetNotProgrammed("RouteConflict",
-			"Gateway has routes that conflict with a higher-priority gateway.")
-		span.SetStatus(codes.Error, conflictError.Error())
-	} else {
-		statusWriter.SetNotProgrammed(gatewayv1.GatewayReasonInvalid, syncErr.Error())
-		span.RecordError(syncErr)
-		span.SetStatus(codes.Error, syncErr.Error())
-	}
-
-	for _, lt := range tree.Listeners() {
-		kinds, hasInvalid := lt.Listener.SupportedKinds()
-		listenerStatusWriter := lt.StatusWriter()
-
-		if selfConflicting {
-			listenerStatusWriter.SetConflicted(gatewayv1.ListenerReasonHostnameConflict,
-				"Listener hostname conflicts with a listener on a higher-priority gateway.")
-		} else {
-			listenerStatusWriter.SetNoConflicts()
-		}
-
-		listenerStatusWriter.SetAccepted().SetAttachedRoutes(lt.AttachedRoutes()).SetSupportedKinds(kinds)
-		if programmed {
-			listenerStatusWriter.SetProgrammed()
-		} else {
-			listenerStatusWriter.SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Gateway not programmed.")
-		}
-		if hasInvalid {
-			listenerStatusWriter.SetResolvedRefsInvalid(gatewayv1.ListenerReasonInvalidRouteKinds,
-				"One or more requested route kinds are not supported by this controller.")
-		} else {
-			listenerStatusWriter.SetResolvedRefs()
-		}
-	}
+	r.writeGatewayAndListenerStatus(ctx, span, tree, isConflict, selfConflicting, programmed, syncErr)
 
 	tree.StatusWriter().SetAddresses(r.listEdgeAddresses(ctx))
 
 	if err := tree.PatchGatewayStatus(ctx, r.Client); err != nil {
 		return ctrl.Result{}, err
 	}
-
 	if err := tree.WriteRouteStatuses(ctx, r.Client, selfConflicting); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	if isConflict && !selfConflicting {
-		for conflicting := range conflictError.Conflicting {
+		for conflicting := range conflictError(syncErr).Conflicting {
 			if conflicting != req.NamespacedName {
 				log.Info("requeueing conflicting gateway", "gateway", conflicting)
 			}
 		}
 	}
-
 	if syncErr != nil && !isConflict {
 		return ctrl.Result{}, syncErr
 	}
 	return ctrl.Result{}, nil
+}
+
+func (r *GatewayReconciler) hasInvalidProtocol(tree *topology.GatewayTree) bool {
+	for _, lt := range tree.Listeners() {
+		if _, err := lt.Listener.GetProtocol(); err != nil {
+			return true
+		}
+	}
+	return false
+}
+
+func (r *GatewayReconciler) reconcileInvalidProtocols(ctx context.Context, log logr.Logger, tree *topology.GatewayTree, nn types.NamespacedName) error {
+	tree.StatusWriter().
+		SetAcceptedListenersNotValid().
+		SetNotProgrammed(gatewayv1.GatewayReasonInvalid, "One or more listeners have an unsupported protocol.")
+	for _, lt := range tree.Listeners() {
+		kinds, _ := lt.Listener.SupportedKinds()
+		lsw := lt.StatusWriter()
+		if _, protoErr := lt.Listener.GetProtocol(); protoErr != nil {
+			lsw.SetNotAccepted(gatewayv1.ListenerReasonUnsupportedProtocol, protoErr.Error()).
+				SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Listener has an unsupported protocol.").
+				SetAttachedRoutes(0).SetSupportedKinds(kinds).SetNoConflicts()
+		} else {
+			lsw.SetAccepted().SetNoConflicts().SetAttachedRoutes(lt.AttachedRoutes()).SetSupportedKinds(kinds).
+				SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Gateway not programmed.")
+		}
+	}
+	if r.Dataplane != nil {
+		if err := (*r.Dataplane).DeleteGateway(nn); err != nil {
+			log.Error(err, "failed to delete gateway from dataplane after protocol validation failure")
+		}
+	}
+	return tree.PatchGatewayStatus(ctx, r.Client)
+}
+
+func (r *GatewayReconciler) dataplaneSync(ctx context.Context, tree *topology.GatewayTree, nn types.NamespacedName, log logr.Logger) (isConflict, selfConflicting bool, syncErr error) {
+	if r.Dataplane == nil {
+		return false, false, nil
+	}
+	_, syncSpan := r.tracer.Start(ctx, "dataplane.SyncGateway",
+		trace.WithAttributes(
+			attribute.String("gateway.namespace", nn.Namespace),
+			attribute.String("gateway.name", nn.Name),
+		),
+	)
+	syncErr = (*r.Dataplane).SyncGateway(tree)
+	if syncErr != nil {
+		syncSpan.RecordError(syncErr)
+		syncSpan.SetStatus(codes.Error, syncErr.Error())
+	}
+	syncSpan.End()
+
+	var ce dataplane.RouteConflictError
+	isConflict = errors.As(syncErr, &ce)
+	_, selfConflicting = ce.Conflicting[nn]
+	if selfConflicting {
+		if err := (*r.Dataplane).DeleteGateway(nn); err != nil {
+			log.Error(err, "failed to delete conflicting gateway from dataplane")
+		}
+	}
+	return isConflict, selfConflicting, syncErr
+}
+
+func conflictError(syncErr error) dataplane.RouteConflictError {
+	var ce dataplane.RouteConflictError
+	errors.As(syncErr, &ce)
+	return ce
+}
+
+func (r *GatewayReconciler) writeGatewayAndListenerStatus(ctx context.Context, span trace.Span, tree *topology.GatewayTree, isConflict, selfConflicting, programmed bool, syncErr error) {
+	_ = ctx
+	sw := tree.StatusWriter()
+	if programmed {
+		sw.SetProgrammed()
+	} else if isConflict && selfConflicting {
+		sw.SetNotProgrammed("RouteConflict", "Gateway has routes that conflict with a higher-priority gateway.")
+		span.SetStatus(codes.Error, syncErr.Error())
+	} else {
+		sw.SetNotProgrammed(gatewayv1.GatewayReasonInvalid, syncErr.Error())
+		span.RecordError(syncErr)
+		span.SetStatus(codes.Error, syncErr.Error())
+	}
+	for _, lt := range tree.Listeners() {
+		r.writeListenerStatus(lt, selfConflicting, programmed)
+	}
+}
+
+func (r *GatewayReconciler) writeListenerStatus(lt topology.ListenerTree, selfConflicting, programmed bool) {
+	kinds, hasInvalid := lt.Listener.SupportedKinds()
+	lsw := lt.StatusWriter()
+	if selfConflicting {
+		lsw.SetConflicted(gatewayv1.ListenerReasonHostnameConflict,
+			"Listener hostname conflicts with a listener on a higher-priority gateway.")
+	} else {
+		lsw.SetNoConflicts()
+	}
+	lsw.SetAccepted().SetAttachedRoutes(lt.AttachedRoutes()).SetSupportedKinds(kinds)
+	if programmed {
+		lsw.SetProgrammed()
+	} else {
+		lsw.SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Gateway not programmed.")
+	}
+	if hasInvalid {
+		lsw.SetResolvedRefsInvalid(gatewayv1.ListenerReasonInvalidRouteKinds,
+			"One or more requested route kinds are not supported by this controller.")
+	} else {
+		lsw.SetResolvedRefs()
+	}
 }
 
 func (r *GatewayReconciler) mapGatewayClass(ctx context.Context, obj client.Object) []reconcile.Request {

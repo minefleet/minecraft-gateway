@@ -138,7 +138,11 @@ func main() {
 		setupLog.Error(err, "unable to initialise OpenTelemetry")
 		os.Exit(1)
 	}
-	defer otelShutdown(context.Background())
+	defer func() {
+		if err := otelShutdown(context.Background()); err != nil {
+			setupLog.Error(err, "failed to shut down OpenTelemetry")
+		}
+	}()
 
 	// if the enable-http2 flag is false (the default), http/2 should be disabled
 	// due to its vulnerabilities. More specifically, disabling http/2 will

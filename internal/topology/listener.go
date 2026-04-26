@@ -63,7 +63,7 @@ func (l *listenerImpl) GetPort() uint32 {
 }
 
 func (l *listenerImpl) GetHostname() *gatewayv1.Hostname {
-	return l.Listener.Hostname
+	return l.Hostname
 }
 
 func (l *listenerImpl) SupportedKinds() (supported []gatewayv1.RouteGroupKind, hasInvalid bool) {

@@ -6,7 +6,11 @@ import (
 )
 
 func Domains(routes topology.RouteBag) []string {
-	result := make([]string, 0)
+	cap := 0
+	for _, r := range routes.Join {
+		cap += len(r.Hostnames())
+	}
+	result := make([]string, 0, cap)
 	for _, joinRoute := range routes.Join {
 		for _, h := range joinRoute.Hostnames() {
 			result = append(result, string(h))
