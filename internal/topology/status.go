@@ -30,6 +30,18 @@ func (w *GatewayStatusWriter) SetAccepted() *GatewayStatusWriter {
 	return w
 }
 
+func (w *GatewayStatusWriter) SetAcceptedListenersNotValid() *GatewayStatusWriter {
+	gw := w.tree.gw
+	apimeta.SetStatusCondition(&gw.Status.Conditions, metav1.Condition{
+		Type:               string(gatewayv1.GatewayConditionAccepted),
+		Status:             metav1.ConditionTrue,
+		Reason:             string(gatewayv1.GatewayReasonListenersNotValid),
+		Message:            "Gateway accepted but one or more listeners have an invalid or unsupported configuration.",
+		ObservedGeneration: gw.Generation,
+	})
+	return w
+}
+
 func (w *GatewayStatusWriter) SetNotAccepted(reason gatewayv1.GatewayConditionReason, msg string) *GatewayStatusWriter {
 	gw := w.tree.gw
 	apimeta.SetStatusCondition(&gw.Status.Conditions, metav1.Condition{
@@ -164,6 +176,28 @@ func (w *ListenerStatusWriter) SetSupportedKinds(kinds []gatewayv1.RouteGroupKin
 	return w
 }
 
+func (w *ListenerStatusWriter) SetNoConflicts() *ListenerStatusWriter {
+	apimeta.SetStatusCondition(&w.entry().Conditions, metav1.Condition{
+		Type:               string(gatewayv1.ListenerConditionConflicted),
+		Status:             metav1.ConditionFalse,
+		Reason:             string(gatewayv1.ListenerReasonNoConflicts),
+		Message:            "No listener conflicts detected.",
+		ObservedGeneration: w.gw.Generation,
+	})
+	return w
+}
+
+func (w *ListenerStatusWriter) SetConflicted(reason gatewayv1.ListenerConditionReason, msg string) *ListenerStatusWriter {
+	apimeta.SetStatusCondition(&w.entry().Conditions, metav1.Condition{
+		Type:               string(gatewayv1.ListenerConditionConflicted),
+		Status:             metav1.ConditionTrue,
+		Reason:             string(reason),
+		Message:            msg,
+		ObservedGeneration: w.gw.Generation,
+	})
+	return w
+}
+
 // RouteStatusWriter accumulates Gateway API conditions for a route across
 // multiple parent gateways and patches them in one call to Patch.
 // Obtain one via NewRouteStatusWriter.
@@ -240,6 +274,10 @@ func (w *RouteStatusWriter) evalAcceptedFromListener(listener Listener, conflict
 }
 
 func (w *RouteStatusWriter) evalAcceptedFromListeners(listeners []ListenerTree) metav1.Condition {
+	if len(listeners) == 0 {
+		return acceptedCond(false, gatewayv1.RouteReasonNotAllowedByListeners,
+			"Route is not allowed by any listener namespace or kind filter.")
+	}
 	hostnames := w.route.Hostnames()
 	for _, lt := range listeners {
 		lh := lt.Listener.GetHostname()
