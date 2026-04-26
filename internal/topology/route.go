@@ -1,17 +1,41 @@
-package route
+package topology
 
 import (
+	"strings"
+
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-type Type string
+type RouteType string
 
 const (
-	TypeJoin     Type = "join"
-	TypeFallback Type = "fallback"
+	RouteTypeJoin     RouteType = "join"
+	RouteTypeFallback RouteType = "fallback"
 )
+
+var (
+	minefleetGroup = gatewayv1.Group("gateway.networking.minefleet.dev")
+
+	// SupportedRouteKinds lists every route kind this controller can handle.
+	SupportedRouteKinds = []gatewayv1.RouteGroupKind{
+		{Group: &minefleetGroup, Kind: "MinecraftJoinRoute"},
+		{Group: &minefleetGroup, Kind: "MinecraftFallbackRoute"},
+	}
+)
+
+// routeKindName maps a Route's type to its Kubernetes Kind name.
+func routeKindName(r Route) gatewayv1.Kind {
+	switch r.RouteType() {
+	case RouteTypeJoin:
+		return "MinecraftJoinRoute"
+	case RouteTypeFallback:
+		return "MinecraftFallbackRoute"
+	default:
+		return ""
+	}
+}
 
 // Route is the unified interface for all Minecraft route types.
 // Embedding client.Object provides all Kubernetes metadata methods (GetName,
@@ -20,7 +44,7 @@ type Route interface {
 	client.Object
 
 	// RouteType distinguishes join from fallback routes.
-	RouteType() Type
+	RouteType() RouteType
 
 	// Hostnames returns the virtual hostnames this route handles.
 	// Returns nil for fallback routes (they match any hostname).
@@ -51,18 +75,16 @@ type Route interface {
 	Object() client.Object
 }
 
-// joinRoute wraps MinecraftJoinRoute. Embedding the pointer satisfies client.Object
-// automatically; explicit methods implement the Route-specific surface.
 type joinRoute struct {
 	*mcgatewayv1alpha1.MinecraftJoinRoute
 }
 
-// ForJoin wraps a MinecraftJoinRoute as a Route.
-func ForJoin(r *mcgatewayv1alpha1.MinecraftJoinRoute) Route {
+// ForJoinRoute wraps a MinecraftJoinRoute as a Route.
+func ForJoinRoute(r *mcgatewayv1alpha1.MinecraftJoinRoute) Route {
 	return &joinRoute{r}
 }
 
-func (r *joinRoute) RouteType() Type                                      { return TypeJoin }
+func (r *joinRoute) RouteType() RouteType                                 { return RouteTypeJoin }
 func (r *joinRoute) Hostnames() []gatewayv1.Hostname                      { return r.Spec.Hostnames }
 func (r *joinRoute) ParentRefs() []gatewayv1.ParentReference              { return r.Spec.ParentRefs }
 func (r *joinRoute) BackendRefs() []mcgatewayv1alpha1.MinecraftBackendRef { return r.Spec.BackendRefs }
@@ -76,17 +98,16 @@ func (r *joinRoute) FallbackFilterRules() []mcgatewayv1alpha1.MinecraftFallbackF
 func (r *joinRoute) RouteStatus() *gatewayv1.RouteStatus { return &r.Status.RouteStatus }
 func (r *joinRoute) Object() client.Object               { return r.MinecraftJoinRoute }
 
-// fallbackRoute wraps MinecraftFallbackRoute.
 type fallbackRoute struct {
 	*mcgatewayv1alpha1.MinecraftFallbackRoute
 }
 
-// ForFallback wraps a MinecraftFallbackRoute as a Route.
-func ForFallback(r *mcgatewayv1alpha1.MinecraftFallbackRoute) Route {
+// ForFallbackRoute wraps a MinecraftFallbackRoute as a Route.
+func ForFallbackRoute(r *mcgatewayv1alpha1.MinecraftFallbackRoute) Route {
 	return &fallbackRoute{r}
 }
 
-func (r *fallbackRoute) RouteType() Type                         { return TypeFallback }
+func (r *fallbackRoute) RouteType() RouteType                    { return RouteTypeFallback }
 func (r *fallbackRoute) Hostnames() []gatewayv1.Hostname         { return nil }
 func (r *fallbackRoute) ParentRefs() []gatewayv1.ParentReference { return r.Spec.ParentRefs }
 func (r *fallbackRoute) BackendRefs() []mcgatewayv1alpha1.MinecraftBackendRef {
@@ -101,3 +122,49 @@ func (r *fallbackRoute) FallbackFilterRules() []mcgatewayv1alpha1.MinecraftFallb
 }
 func (r *fallbackRoute) RouteStatus() *gatewayv1.RouteStatus { return &r.Status.RouteStatus }
 func (r *fallbackRoute) Object() client.Object               { return r.MinecraftFallbackRoute }
+
+// RouteBag holds the join and fallback routes admitted to one listener.
+type RouteBag struct {
+	Join     []Route
+	Fallback []Route
+}
+
+// ForRouteBag wraps raw list results into a RouteBag.
+func ForRouteBag(joinList mcgatewayv1alpha1.MinecraftJoinRouteList, fallbackList mcgatewayv1alpha1.MinecraftFallbackRouteList) RouteBag {
+	join := make([]Route, len(joinList.Items))
+	for i := range joinList.Items {
+		join[i] = ForJoinRoute(&joinList.Items[i])
+	}
+	fallback := make([]Route, len(fallbackList.Items))
+	for i := range fallbackList.Items {
+		fallback[i] = ForFallbackRoute(&fallbackList.Items[i])
+	}
+	return RouteBag{Join: join, Fallback: fallback}
+}
+
+// Dedupe removes duplicate routes (same namespace/name/kind) keeping the first occurrence.
+func (b RouteBag) Dedupe() RouteBag {
+	seen := map[string]struct{}{}
+	out := RouteBag{
+		Join:     make([]Route, 0, len(b.Join)),
+		Fallback: make([]Route, 0, len(b.Fallback)),
+	}
+	key := func(ns, name, kind string) string {
+		return strings.Join([]string{kind, ns, name}, "/")
+	}
+	for _, r := range b.Join {
+		k := key(r.GetNamespace(), r.GetName(), "Join")
+		if _, ok := seen[k]; !ok {
+			seen[k] = struct{}{}
+			out.Join = append(out.Join, r)
+		}
+	}
+	for _, r := range b.Fallback {
+		k := key(r.GetNamespace(), r.GetName(), "Fallback")
+		if _, ok := seen[k]; !ok {
+			seen[k] = struct{}{}
+			out.Fallback = append(out.Fallback, r)
+		}
+	}
+	return out
+}

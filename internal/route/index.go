@@ -9,20 +9,11 @@ import (
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/utils/ptr"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
+	"minefleet.dev/minecraft-gateway/internal/index"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
-)
-
-type Bag struct {
-	Join     []Route
-	Fallback []Route
-}
-
-const (
-	IndexRouteByGateway         = "route.byGateway"
-	IndexRouteByGatewayListener = "route.byGatewayListener"
-	IndexRouteByService         = "route.byListener"
 )
 
 func keySvc(ns, name string) string            { return ns + "/" + name }
@@ -42,7 +33,7 @@ func IndexRoutes(mgr ctrl.Manager) error {
 func indexRouteParents[T client.Object](mgr ctrl.Manager, zero T) error {
 	ctx := context.Background()
 	// by gateway (ns/name)
-	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, IndexRouteByGateway,
+	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, index.RouteByGateway,
 		func(o client.Object) []string {
 			return extractGatewayParentKeys(o, false)
 		},
@@ -50,7 +41,7 @@ func indexRouteParents[T client.Object](mgr ctrl.Manager, zero T) error {
 		return err
 	}
 	// by gateway+listener (ns/name#listener)
-	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, IndexRouteByGatewayListener,
+	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, index.RouteByGatewayListener,
 		func(o client.Object) []string {
 			return extractGatewayParentKeys(o, true)
 		},
@@ -58,7 +49,7 @@ func indexRouteParents[T client.Object](mgr ctrl.Manager, zero T) error {
 		return err
 	}
 	// by svc (ns/name)
-	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, IndexRouteByService,
+	if err := mgr.GetFieldIndexer().IndexField(ctx, zero, index.RouteByService,
 		func(o client.Object) []string {
 			return extractServiceKeys(o)
 		},
@@ -97,12 +88,12 @@ func extractGatewayParentKeys(o client.Object, withListener bool) []string {
 	return parentKeysFromRefs(r.GetNamespace(), r.ParentRefs(), withListener)
 }
 
-func extractRouteFromObject(o client.Object) (Route, error) {
+func extractRouteFromObject(o client.Object) (topology.Route, error) {
 	switch r := o.(type) {
 	case *mcgatewayv1alpha1.MinecraftJoinRoute:
-		return ForJoin(r), nil
+		return topology.ForJoinRoute(r), nil
 	case *mcgatewayv1alpha1.MinecraftFallbackRoute:
-		return ForFallback(r), nil
+		return topology.ForFallbackRoute(r), nil
 	default:
 		return nil, fmt.Errorf("unsupported route type: %T", o)
 	}
@@ -184,13 +175,13 @@ func stringPtrToKind(p *gatewayv1.Kind) string {
 }
 
 func ListRoutesByGateway[T client.ObjectList](c client.Client, ctx context.Context, gw gatewayv1.Gateway, zero T) error {
-	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByGateway: keyGW(gw.Namespace, gw.Name)}); err != nil {
+	if err := c.List(ctx, zero, client.MatchingFields{index.RouteByGateway: keyGW(gw.Namespace, gw.Name)}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *Bag) error {
+func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.Gateway, into *topology.RouteBag) error {
 	var join mcgatewayv1alpha1.MinecraftJoinRouteList
 	var fallback mcgatewayv1alpha1.MinecraftFallbackRouteList
 	if err := ListRoutesByGateway(c, ctx, gw, &join); err != nil {
@@ -199,26 +190,18 @@ func ListAllRoutesByGateway(c client.Client, ctx context.Context, gw gatewayv1.G
 	if err := ListRoutesByGateway(c, ctx, gw, &fallback); err != nil {
 		return err
 	}
-	joinRoutes := make([]Route, len(join.Items))
-	for i := range join.Items {
-		joinRoutes[i] = ForJoin(&join.Items[i])
-	}
-	fallbackRoutes := make([]Route, len(fallback.Items))
-	for i := range fallback.Items {
-		fallbackRoutes[i] = ForFallback(&fallback.Items[i])
-	}
-	*into = Bag{Join: joinRoutes, Fallback: fallbackRoutes}
+	*into = topology.ForRouteBag(join, fallback)
 	return nil
 }
 
 func ListRoutesByService[T client.ObjectList](c client.Client, ctx context.Context, svc corev1.Service, zero T) error {
-	if err := c.List(ctx, zero, client.MatchingFields{IndexRouteByService: keySvc(svc.Namespace, svc.Name)}); err != nil {
+	if err := c.List(ctx, zero, client.MatchingFields{index.RouteByService: keySvc(svc.Namespace, svc.Name)}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Service, into *Bag) error {
+func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Service, into *topology.RouteBag) error {
 	var join mcgatewayv1alpha1.MinecraftJoinRouteList
 	var fallback mcgatewayv1alpha1.MinecraftFallbackRouteList
 	if err := ListRoutesByService(c, ctx, svc, &join); err != nil {
@@ -228,7 +211,7 @@ func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Ser
 		return err
 	}
 
-	verifier := NewReferenceVerifier(c, ctx)
+	verifier := topology.NewReferenceVerifier(c, ctx)
 
 	filteredJoin, err := filterGranted(verifier, &join, &svc)
 	if err != nil {
@@ -238,20 +221,11 @@ func ListAllRoutesByService(c client.Client, ctx context.Context, svc corev1.Ser
 	if err != nil {
 		return err
 	}
-
-	joinRoutes := make([]Route, len(filteredJoin.Items))
-	for i := range filteredJoin.Items {
-		joinRoutes[i] = ForJoin(&filteredJoin.Items[i])
-	}
-	fallbackRoutes := make([]Route, len(filteredFallback.Items))
-	for i := range filteredFallback.Items {
-		fallbackRoutes[i] = ForFallback(&filteredFallback.Items[i])
-	}
-	*into = Bag{Join: joinRoutes, Fallback: fallbackRoutes}
+	*into = topology.ForRouteBag(*filteredJoin, *filteredFallback)
 	return nil
 }
 
-func filterGranted[T client.ObjectList](v *ReferenceVerifier, list T, obj client.Object) (T, error) {
+func filterGranted[T client.ObjectList](v *topology.ReferenceVerifier, list T, obj client.Object) (T, error) {
 	items, err := apimeta.ExtractList(list)
 	if err != nil {
 		return list, err

@@ -16,7 +16,7 @@ spec:
     - name: "minecraft"
       hostname: "*.localhost"
       port: 25565
-      protocol: minecraft-java
+      protocol: JAVA
       allowedRoutes:
         kinds:
           - kind: MinecraftFallbackRoute

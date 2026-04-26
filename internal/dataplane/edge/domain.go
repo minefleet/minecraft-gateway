@@ -1,11 +1,11 @@
 package edge
 
 import (
-	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-func Domains(routes route.Bag) []string {
+func Domains(routes topology.RouteBag) []string {
 	result := make([]string, 0)
 	for _, joinRoute := range routes.Join {
 		for _, h := range joinRoute.Hostnames() {

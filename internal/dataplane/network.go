@@ -4,13 +4,10 @@ import (
 	"context"
 	"sync"
 
-	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
-	"minefleet.dev/minecraft-gateway/internal/gateway"
-	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type NetworkDataplane struct {
@@ -40,11 +37,16 @@ func (d *NetworkDataplane) SetupDataplane() {
 	network.StartADS(d.ctx, d.updates, d.cfg, d.c)
 }
 
-func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, infra gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
+func (d *NetworkDataplane) SyncGateway(tree *topology.GatewayTree) error {
+	name := tree.NamespacedName()
+	infra := tree.Infrastructure
+	backends := tree.Backends
+
 	d.mu.Lock()
 	d.snapshotCache[name] = make(map[string]network.ListenerSnapshot)
-	for listener, bag := range routes {
-		d.snapshotCache[name][string(listener.Name)] = network.BuildListenerSnapshot(name, listener, bag, backends)
+	for _, lt := range tree.Listeners() {
+		listenerName := string(lt.Listener.GetName())
+		d.snapshotCache[name][listenerName] = network.BuildListenerSnapshot(name, lt, backends)
 	}
 	snap := network.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
@@ -63,9 +65,9 @@ func (d *NetworkDataplane) SyncGateway(name types.NamespacedName, infra gateway.
 		}
 	}
 
-	listeners := make([]gatewayv1.Listener, 0, len(routes))
-	for l := range routes {
-		listeners = append(listeners, l)
+	listeners := make([]topology.Listener, 0, len(tree.Listeners()))
+	for _, lt := range tree.Listeners() {
+		listeners = append(listeners, lt.Listener)
 	}
 	return d.proxyMgr.Sync(d.ctx, name, listeners, infra)
 }

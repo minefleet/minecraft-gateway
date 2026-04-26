@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/types"
 	v1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
@@ -53,7 +53,7 @@ type GatewaySnapshotCache = map[types.NamespacedName]GatewaySnapshot
 
 // BuildGatewaySnapshot constructs a GatewaySnapshot for one Gateway.
 // edge may be nil, in which case defaults are used.
-func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listener]route.Bag, edge *v1alpha1.EdgeSpec) GatewaySnapshot {
+func BuildGatewaySnapshot(name types.NamespacedName, listeners []topology.ListenerTree, edge *v1alpha1.EdgeSpec) GatewaySnapshot {
 	var proxyProtocol, rejectUnknown bool
 	if edge != nil {
 		proxyProtocol = edge.ProxyProtocol
@@ -61,20 +61,21 @@ func BuildGatewaySnapshot(name types.NamespacedName, routes map[gatewayv1.Listen
 	}
 
 	domainMapping := make(map[string]string)
-	clusters := make([]ClusterConfig, 0, len(routes))
-	for listener, bag := range routes {
+	clusters := make([]ClusterConfig, 0, len(listeners))
+	for _, lt := range listeners {
+		listenerName := lt.Listener.GetName()
 		cluster := ClusterConfig{
-			Name: toClusterName(name, listener.Name),
+			Name: toClusterName(name, listenerName),
 			Endpoints: []EndpointConfig{
 				{
-					Address: fmt.Sprintf("%s-%s.%s.svc.cluster.local", listener.Name, name.Name, name.Namespace),
-					Port:    uint32(listener.Port),
+					Address: fmt.Sprintf("%s-%s.%s.svc.cluster.local", listenerName, name.Name, name.Namespace),
+					Port:    lt.Listener.GetPort(),
 				},
 			},
 			ProxyProtocol: proxyProtocol,
 		}
 		clusters = append(clusters, cluster)
-		for _, domain := range filterDomainsByListener(Domains(bag), listener.Hostname) {
+		for _, domain := range filterDomainsByListener(Domains(lt.Routes()), lt.Listener.GetHostname()) {
 			domainMapping[domain] = cluster.Name
 		}
 	}

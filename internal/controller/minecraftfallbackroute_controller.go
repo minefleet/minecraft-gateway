@@ -21,14 +21,13 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	"minefleet.dev/minecraft-gateway/internal/gateway"
 	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -50,8 +49,8 @@ type MinecraftFallbackRouteReconciler struct {
 func (r *MinecraftFallbackRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	ctx, span := r.tracer.Start(ctx, "MinecraftFallbackRouteReconciler.Reconcile",
 		trace.WithAttributes(
-			attribute.String("route.namespace", req.Namespace),
-			attribute.String("route.name", req.Name),
+			attribute.String("thisRoute.namespace", req.Namespace),
+			attribute.String("thisRoute.name", req.Name),
 		),
 	)
 	defer span.End()
@@ -67,44 +66,38 @@ func (r *MinecraftFallbackRouteReconciler) Reconcile(ctx context.Context, req ct
 		APIVersion: mcgatewayv1alpha1.GroupVersion.String(),
 		Kind:       "MinecraftFallbackRoute",
 	}
-	base := rt.DeepCopy()
+
+	thisRoute := topology.ForFallbackRoute(&rt)
+	statusWriter := topology.NewRouteStatusWriter(thisRoute)
 
 	for _, ref := range rt.Spec.ParentRefs {
-		gwNN, parent, err := route.ParentFromRef(ctx, r.Client, ref, rt.Namespace, "MinecraftFallbackRoute")
+		tree, gwNN, err := topology.BuildForRoute(ctx, r.Client, ref, rt.Namespace)
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, err.Error())
 			return ctrl.Result{}, err
 		}
 		if gwNN.Name == "" {
-			continue
+			continue // not a Gateway parentRef
 		}
-		if parent == nil {
+		if tree == nil {
 			log.Info("parent gateway not found", "gateway", gwNN)
-			route.StatusFor(route.ForFallback(&rt), route.ParentNotFound()).Apply(gwNN)
+			statusWriter.SetNoMatchingParent(gwNN)
 			continue
 		}
-
-		verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, parent.Gateway)
-		if err != nil || !verifier.IsVerified() {
+		if !tree.Class.IsOurs() || !tree.Class.IsAccepted() {
 			continue
 		}
-
-		ok, reason, msg := route.CheckBackendRefs(ctx, r.Client, rt.Namespace, &rt, rt.Spec.BackendRefs)
-		route.StatusFor(route.ForFallback(&rt), route.ParentResolved(parent.Listeners, ok, reason, msg)).Apply(gwNN)
+		ok, reason, msg := topology.CheckBackendRefs(ctx, r.Client, thisRoute)
+		statusWriter.SetResolvedRefs(gwNN, ok, reason, msg)
+		statusWriter.SetAcceptedFromListeners(gwNN, tree.AdmittedListeners(thisRoute))
 	}
 
-	if err := r.Status().Patch(ctx, &rt, client.MergeFrom(base)); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
-	}
-	return ctrl.Result{}, nil
+	return ctrl.Result{}, statusWriter.Patch(ctx, r.Client)
 }
 
-// mapGatewayToFallbackRoutes re-queues all MinecraftFallbackRoutes that
-// reference a changed Gateway.
+// mapGatewayToFallbackRoutes re-queues all MinecraftFallbackRoutes that reference a changed Gateway.
 func (r *MinecraftFallbackRouteReconciler) mapGatewayToFallbackRoutes(ctx context.Context, obj client.Object) []ctrl.Request {
 	gw := obj.(*gatewayv1.Gateway)
-	var bag route.Bag
+	var bag topology.RouteBag
 	if err := route.ListAllRoutesByGateway(r.Client, ctx, *gw, &bag); err != nil {
 		return nil
 	}

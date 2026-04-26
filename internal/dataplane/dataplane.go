@@ -6,18 +6,15 @@ import (
 	"fmt"
 	"os"
 
-	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
-	"minefleet.dev/minecraft-gateway/internal/gateway"
-	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type Dataplane interface {
-	SyncGateway(name types.NamespacedName, infrastructure gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error
+	SyncGateway(tree *topology.GatewayTree) error
 	DeleteGateway(name types.NamespacedName) error
 }
 
@@ -25,13 +22,12 @@ type dataplanes struct {
 	items []Dataplane
 }
 
-func (d dataplanes) SyncGateway(name types.NamespacedName, infrastructure gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, backends []discoveryv1.EndpointSlice) error {
+func (d dataplanes) SyncGateway(tree *topology.GatewayTree) error {
 	var conflictErr error
 	for _, dp := range d.items {
-		if err := dp.SyncGateway(name, infrastructure, routes, backends); err != nil {
+		if err := dp.SyncGateway(tree); err != nil {
 			var rce RouteConflictError
 			if errors.As(err, &rce) {
-				// Preserve conflict error but continue syncing remaining dataplanes.
 				conflictErr = err
 				continue
 			}
@@ -51,8 +47,6 @@ func (d dataplanes) DeleteGateway(name types.NamespacedName) error {
 }
 
 // CreateDataplane creates the composite dataplane.
-// cfg configures the edge proxy: the DaemonSet namespace, container image,
-// local xDS gRPC port, and the hostname DaemonSet pods use to reach the xDS server.
 func CreateDataplane(ctx context.Context, c client.Client, cfg Config) Dataplane {
 	return dataplanes{
 		items: []Dataplane{

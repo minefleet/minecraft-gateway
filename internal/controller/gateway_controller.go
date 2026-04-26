@@ -19,20 +19,17 @@ package controller
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/dataplane"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
-	"minefleet.dev/minecraft-gateway/internal/endpoint"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
 	mfdiscovery "minefleet.dev/minecraft-gateway/internal/infrastructure"
 	"minefleet.dev/minecraft-gateway/internal/route"
-	mcstatus "minefleet.dev/minecraft-gateway/internal/status"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -65,7 +62,7 @@ type GatewayReconciler struct {
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes;minecraftjoinroutes;networkinfrastructures,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/status;minecraftjoinroutes/status;networkinfrastructures/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftfallbackroutes/finalizers;minecraftjoinroutes/finalizers;networkinfrastructures/finalizers,verbs=update
-// +kubebuilder:rbac:groups=infrastructure.k8s.io,resources=endpointslices,verbs=get;list;watch
+// +kubebuilder:rbac:groups=discovery.k8s.io,resources=endpointslices,verbs=get;list;watch
 // +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
@@ -91,56 +88,28 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 
-	gwBase := gw.DeepCopy()
-
-	verifier, err := gateway.NewClassVerifierByGateway(r.Client, ctx, gw)
+	tree, err := topology.Build(ctx, r.Client, &gw)
 	if err != nil {
 		if client.IgnoreNotFound(err) == nil {
-			return ctrl.Result{}, nil
+			return ctrl.Result{}, nil // GatewayClass not found
 		}
 		return ctrl.Result{}, err
 	}
-	if !verifier.IsOurs() {
+
+	if !tree.Class.IsOurs() {
 		return ctrl.Result{}, nil
 	}
-	if !verifier.IsVerified() {
-		log.Info("GatewayClass not yet accepted, marking Gateway invalid",
-			"gateway", fmt.Sprintf("%s/%s", gw.Namespace, gw.Name),
+
+	if !tree.Class.IsAccepted() {
+		log.Info("GatewayClass not yet accepted, marking Gateway not programmed",
+			"gateway", req.NamespacedName,
 			"class", gw.Spec.GatewayClassName)
-		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayReasonPending,
+		tree.StatusWriter().SetNotProgrammed(gatewayv1.GatewayReasonPending,
 			"GatewayClass is not yet accepted by the controller.")
-		if err := r.Status().Patch(ctx, &gw, client.MergeFrom(gwBase)); err != nil {
-			return ctrl.Result{}, client.IgnoreNotFound(err)
-		}
-		return ctrl.Result{}, nil
+		return ctrl.Result{}, tree.PatchGatewayStatus(ctx, r.Client)
 	}
 
-	mcstatus.SetGatewayAccepted(&gw)
-
-	infrastructure, err := gateway.GetInfrastructureForGateway(r.Client, ctx, gw)
-	if err != nil {
-		return ctrl.Result{}, nil
-	}
-
-	var bag route.Bag
-	if err := route.ListAllRoutesByGateway(r.Client, ctx, gw, &bag); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
-	}
-
-	backends := make([]discoveryv1.EndpointSlice, 0)
-	for _, ref := range infrastructure.Status.BackendRefs {
-		backend, err := endpoint.GetEndpointSlicesByServiceName(r.Client, ctx, string(ptr.Deref(ref.Namespace, "")), string(ref.Name))
-		if err != nil {
-			log.Error(err, "could not resolve endpoint slices for service")
-			if client.IgnoreNotFound(err) != nil {
-				return ctrl.Result{}, err
-			}
-			continue
-		}
-		backends = append(backends, backend...)
-	}
-
-	network := route.FilterAllowedRoutes(r.Client, ctx, gw, bag)
+	tree.StatusWriter().SetAccepted()
 
 	var syncErr error
 	var conflictError dataplane.RouteConflictError
@@ -152,7 +121,7 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 				attribute.String("gateway.name", req.Name),
 			),
 		)
-		syncErr = (*r.Dataplane).SyncGateway(req.NamespacedName, infrastructure, network, backends)
+		syncErr = (*r.Dataplane).SyncGateway(tree)
 		if syncErr != nil {
 			syncSpan.RecordError(syncErr)
 			syncSpan.SetStatus(codes.Error, syncErr.Error())
@@ -162,44 +131,49 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	isConflict := errors.As(syncErr, &conflictError)
 	_, selfConflicting := conflictError.Conflicting[req.NamespacedName]
-
 	programmed := syncErr == nil || (isConflict && !selfConflicting)
 
+	sw := tree.StatusWriter()
 	if programmed {
-		mcstatus.SetGatewayProgrammed(&gw)
+		sw.SetProgrammed()
 	} else if isConflict && selfConflicting {
-		mcstatus.SetGatewayNotProgrammed(&gw, "RouteConflict",
+		sw.SetNotProgrammed("RouteConflict",
 			"Gateway has routes that conflict with a higher-priority gateway.")
 		span.SetStatus(codes.Error, conflictError.Error())
 	} else {
-		mcstatus.SetGatewayNotProgrammed(&gw, gatewayv1.GatewayReasonInvalid, syncErr.Error())
+		sw.SetNotProgrammed(gatewayv1.GatewayReasonInvalid, syncErr.Error())
 		span.RecordError(syncErr)
 		span.SetStatus(codes.Error, syncErr.Error())
 	}
 
-	listenerBags := make(map[gatewayv1.SectionName]route.Bag, len(network))
-	for listener, bag := range network {
-		listenerBags[listener.Name] = bag
-	}
-	for _, listener := range gw.Spec.Listeners {
-		bag := listenerBags[listener.Name]
-		attached := int32(len(bag.Join) + len(bag.Fallback))
-		supportedKinds, hasInvalidKinds := route.ListenerRouteKindStatus(listener)
-		mcstatus.SetListenerStatus(&gw, listener.Name, attached, programmed, supportedKinds, hasInvalidKinds)
+	for _, lt := range tree.Listeners() {
+		kinds, hasInvalid := lt.Listener.SupportedKinds()
+		lsw := lt.StatusWriter()
+		lsw.SetAccepted().SetAttachedRoutes(lt.AttachedRoutes()).SetSupportedKinds(kinds)
+		if programmed {
+			lsw.SetProgrammed()
+		} else {
+			lsw.SetNotProgrammed(gatewayv1.ListenerReasonInvalid, "Gateway not programmed.")
+		}
+		if hasInvalid {
+			lsw.SetResolvedRefsInvalid(gatewayv1.ListenerReasonInvalidRouteKinds,
+				"One or more requested route kinds are not supported by this controller.")
+		} else {
+			lsw.SetResolvedRefs()
+		}
 	}
 
-	gw.Status.Addresses = r.listEdgeAddresses(ctx)
+	tree.StatusWriter().SetAddresses(r.listEdgeAddresses(ctx))
 
-	if err := r.Status().Patch(ctx, &gw, client.MergeFrom(gwBase)); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+	if err := tree.PatchGatewayStatus(ctx, r.Client); err != nil {
+		return ctrl.Result{}, err
 	}
 
-	if err := r.updateRouteStatuses(ctx, req.NamespacedName, network, selfConflicting); err != nil {
+	if err := tree.WriteRouteStatuses(ctx, r.Client, selfConflicting); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	if isConflict && !selfConflicting {
-		// Re-queue the gateways that lost so they can recover their Programmed status.
 		for conflicting := range conflictError.Conflicting {
 			if conflicting != req.NamespacedName {
 				log.Info("requeueing conflicting gateway", "gateway", conflicting)
@@ -213,50 +187,8 @@ func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	return ctrl.Result{}, nil
 }
 
-// updateRouteStatuses sets the Accepted condition on every route in the filtered
-// network map. When selfConflicting is true all routes are marked with RouteConflict.
-func (r *GatewayReconciler) updateRouteStatuses(
-	ctx context.Context,
-	gwNN types.NamespacedName,
-	network map[gatewayv1.Listener]route.Bag,
-	selfConflicting bool,
-) error {
-	seen := make(map[types.NamespacedName]struct{})
-
-	patch := func(rt route.Route, listener gatewayv1.Listener) error {
-		nn := types.NamespacedName{Namespace: rt.GetNamespace(), Name: rt.GetName()}
-		if _, ok := seen[nn]; ok {
-			return nil
-		}
-		seen[nn] = struct{}{}
-
-		obj := rt.Object()
-		base := obj.DeepCopyObject().(client.Object)
-		route.StatusFor(rt, route.ParentAttached(listener, selfConflicting)).Apply(gwNN)
-		if err := r.Status().Patch(ctx, obj, client.MergeFrom(base)); err != nil {
-			return client.IgnoreNotFound(err)
-		}
-		return nil
-	}
-
-	for listener, bag := range network {
-		for _, rt := range bag.Join {
-			if err := patch(rt, listener); err != nil {
-				return err
-			}
-		}
-		for _, rt := range bag.Fallback {
-			if err := patch(rt, listener); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 func (r *GatewayReconciler) mapGatewayClass(ctx context.Context, obj client.Object) []reconcile.Request {
 	gc := obj.(*gatewayv1.GatewayClass)
-
 	gws, err := gateway.ListGatewaysByClass(r.Client, ctx, *gc)
 	if err != nil {
 		return nil
@@ -264,9 +196,7 @@ func (r *GatewayReconciler) mapGatewayClass(ctx context.Context, obj client.Obje
 	reqs := make([]reconcile.Request, 0, len(gws.Items))
 	for i := range gws.Items {
 		reqs = append(reqs, reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Namespace: gws.Items[i].Namespace, Name: gws.Items[i].Name,
-			},
+			NamespacedName: types.NamespacedName{Namespace: gws.Items[i].Namespace, Name: gws.Items[i].Name},
 		})
 	}
 	return reqs
@@ -286,18 +216,12 @@ func (r *GatewayReconciler) mapRoute(_ context.Context, obj client.Object) []rec
 		return nil
 	}
 	result := make([]reconcile.Request, 0)
-	targetsNamespaced := route.NamespacedNamesByRefs(ns, used.ParentRefs)
-	for _, gw := range targetsNamespaced {
-		// Do not reconcile if listeners are targeted
-		// TODO: maybe handle listeners later, for now they are unsupported
+	for _, gw := range route.NamespacedNamesByRefs(ns, used.ParentRefs) {
 		if gw.Section != "" {
 			continue
 		}
 		result = append(result, reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Namespace: gw.Namespace,
-				Name:      gw.Name,
-			},
+			NamespacedName: types.NamespacedName{Namespace: gw.Namespace, Name: gw.Name},
 		})
 	}
 	return result
@@ -305,7 +229,7 @@ func (r *GatewayReconciler) mapRoute(_ context.Context, obj client.Object) []rec
 
 func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object) []reconcile.Request {
 	slice := obj.(*discoveryv1.EndpointSlice)
-	svc, err := endpoint.GetServiceByEndpointSlice(r.Client, ctx, *slice)
+	svc, err := r.getServiceByEndpointSlice(ctx, *slice)
 	if err != nil {
 		return nil
 	}
@@ -333,7 +257,7 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 		}
 	}
 
-	var bag route.Bag
+	var bag topology.RouteBag
 	if err := route.ListAllRoutesByService(r.Client, ctx, svc, &bag); err != nil {
 		return result
 	}
@@ -351,8 +275,17 @@ func (r *GatewayReconciler) mapEndpoints(ctx context.Context, obj client.Object)
 			}
 		}
 	}
-
 	return result
+}
+
+func (r *GatewayReconciler) getServiceByEndpointSlice(ctx context.Context, slice discoveryv1.EndpointSlice) (corev1.Service, error) {
+	svcName, ok := slice.Labels[discoveryv1.LabelServiceName]
+	if !ok {
+		return corev1.Service{}, errors.New("no service name label on EndpointSlice")
+	}
+	var svc corev1.Service
+	err := r.Get(ctx, types.NamespacedName{Namespace: slice.Namespace, Name: svcName}, &svc)
+	return svc, err
 }
 
 func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Object) []reconcile.Request {
@@ -366,18 +299,13 @@ func (r *GatewayReconciler) mapInfrastructure(ctx context.Context, obj client.Ob
 	result := make([]reconcile.Request, 0, len(gws.Items))
 	for _, item := range gws.Items {
 		result = append(result, reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Namespace: item.Namespace,
-				Name:      item.Name,
-			},
+			NamespacedName: types.NamespacedName{Namespace: item.Namespace, Name: item.Name},
 		})
 	}
-
 	return result
 }
 
-// listEdgeAddresses returns one IPAddress entry per running edge pod, keyed on
-// the pod's host IP (i.e. the node IP that hostPort 25565 is bound to).
+// listEdgeAddresses returns one IPAddress entry per running edge pod.
 func (r *GatewayReconciler) listEdgeAddresses(ctx context.Context) []gatewayv1.GatewayStatusAddress {
 	var pods corev1.PodList
 	if err := r.List(ctx, &pods, client.MatchingLabels(edge.SelectorLabels())); err != nil {
@@ -399,8 +327,7 @@ func (r *GatewayReconciler) listEdgeAddresses(ctx context.Context) []gatewayv1.G
 	return addrs
 }
 
-// mapEdgePod requeues all gateways whenever an edge pod changes phase so that
-// status.addresses stays current as DaemonSet pods come and go.
+// mapEdgePod requeues all gateways whenever an edge pod changes.
 func (r *GatewayReconciler) mapEdgePod(ctx context.Context, _ client.Object) []reconcile.Request {
 	var gws gatewayv1.GatewayList
 	if err := r.List(ctx, &gws); err != nil {

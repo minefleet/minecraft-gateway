@@ -10,8 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
-	"minefleet.dev/minecraft-gateway/internal/route"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 )
 
 const labelServiceName = "kubernetes.io/service-name"
@@ -57,7 +56,9 @@ func (s *Snapshot) Get(namespace, name, listener string) *ListenerSnapshot {
 type GatewaySnapshotCache = map[types.NamespacedName]map[string]ListenerSnapshot
 
 // BuildListenerSnapshot constructs a ListenerSnapshot for one gateway listener.
-func BuildListenerSnapshot(gateway types.NamespacedName, listener gatewayv1.Listener, routes route.Bag, backends []discoveryv1.EndpointSlice) ListenerSnapshot {
+func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTree, backends []discoveryv1.EndpointSlice) ListenerSnapshot {
+	listener := lt.Listener
+	routes := lt.Routes()
 	// Index EndpointSlices by service key (namespace/name).
 	slicesByService := make(map[string][]discoveryv1.EndpointSlice)
 	for _, slice := range backends {
@@ -129,7 +130,7 @@ func BuildListenerSnapshot(gateway types.NamespacedName, listener gatewayv1.List
 	return ListenerSnapshot{
 		GatewayNamespace: gateway.Namespace,
 		GatewayName:      gateway.Name,
-		ListenerName:     string(listener.Name),
+		ListenerName:     string(listener.GetName()),
 		Services:         services,
 	}
 }

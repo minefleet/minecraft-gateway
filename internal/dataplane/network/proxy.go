@@ -15,12 +15,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/utils/ptr"
 	v1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
+	mfgateway "minefleet.dev/minecraft-gateway/internal/gateway"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	"minefleet.dev/minecraft-gateway/internal/version"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
-
-	mfgateway "minefleet.dev/minecraft-gateway/internal/gateway"
 )
 
 const (
@@ -48,7 +48,7 @@ func NewProxyManager(c client.Client, cfg Config) *ProxyManager {
 // Sync ensures a proxy Deployment and Service exist for each listener, removing stale ones.
 // Owner references on each Deployment point to the Gateway, so they are also
 // garbage-collected automatically when the Gateway is deleted.
-func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, listeners []gatewayv1.Listener, infra mfgateway.Infrastructure) error {
+func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, listeners []topology.Listener, infra mfgateway.Infrastructure) error {
 	gw := &gatewayv1.Gateway{}
 	if err := m.client.Get(ctx, gateway, gw); err != nil {
 		return fmt.Errorf("get gateway: %w", err)
@@ -56,7 +56,7 @@ func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, l
 
 	desired := make(map[string]struct{}, len(listeners))
 	for _, l := range listeners {
-		desired[string(l.Name)] = struct{}{}
+		desired[string(l.GetName())] = struct{}{}
 	}
 
 	var existing appsv1.DeploymentList
@@ -127,8 +127,8 @@ func (m *ProxyManager) Sync(ctx context.Context, gateway types.NamespacedName, l
 	return nil
 }
 
-func (m *ProxyManager) buildDeployment(gateway types.NamespacedName, listener gatewayv1.Listener, gw *gatewayv1.Gateway, infra mfgateway.Infrastructure) (*appsv1.Deployment, error) {
-	listenerName := string(listener.Name)
+func (m *ProxyManager) buildDeployment(gateway types.NamespacedName, listener topology.Listener, gw *gatewayv1.Gateway, infra mfgateway.Infrastructure) (*appsv1.Deployment, error) {
+	listenerName := string(listener.GetName())
 	name := proxyDeploymentName(gateway.Name, listenerName)
 	xdsHost := fmt.Sprintf("%s.%s.svc.cluster.local", xdsServiceName, m.cfg.Namespace)
 
@@ -248,9 +248,9 @@ func mergeDeploymentSpec(spec *appsv1.DeploymentSpec, override *v1alpha1.Network
 	return nil
 }
 
-func (m *ProxyManager) buildService(gateway types.NamespacedName, listener gatewayv1.Listener, gw *gatewayv1.Gateway) (*corev1.Service, error) {
-	listenerName := string(listener.Name)
-	port := listener.Port
+func (m *ProxyManager) buildService(gateway types.NamespacedName, listener topology.Listener, gw *gatewayv1.Gateway) (*corev1.Service, error) {
+	listenerName := string(listener.GetName())
+	port := int32(listener.GetPort())
 
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
@@ -25,12 +25,12 @@ func assertElementsMatch(t *testing.T, got, want []string) {
 	}
 }
 
-func joinRouteWithHostnames(hostnames ...string) route.Route {
+func joinRouteWithHostnames(hostnames ...string) topology.Route {
 	hs := make([]gatewayv1.Hostname, len(hostnames))
 	for i, h := range hostnames {
 		hs[i] = gatewayv1.Hostname(h)
 	}
-	return route.ForJoin(&v1alpha1.MinecraftJoinRoute{
+	return topology.ForJoinRoute(&v1alpha1.MinecraftJoinRoute{
 		Spec: v1alpha1.MinecraftJoinRouteSpec{
 			Hostnames: hs,
 		},
@@ -40,13 +40,13 @@ func joinRouteWithHostnames(hostnames ...string) route.Route {
 // --- Domains() tests ---
 
 func TestDomains_EmptyBag(t *testing.T) {
-	got := Domains(route.Bag{})
+	got := Domains(topology.RouteBag{})
 	assertElementsMatch(t, got, nil)
 }
 
 func TestDomains_SingleRoute(t *testing.T) {
-	bag := route.Bag{
-		Join: []route.Route{
+	bag := topology.RouteBag{
+		Join: []topology.Route{
 			joinRouteWithHostnames("a.com", "b.com"),
 		},
 	}
@@ -55,8 +55,8 @@ func TestDomains_SingleRoute(t *testing.T) {
 }
 
 func TestDomains_MultipleJoinRoutes_MergesAndDedupes(t *testing.T) {
-	bag := route.Bag{
-		Join: []route.Route{
+	bag := topology.RouteBag{
+		Join: []topology.Route{
 			joinRouteWithHostnames("a.com", "b.com"),
 			joinRouteWithHostnames("a.com", "c.com"),
 		},
@@ -66,8 +66,8 @@ func TestDomains_MultipleJoinRoutes_MergesAndDedupes(t *testing.T) {
 }
 
 func TestDomains_WildcardAcrossRoutes_CoversSpecific(t *testing.T) {
-	bag := route.Bag{
-		Join: []route.Route{
+	bag := topology.RouteBag{
+		Join: []topology.Route{
 			joinRouteWithHostnames("a.b.com"),
 			joinRouteWithHostnames("*.b.com"),
 		},
@@ -77,8 +77,8 @@ func TestDomains_WildcardAcrossRoutes_CoversSpecific(t *testing.T) {
 }
 
 func TestDomains_WildcardAcrossRoutes_NotCoversParent(t *testing.T) {
-	bag := route.Bag{
-		Join: []route.Route{
+	bag := topology.RouteBag{
+		Join: []topology.Route{
 			joinRouteWithHostnames("b.com"),
 			joinRouteWithHostnames("*.b.com"),
 		},
@@ -88,8 +88,8 @@ func TestDomains_WildcardAcrossRoutes_NotCoversParent(t *testing.T) {
 }
 
 func TestDomains_SkipsEmptyHostnames(t *testing.T) {
-	bag := route.Bag{
-		Join: []route.Route{
+	bag := topology.RouteBag{
+		Join: []topology.Route{
 			joinRouteWithHostnames("", "a.com", ""),
 		},
 	}
