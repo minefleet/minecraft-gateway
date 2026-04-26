@@ -58,7 +58,8 @@ spec:
   listeners:
     - name: main
       port: 25565
-      protocol: TCP
+      protocol: JAVA
+      hostname: "*.example.com"
       allowedRoutes:
         kinds:
           - group: gateway.networking.minefleet.dev
@@ -69,6 +70,10 @@ spec:
           from: Same
 ```
 
+`protocol` must be `JAVA` (Minecraft Java Edition) or `BEDROCK` (Minecraft Bedrock Edition).
+
+`hostname` is optional. When set, only routes whose `spec.hostnames` are compatible with this hostname will attach to the listener. A wildcard like `*.example.com` allows any route whose hostnames fall under that domain.
+
 `allowedRoutes.kinds` must reference kinds from group `gateway.networking.minefleet.dev`. `allowedRoutes.namespaces` controls which namespaces can attach routes to this listener.
 
 ## Custom route types
@@ -77,7 +82,7 @@ minecraft-gateway replaces the standard `HTTPRoute` with two Minecraft-specific 
 
 ### MinecraftJoinRoute
 
-A `MinecraftJoinRoute` routes initial player connections. It uses `filterRules` with domain patterns to match against the hostname the player connected with. The edge proxy uses these rules to build its hostname-to-cluster map.
+A `MinecraftJoinRoute` routes initial player connections. The optional `spec.hostnames` field declares which hostnames this route is available for at the edge — the edge proxy uses it to know which incoming connections this route can handle. `filterRules` with domain patterns define the actual routing logic that maps connections to backends.
 
 See the [MinecraftJoinRoute reference](/reference/minecraft-join-route) for full field documentation.
 
