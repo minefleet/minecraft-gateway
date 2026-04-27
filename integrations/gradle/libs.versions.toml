@@ -8,7 +8,7 @@ velocity-api = "3.5.0-SNAPSHOT"
 
 # Utility
 javax-annotations = "6.0.53"
-junit = "5.14.3"
+junit = "5.14.4"
 mockito = "5.23.0"
 shadow = "9.4.1"
 sonatype-publisher = "1.2.4"
