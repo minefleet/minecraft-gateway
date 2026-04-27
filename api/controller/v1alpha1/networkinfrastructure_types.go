@@ -17,7 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1 "k8s.io/api/apps/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
@@ -25,17 +26,41 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// NetworkDeploymentTemplate customizes the Velocity proxy Deployment created per
+// gateway listener. Fields set here are merged into the controller-managed default
+// via strategic merge patch. The selector and required proxy container env vars are
+// always controller-managed and cannot be set here.
+type NetworkDeploymentTemplate struct {
+	// +optional
+	Replicas *int32 `json:"replicas,omitempty"`
+	// +optional
+	Template *corev1.PodTemplateSpec `json:"template,omitempty"`
+	// +optional
+	Strategy *appsv1.DeploymentStrategy `json:"strategy,omitempty"`
+}
+
+// EdgeDaemonSetTemplate customizes the edge proxy DaemonSet. Fields set here are
+// merged into the controller-managed default via strategic merge patch. The selector
+// and bootstrap volume/mount are always controller-managed and cannot be set here.
+type EdgeDaemonSetTemplate struct {
+	// +optional
+	Template *corev1.PodTemplateSpec `json:"template,omitempty"`
+	// +optional
+	UpdateStrategy *appsv1.DaemonSetUpdateStrategy `json:"updateStrategy,omitempty"`
+	// +optional
+	MinReadySeconds int32 `json:"minReadySeconds,omitempty"`
+}
+
 // NetworkInfrastructureSpec defines the desired state of NetworkInfrastructure
 type NetworkInfrastructureSpec struct {
 	Discovery Discovery `json:"discovery"`
 
 	// networkTemplate optionally customizes the Deployment created for each
 	// gateway listener. Fields set here are merged into the controller-managed
-	// default. The Selector and required proxy container env vars are always
+	// default. The selector and required proxy container env vars are always
 	// enforced and cannot be overridden.
 	// +optional
-	// +kubebuilder:pruning:PreserveUnknownFields
-	Network *v1.DeploymentSpec `json:"networkTemplate,omitempty"`
+	Network *NetworkDeploymentTemplate `json:"networkTemplate,omitempty"`
 
 	// edgeTemplate optionally configures the edge proxy DaemonSet and xDS
 	// behavior for gateways using this infrastructure.
@@ -48,10 +73,9 @@ type NetworkInfrastructureSpec struct {
 type EdgeSpec struct {
 	// daemonSet optionally customizes the edge DaemonSet. Fields set here are
 	// merged into the controller-managed default via strategic merge patch.
-	// The selector labels and bootstrap volume/mount are always enforced.
+	// The selector and bootstrap volume/mount are always enforced.
 	// +optional
-	// +kubebuilder:pruning:PreserveUnknownFields
-	DaemonSet *v1.DaemonSetSpec `json:"daemonSet,omitempty"`
+	DaemonSet *EdgeDaemonSetTemplate `json:"daemonSet,omitempty"`
 
 	// proxyProtocol enables the PROXY protocol v2 transport socket on upstream
 	// clusters, so backend servers receive the real client IP.

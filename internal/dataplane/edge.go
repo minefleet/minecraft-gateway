@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"sync"
 
-	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
-	"minefleet.dev/minecraft-gateway/internal/gateway"
-	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type EdgeDataplane struct {
@@ -47,32 +44,51 @@ func (d *EdgeDataplane) SetupDataplane() {
 	}()
 }
 
-func (d *EdgeDataplane) SyncGateway(name types.NamespacedName, infra gateway.Infrastructure, routes map[gatewayv1.Listener]route.Bag, _ []discoveryv1.EndpointSlice) error {
+func (d *EdgeDataplane) SyncGateway(tree *topology.GatewayTree) error {
+	infra := tree.Infrastructure
+	name := tree.NamespacedName()
+
 	if err := d.manager.SyncDaemonSet(d.ctx, infra.Config.Edge); err != nil {
 		return fmt.Errorf("sync edge daemonset: %w", err)
 	}
 	d.mu.Lock()
-	tmp := edge.BuildGatewaySnapshot(name, routes, infra.Config.Edge)
-	d.snapshotCache[name] = tmp
+	previous, hadPrevious := d.snapshotCache[name]
+	d.snapshotCache[name] = edge.BuildGatewaySnapshot(name, tree.Listeners(), infra.Config.Edge)
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
+	if _, selfConflicting := conflicting[name]; selfConflicting {
+		if hadPrevious {
+			d.snapshotCache[name] = previous
+		} else {
+			delete(d.snapshotCache, name)
+		}
+		snap, _ = edge.BuildSnapshot(d.snapshotCache)
+	}
 	d.mu.Unlock()
+
+	if err := d.sendSnapshot(snap); err != nil {
+		return err
+	}
 	if len(conflicting) != 0 {
 		return RouteConflictError{Conflicting: conflicting}
 	}
+	return nil
+}
+
+func (d *EdgeDataplane) sendSnapshot(snap edge.Snapshot) error {
 	select {
 	case d.updates <- snap:
 		return nil
 	default:
-		select {
-		case <-d.updates:
-		default:
-		}
-		select {
-		case d.updates <- snap:
-		case <-d.ctx.Done():
-			return d.ctx.Err()
-		}
+	}
+	select {
+	case <-d.updates:
+	default:
+	}
+	select {
+	case d.updates <- snap:
 		return nil
+	case <-d.ctx.Done():
+		return d.ctx.Err()
 	}
 }
 
@@ -81,22 +97,11 @@ func (d *EdgeDataplane) DeleteGateway(name types.NamespacedName) error {
 	delete(d.snapshotCache, name)
 	snap, conflicting := edge.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
+	if err := d.sendSnapshot(snap); err != nil {
+		return err
+	}
 	if len(conflicting) != 0 {
 		return RouteConflictError{Conflicting: conflicting}
 	}
-	select {
-	case d.updates <- snap:
-		return nil
-	default:
-		select {
-		case <-d.updates:
-		default:
-		}
-		select {
-		case d.updates <- snap:
-		case <-d.ctx.Done():
-			return d.ctx.Err()
-		}
-		return nil
-	}
+	return nil
 }

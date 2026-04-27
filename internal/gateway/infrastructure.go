@@ -2,11 +2,10 @@ package gateway
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	mfdiscovery "minefleet.dev/minecraft-gateway/internal/discovery"
+	mfdiscovery "minefleet.dev/minecraft-gateway/internal/infrastructure"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -37,11 +36,7 @@ func GetInfrastructureForGateway(c client.Client, ctx context.Context, gw gatewa
 	} else {
 		log.Info(fmt.Sprintf("%s: no (valid) class infrastructure config found", err.Error()))
 	}
-	infrastructure, err := merge(classConfig, gwConfig)
-	if err != nil {
-		return Infrastructure{}, err
-	}
-	return infrastructure, nil
+	return merge(classConfig, gwConfig)
 }
 
 func GetInfrastructureByGateway(c client.Client, ctx context.Context, gateway gatewayv1.Gateway) (Infrastructure, error) {
@@ -74,7 +69,7 @@ func GetInfrastructureByClass(c client.Client, ctx context.Context, class gatewa
 // and must not be configurable per-Gateway.
 func merge(first *Infrastructure, second *Infrastructure) (Infrastructure, error) {
 	if first == nil && second == nil {
-		return Infrastructure{}, errors.New("no infrastructure provided")
+		return Infrastructure{}, nil
 	}
 	if second == nil {
 		return *first, nil

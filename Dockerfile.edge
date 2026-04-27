@@ -28,7 +28,7 @@ RUN cp /workspace/target/aarch64-unknown-linux-gnu/release/libminefleet_edge.so 
 
 
 ##### Final image #####
-FROM envoyproxy/envoy:dev-ce64b2ab5841d967886a7cbb3e99a37f9cd2c3a1 AS envoy
+FROM envoyproxy/envoy:distroless-v1.38.0 AS envoy
 ARG TARGETARCH
 
 ENV ENVOY_DYNAMIC_MODULES_SEARCH_PATH=/usr/lib

@@ -5,12 +5,25 @@ description: How to route Minecraft connections by hostname using exact matches,
 
 The edge proxy routes connections by reading the `server_address` field from the Minecraft handshake packet and matching it against the domain rules defined in your `MinecraftJoinRoute` resources.
 
+## `hostnames` vs `filterRules.domain`
+
+A `MinecraftJoinRoute` has two hostname-related fields with different purposes:
+
+| Field | Purpose |
+|---|---|
+| `spec.hostnames` | **Availability** — declares which hostnames this route handles at the edge. The edge proxy uses this to know which incoming connections this route can accept. |
+| `filterRules[].rules[].domain` | **Routing** — defines the domain patterns that map connections to this route's backends, including any conditions (`permission`, rule set type). |
+
+In most cases you set both to the same values. `hostnames` is the edge-layer availability signal; `filterRules` is where the routing logic lives.
+
 ## Basic hostname routing
 
 To route players who connect to `play.example.com` to a specific backend:
 
 ```yaml
 spec:
+  hostnames:
+    - play.example.com
   filterRules:
     - type: any
       rules:
@@ -63,6 +76,8 @@ metadata:
   name: lobby
 spec:
   priority: 1
+  hostnames:
+    - "*.example.com"
   filterRules:
     - type: any
       rules:
@@ -78,6 +93,8 @@ metadata:
   name: survival
 spec:
   priority: 10
+  hostnames:
+    - play.example.com
   filterRules:
     - type: any
       rules:

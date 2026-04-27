@@ -84,7 +84,7 @@ checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 [[package]]
 name = "envoy-proxy-dynamic-modules-rust-sdk"
 version = "0.1.0"
-source = "git+https://github.com/envoyproxy/envoy?rev=ce64b2ab5841d967886a7cbb3e99a37f9cd2c3a1#ce64b2ab5841d967886a7cbb3e99a37f9cd2c3a1"
+source = "git+https://github.com/envoyproxy/envoy?tag=v1.38.0#f1dd21b16c244bda00edfb5ffce577e12d0d2ec2"
 dependencies = [
  "bindgen",
  "mockall",

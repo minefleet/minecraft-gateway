@@ -28,6 +28,8 @@ import (
 type MinecraftJoinRouteSpec struct {
 	MinecraftRoute `json:",inline"`
 	// +optional
+	Hostnames []gatewayv1.Hostname `json:"hostnames"`
+	// +optional
 	FilterRules []MinecraftJoinFilterRuleSet `json:"filterRules,omitempty"`
 }
 

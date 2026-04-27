@@ -11,6 +11,8 @@ spec:
     - name: minefleet-gateway-sample
       kind: Gateway
       group: gateway.networking.k8s.io
+  hostnames:
+  - "play.staging.localhost"
   backendRefs:
     - name: example-gameserver
       port: 25565

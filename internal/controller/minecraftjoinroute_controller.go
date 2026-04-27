@@ -19,45 +19,104 @@ package controller
 import (
 	"context"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
+	"minefleet.dev/minecraft-gateway/internal/route"
+	"minefleet.dev/minecraft-gateway/internal/topology"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // MinecraftJoinRouteReconciler reconciles a MinecraftJoinRoute object
 type MinecraftJoinRouteReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	tracer trace.Tracer
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftjoinroutes,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftjoinroutes/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=gateway.networking.minefleet.dev,resources=minecraftjoinroutes/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the MinecraftJoinRoute object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *MinecraftJoinRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+	ctx, span := r.tracer.Start(ctx, "MinecraftJoinRouteReconciler.Reconcile",
+		trace.WithAttributes(
+			attribute.String("route.namespace", req.Namespace),
+			attribute.String("route.name", req.Name),
+		),
+	)
+	defer span.End()
 
-	// TODO(user): your logic here
+	log := logf.FromContext(ctx)
 
-	return ctrl.Result{}, nil
+	var rt mcgatewayv1alpha1.MinecraftJoinRoute
+	if err := r.Get(ctx, req.NamespacedName, &rt); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	rt.TypeMeta = metav1.TypeMeta{
+		APIVersion: mcgatewayv1alpha1.GroupVersion.String(),
+		Kind:       "MinecraftJoinRoute",
+	}
+
+	thisRoute := topology.ForJoinRoute(&rt)
+	statusWriter := topology.NewRouteStatusWriter(thisRoute)
+
+	for _, ref := range rt.Spec.ParentRefs {
+		tree, gwNN, err := topology.BuildForRoute(ctx, r.Client, ref, rt.Namespace)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		if gwNN.Name == "" {
+			continue // not a Gateway parentRef
+		}
+		if tree == nil {
+			log.Info("parent gateway not found", "gateway", gwNN)
+			statusWriter.SetNoMatchingParent(gwNN)
+			continue
+		}
+		if !tree.Class.IsOurs() || !tree.Class.IsAccepted() {
+			continue
+		}
+		ok, reason, msg := topology.CheckBackendRefs(ctx, r.Client, thisRoute)
+		statusWriter.SetResolvedRefs(gwNN, ok, reason, msg)
+		statusWriter.SetAcceptedFromListeners(gwNN, tree.AdmittedListeners(thisRoute))
+	}
+
+	return ctrl.Result{}, statusWriter.Patch(ctx, r.Client)
+}
+
+// mapGatewayToJoinRoutes re-queues all MinecraftJoinRoutes that reference a changed Gateway.
+func (r *MinecraftJoinRouteReconciler) mapGatewayToJoinRoutes(ctx context.Context, obj client.Object) []ctrl.Request {
+	gw := obj.(*gatewayv1.Gateway)
+	var bag topology.RouteBag
+	if err := route.ListAllRoutesByGateway(r.Client, ctx, *gw, &bag); err != nil {
+		return nil
+	}
+	reqs := make([]ctrl.Request, 0, len(bag.Join))
+	for _, rt := range bag.Join {
+		reqs = append(reqs, ctrl.Request{
+			NamespacedName: types.NamespacedName{Namespace: rt.GetNamespace(), Name: rt.GetName()},
+		})
+	}
+	return reqs
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *MinecraftJoinRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	r.tracer = otel.Tracer("minefleet.dev/minecraft-gateway")
+
 	return ctrl.NewControllerManagedBy(mgr).
-		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
 		For(&mcgatewayv1alpha1.MinecraftJoinRoute{}).
 		Named("minecraftjoinroute").
+		Watches(&gatewayv1.Gateway{}, handler.EnqueueRequestsFromMapFunc(r.mapGatewayToJoinRoutes)).
 		Complete(r)
 }

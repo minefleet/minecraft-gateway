@@ -5,6 +5,8 @@ description: Reference for the MinecraftJoinRoute CRD, which routes initial play
 
 A `MinecraftJoinRoute` maps hostnames to backend game servers. The edge proxy uses the `filterRules` to build its hostname-to-cluster map. When a player connects, their `server_address` handshake field is matched against these rules and they are forwarded to the corresponding backend.
 
+`spec.hostnames` declares which hostnames this route is available for. The edge proxy uses this to know which incoming connections this route can handle. `filterRules[].rules[].domain` defines the actual routing logic: which domain patterns map connections to this route's backends.
+
 **API group:** `gateway.networking.minefleet.dev/v1alpha1`
 
 ## Example
@@ -20,6 +22,9 @@ spec:
     - name: my-gateway
       kind: Gateway
       group: gateway.networking.k8s.io
+  hostnames:
+    - survival.example.com
+    - "*.survival.example.com"
   backendRefs:
     - name: survival-server
       port: 25565
@@ -46,6 +51,23 @@ parentRefs:
     group: gateway.networking.k8s.io
     sectionName: main       # optional, targets a specific listener by name
 ```
+
+### `hostnames`
+
+```yaml
+hostnames:
+  - play.example.com
+  - "*.example.com"
+```
+
+Optional. Declares which hostnames this route is available for. The edge proxy uses this to advertise route availability. A connection can only reach this route if its handshake hostname matches one of these entries. The controller also uses this for listener attachment: a route only attaches to a listener whose `hostname` is compatible.
+
+- An exact hostname (e.g. `play.example.com`) is compatible with a listener whose `hostname` is the same value or a wildcard that covers it (e.g. `*.example.com`).
+- A wildcard hostname (e.g. `*.example.com`) is compatible with a listener whose `hostname` matches or is itself a wildcard with the same suffix.
+
+When `hostnames` is omitted, the route attaches to all listeners that allow it by `allowedRoutes`.
+
+`hostnames` is about availability — signalling to the edge which hostnames this route handles. The actual routing logic (which domain patterns map to which backends, with what conditions) lives in `filterRules`. In practice, you will usually set both to the same values.
 
 ### `backendRefs`
 

@@ -17,8 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -28,6 +30,13 @@ import (
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
+	sdkresource "go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -49,6 +58,37 @@ var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
 )
+
+// setupOTel initialises the OTLP trace exporter when OTEL_EXPORTER_OTLP_ENDPOINT
+// is set. Returns a shutdown function that must be called on exit.
+// When the env var is absent the global no-op provider remains in effect.
+func setupOTel(ctx context.Context) (func(context.Context) error, error) {
+	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") == "" {
+		return func(context.Context) error { return nil }, nil
+	}
+
+	exporter, err := otlptracegrpc.New(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("create OTLP trace exporter: %w", err)
+	}
+
+	res := sdkresource.NewWithAttributes("",
+		attribute.String("service.name", "minecraft-gateway-controller"),
+		attribute.String("service.version", version.Version),
+	)
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(res),
+	)
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
+
+	return tp.Shutdown, nil
+}
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
@@ -92,6 +132,17 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	otelShutdown, err := setupOTel(context.Background())
+	if err != nil {
+		setupLog.Error(err, "unable to initialise OpenTelemetry")
+		os.Exit(1)
+	}
+	defer func() {
+		if err := otelShutdown(context.Background()); err != nil {
+			setupLog.Error(err, "failed to shut down OpenTelemetry")
+		}
+	}()
 
 	// if the enable-http2 flag is false (the default), http/2 should be disabled
 	// due to its vulnerabilities. More specifically, disabling http/2 will

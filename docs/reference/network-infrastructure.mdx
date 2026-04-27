@@ -23,6 +23,7 @@ spec:
       matchLabels:
         minefleet.dev/gameserver: "true"
   networkTemplate:
+    replicas: 2
     template:
       spec:
         containers:
@@ -60,12 +61,17 @@ Discovered services are written into `status.backendRefs` and made available to 
 
 ### `networkTemplate`
 
-An optional `DeploymentSpec` fragment applied via strategic merge patch to the default network proxy Deployment created for each listener.
+Optional. Customizes the Velocity proxy Deployment created for each gateway listener. Fields are merged into the controller-managed default.
 
-Use this to mount secrets and config maps, set resource requests, or configure tolerations.
+| Field | Type | Description |
+|---|---|---|
+| `replicas` | `*int32` | Number of network proxy replicas per listener. |
+| `template` | `PodTemplateSpec` | Pod template merged into the controller-managed default (containers, volumes, affinity, etc.). |
+| `strategy` | `DeploymentStrategy` | Deployment rollout strategy. |
 
 ```yaml
 networkTemplate:
+  replicas: 2
   template:
     spec:
       containers:
@@ -74,6 +80,15 @@ networkTemplate:
             requests:
               cpu: 100m
               memory: 256Mi
+          volumeMounts:
+            - mountPath: /velocity/forwarding.secret
+              subPath: forwarding.secret
+              name: forwarding-secret
+              readOnly: true
+      volumes:
+        - name: forwarding-secret
+          secret:
+            secretName: velocity-forwarding-secret
 ```
 
 The following fields are always managed by the controller and cannot be overridden:
@@ -87,15 +102,30 @@ Configures the Envoy edge proxy DaemonSet. **Only effective when set on a `Netwo
 
 | Field | Type | Description |
 |---|---|---|
-| `daemonSet` | `DaemonSetSpec` | Applied via strategic merge patch to the default edge DaemonSet. The selector labels and bootstrap volume/mount are always enforced. |
+| `daemonSet` | `EdgeDaemonSetTemplate` | Customizes the edge DaemonSet. The selector and bootstrap volume/mount are always enforced. |
 | `proxyProtocol` | `bool` | Enables PROXY protocol v2 on upstream clusters so game servers receive the real client IP. Default: `false`. |
 | `rejectUnknown` | `bool` | Drops connections whose hostname does not match any route. Default: `false` (unmatched connections pass through to a default cluster). |
+
+**`daemonSet` fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `template` | `PodTemplateSpec` | Pod template merged into the controller-managed DaemonSet default. |
+| `updateStrategy` | `DaemonSetUpdateStrategy` | DaemonSet rollout strategy. |
+| `minReadySeconds` | `int32` | Minimum seconds a pod must be ready before it is considered available. |
 
 ```yaml
 # In a GatewayClass-level NetworkInfrastructure
 edgeTemplate:
   proxyProtocol: true
   rejectUnknown: true
+  daemonSet:
+    minReadySeconds: 10
+    template:
+      spec:
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
 ```
 
 ## Status fields
