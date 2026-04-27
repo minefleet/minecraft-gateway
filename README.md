@@ -32,7 +32,7 @@ minecraft-gateway implements the [Kubernetes Gateway API](https://gateway-api.si
 ## Getting Started
 
 ### Prerequisites
-- go version v1.25.0+
+- go version v1.26.0+
 - docker version 17.03+.
 - kubectl version v1.11.3+.
 - Access to a Kubernetes v1.11.3+ cluster.
