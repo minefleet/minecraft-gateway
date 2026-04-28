@@ -46,6 +46,11 @@ public final class ManagedServer {
         return proto.hasCurrentPlayers() ? OptionalInt.of(proto.getCurrentPlayers()) : OptionalInt.empty();
     }
 
+    public boolean isFull() {
+        return maxPlayers().isPresent() && currentPlayers().isPresent()
+                && currentPlayers().getAsInt() >= maxPlayers().getAsInt();
+    }
+
     public Types.ManagedServer toProto() {
         return proto;
     }

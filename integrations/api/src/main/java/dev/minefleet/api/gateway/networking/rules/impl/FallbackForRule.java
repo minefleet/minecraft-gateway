@@ -13,7 +13,7 @@ public class FallbackForRule implements Rule {
 
     @Override
     public boolean evaluate(RuleContext context) {
-        var server = context.player().connectedServer().orElse(null);
+        var server = context.player().getConnectedServer().orElse(null);
         if (server == null) {
             return false;
         }

@@ -25,6 +25,6 @@ public class DomainRule implements Rule {
 
     @Override
     public boolean evaluate(RuleContext context) {
-        return pattern.matcher(context.player().connectedDomain()).matches();
+        return pattern.matcher(context.player().getConnectedDomain()).matches();
     }
 }

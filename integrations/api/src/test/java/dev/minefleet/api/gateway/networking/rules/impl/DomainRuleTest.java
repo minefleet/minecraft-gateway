@@ -18,7 +18,7 @@ class DomainRuleTest {
     @Mock dev.minefleet.api.gateway.networking.ManagedService service;
 
     private RuleContext ctx(String domain) {
-        when(player.connectedDomain()).thenReturn(domain);
+        when(player.getConnectedDomain()).thenReturn(domain);
         return new RuleContext(player, service);
     }
 

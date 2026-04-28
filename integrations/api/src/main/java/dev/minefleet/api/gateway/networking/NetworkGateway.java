@@ -2,6 +2,7 @@ package dev.minefleet.api.gateway.networking;
 
 import dev.minefleet.api.gateway.networking.player.KickReason;
 import dev.minefleet.api.gateway.networking.player.NetworkPlayer;
+import dev.minefleet.api.gateway.networking.player.PlayerProvider;
 import dev.minefleet.api.gateway.networking.route.NetworkRouter;
 import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshot;
 import dev.minefleet.api.gateway.networking.snapshot.NetworkSnapshotContext;
@@ -17,6 +18,8 @@ public class NetworkGateway {
 
     private volatile NetworkSnapshot currentSnapshot;
     private final NetworkSnapshotReconciler reconciler;
+    @SuppressWarnings("rawtypes")
+    private PlayerProvider playerProvider;
 
     private NetworkGateway(Builder builder) {
         this.reconciler = new NetworkSnapshotReconciler(
@@ -37,6 +40,27 @@ public class NetworkGateway {
         reconciler.stop();
     }
 
+    public NetworkSnapshot getCurrentSnapshot() {
+        return currentSnapshot;
+    }
+
+    public <P> void setPlayerProvider(Class<P> playerType, PlayerProvider<P> provider) {
+        this.playerProvider = player -> {
+            if (!playerType.isInstance(player)) {
+                throw new IllegalArgumentException("Player is not of type " + playerType.getName());
+            }
+            return provider.getPlayer(playerType.cast(player));
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    public NetworkPlayer getPlayer(Object runtimePlayer) {
+        if (playerProvider == null) {
+            throw new IllegalStateException("No player provider registered. Call setPlayerProvider() during initialization.");
+        }
+        return playerProvider.getPlayer(runtimePlayer);
+    }
+
     public void routeJoin(NetworkPlayer player) {
         if (currentSnapshot == null) { player.kick(KickReason.NO_JOIN); return; }
         new NetworkRouter(currentSnapshot).routeJoin(player);
@@ -45,6 +69,16 @@ public class NetworkGateway {
     public void routeFallback(NetworkPlayer player) {
         if (currentSnapshot == null) { player.kick(KickReason.NO_FALLBACK); return; }
         new NetworkRouter(currentSnapshot).routeFallback(player);
+    }
+
+    private static NetworkGateway INSTANCE = null;
+
+    public static void setInstance(NetworkGateway gateway) {
+        INSTANCE = gateway;
+    }
+
+    public static NetworkGateway getInstance() {
+        return INSTANCE;
     }
 
     public static Builder builder() {

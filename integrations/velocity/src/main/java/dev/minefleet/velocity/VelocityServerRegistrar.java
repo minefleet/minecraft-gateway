@@ -42,7 +42,8 @@ class VelocityServerRegistrar implements ServerRegistrar {
         }
     }
 
-    Optional<ManagedServer> findByName(String name) {
+    @Override
+    public Optional<ManagedServer> findByName(String name) {
         return Optional.ofNullable(servers.get(name));
     }
 }

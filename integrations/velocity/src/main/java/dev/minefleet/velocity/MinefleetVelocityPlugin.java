@@ -7,7 +7,7 @@ import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.plugin.Dependency;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.minefleet.api.BuildInfo;
 import dev.minefleet.api.gateway.networking.NetworkGateway;
@@ -40,6 +40,8 @@ public class MinefleetVelocityPlugin {
                 .registrar(registrar)
                 .build();
         gateway.start();
+        gateway.setPlayerProvider(Player.class, p -> VelocityNetworkPlayer.of(p, proxy, registrar));
+        NetworkGateway.setInstance(gateway);
         proxy.getAllServers().forEach(server -> {
             proxy.unregisterServer(server.getServerInfo());
         });
@@ -55,11 +57,11 @@ public class MinefleetVelocityPlugin {
 
     @Subscribe
     public void onPlayerChooseInitialServer(PlayerChooseInitialServerEvent event) {
-        gateway.routeJoin(VelocityNetworkPlayer.forInitial(event.getPlayer(), proxy, registrar, event));
+        gateway.routeJoin(VelocityNetworkPlayer.forInitialEvent(event.getPlayer(), proxy, registrar, event));
     }
 
     @Subscribe
     public void onKickedFromServer(KickedFromServerEvent event) {
-        gateway.routeFallback(VelocityNetworkPlayer.forKicked(event.getPlayer(), proxy, registrar, event));
+        gateway.routeFallback(VelocityNetworkPlayer.forKickedEvent(event.getPlayer(), proxy, registrar, event));
     }
 }

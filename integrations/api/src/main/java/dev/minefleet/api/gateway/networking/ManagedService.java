@@ -17,7 +17,9 @@ public final class ManagedService {
 
     public ManagedService(Types.ManagedService proto) {
         this.proto = proto;
-        this.availableServersAmount = proto.getServersCount();
+        this.availableServersAmount = (int) proto.getServersList().stream()
+                .filter(s -> !(s.hasMaxPlayers() && s.hasCurrentPlayers() && s.getCurrentPlayers() >= s.getMaxPlayers()))
+                .count();
         this.joinRoutes = proto.getRoutesList().stream()
                 .filter(Types.Route::getIsJoin)
                 .map(r -> new RouteEntry(r.getPriority(), new RuleSet(r.getRulesList())))

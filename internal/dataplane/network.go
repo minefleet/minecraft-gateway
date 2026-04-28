@@ -4,6 +4,8 @@ import (
 	"context"
 	"sync"
 
+	corev1 "k8s.io/api/core/v1"
+	discoveryv1 "k8s.io/api/discovery/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/topology"
@@ -42,11 +44,13 @@ func (d *NetworkDataplane) SyncGateway(tree *topology.GatewayTree) error {
 	infra := tree.Infrastructure
 	backends := tree.Backends
 
+	podAnnotations := collectPodAnnotations(d.ctx, d.c, backends)
+
 	d.mu.Lock()
 	d.snapshotCache[name] = make(map[string]network.ListenerSnapshot)
 	for _, lt := range tree.Listeners() {
 		listenerName := string(lt.Listener.GetName())
-		d.snapshotCache[name][listenerName] = network.BuildListenerSnapshot(name, lt, backends)
+		d.snapshotCache[name][listenerName] = network.BuildListenerSnapshot(name, lt, backends, podAnnotations)
 	}
 	snap := network.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()
@@ -70,6 +74,30 @@ func (d *NetworkDataplane) SyncGateway(tree *topology.GatewayTree) error {
 		listeners = append(listeners, lt.Listener)
 	}
 	return d.proxyMgr.Sync(d.ctx, name, listeners, infra)
+}
+
+func collectPodAnnotations(ctx context.Context, c client.Client, backends []discoveryv1.EndpointSlice) map[string]map[string]string {
+	result := make(map[string]map[string]string)
+	for _, slice := range backends {
+		for _, ep := range slice.Endpoints {
+			if ep.TargetRef == nil || ep.TargetRef.Kind != "Pod" || ep.TargetRef.Name == "" {
+				continue
+			}
+			key := ep.TargetRef.Namespace + "/" + ep.TargetRef.Name
+			if _, ok := result[key]; ok {
+				continue
+			}
+			var pod corev1.Pod
+			if err := c.Get(ctx, types.NamespacedName{
+				Namespace: ep.TargetRef.Namespace,
+				Name:      ep.TargetRef.Name,
+			}, &pod); err != nil {
+				continue
+			}
+			result[key] = pod.Annotations
+		}
+	}
+	return result
 }
 
 func (d *NetworkDataplane) DeleteGateway(name types.NamespacedName) error {
