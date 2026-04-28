@@ -2,6 +2,7 @@ package dev.minefleet.api.gateway.networking;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public interface ServerRegistrar {
 
@@ -32,5 +33,5 @@ public interface ServerRegistrar {
     }
 
     void unregister(ManagedServer server) throws ServerRegistrarException;
-
+    Optional<ManagedServer> findByName(String name);
 }

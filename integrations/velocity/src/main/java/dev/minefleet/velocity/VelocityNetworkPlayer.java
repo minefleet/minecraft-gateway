@@ -32,29 +32,35 @@ class VelocityNetworkPlayer implements NetworkPlayer {
         this.kickHandler = kickHandler;
     }
 
-    static VelocityNetworkPlayer forInitial(Player player, ProxyServer proxy, VelocityServerRegistrar registrar,
-                                            PlayerChooseInitialServerEvent event) {
+    static VelocityNetworkPlayer of(Player player, ProxyServer proxy, VelocityServerRegistrar registrar) {
+        return new VelocityNetworkPlayer(player, proxy, registrar,
+                server -> player.createConnectionRequest(server).connect(),
+                player::disconnect);
+    }
+
+    static VelocityNetworkPlayer forInitialEvent(Player player, ProxyServer proxy, VelocityServerRegistrar registrar,
+                                                 PlayerChooseInitialServerEvent event) {
         return new VelocityNetworkPlayer(player, proxy, registrar,
                 event::setInitialServer,
                 player::disconnect);
     }
 
-    static VelocityNetworkPlayer forKicked(Player player, ProxyServer proxy, VelocityServerRegistrar registrar,
-                                           KickedFromServerEvent event) {
+    static VelocityNetworkPlayer forKickedEvent(Player player, ProxyServer proxy, VelocityServerRegistrar registrar,
+                                                KickedFromServerEvent event) {
         return new VelocityNetworkPlayer(player, proxy, registrar,
                 server -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(server)),
                 message -> event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message)));
     }
 
     @Override
-    public String connectedDomain() {
+    public String getConnectedDomain() {
         return player.getVirtualHost()
                 .map(InetSocketAddress::getHostString)
                 .orElse("");
     }
 
     @Override
-    public Optional<ManagedServer> connectedServer() {
+    public Optional<ManagedServer> getConnectedServer() {
         return player.getCurrentServer()
                 .flatMap(conn -> registrar.findByName(conn.getServerInfo().getName()));
     }

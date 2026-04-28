@@ -32,19 +32,19 @@ class FallbackForRuleTest {
 
     @Test
     void trueWhenConnectedServerMatchesRef() {
-        when(player.connectedServer()).thenReturn(Optional.of(serverWithParent(REF)));
+        when(player.getConnectedServer()).thenReturn(Optional.of(serverWithParent(REF)));
         assertTrue(rule.evaluate(new RuleContext(player, service)));
     }
 
     @Test
     void falseWhenConnectedServerHasDifferentRef() {
-        when(player.connectedServer()).thenReturn(Optional.of(serverWithParent("default/survival")));
+        when(player.getConnectedServer()).thenReturn(Optional.of(serverWithParent("default/survival")));
         assertFalse(rule.evaluate(new RuleContext(player, service)));
     }
 
     @Test
     void falseWhenNoConnectedServer() {
-        when(player.connectedServer()).thenReturn(Optional.empty());
+        when(player.getConnectedServer()).thenReturn(Optional.empty());
         assertFalse(rule.evaluate(new RuleContext(player, service)));
     }
 }

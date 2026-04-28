@@ -5,9 +5,9 @@ import dev.minefleet.api.gateway.networking.ManagedServer;
 import java.util.Optional;
 
 public interface NetworkPlayer {
-    String connectedDomain();
+    String getConnectedDomain();
 
-    Optional<ManagedServer> connectedServer();
+    Optional<ManagedServer> getConnectedServer();
 
     boolean hasPermission(String permission);
 

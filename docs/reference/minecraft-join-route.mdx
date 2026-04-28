@@ -86,7 +86,9 @@ The game server backends to forward matching connections to.
 | Value | Description |
 |---|---|
 | `random` | Pick a backend instance at random. |
-| `least-players` | Forward to the instance with the fewest current players. |
+| `least-players` | Forward to the instance with the fewest current players. Requires the `gateway.networking.minefleet.dev/current-players` and `gateway.networking.minefleet.dev/max-players` pod annotations to be set. |
+
+Regardless of strategy, full servers (where `current-players >= max-players`) are always excluded from selection. If all servers in a service are full, the service is treated as unavailable. See [Server Capacity](/guides/server-capacity).
 
 ### `filterRules`
 

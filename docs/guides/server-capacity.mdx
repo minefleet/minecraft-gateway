@@ -1,0 +1,121 @@
+---
+title: Server Capacity
+description: How minecraft-gateway tracks live player counts and excludes full servers from routing.
+---
+
+minecraft-gateway can track how many players are connected to each game server pod and use that data to:
+
+- **Exclude full servers from routing** — pods at or above their configured maximum are never selected as a routing target, regardless of distribution strategy.
+- **Power `least-players` distribution** — the network proxy picks the non-full server with the fewest current players.
+
+## How it works
+
+Player counts are read from **pod annotations** set on game server pods. The controller watches for annotation changes and rebuilds the routing snapshot immediately when they change.
+
+Two annotations work together as a pair:
+
+| Annotation | Description |
+|---|---|
+| `gateway.networking.minefleet.dev/current-players` | Number of players currently connected to this pod. |
+| `gateway.networking.minefleet.dev/max-players` | Maximum number of players this pod should accept. |
+
+**Both annotations must be present** for capacity tracking to activate. If either annotation is missing or cannot be parsed as a non-negative integer, both are ignored and the pod behaves as it did before — always routable, with no capacity limit.
+
+## Setting the annotations
+
+The annotations can be written by any process with Kubernetes API access to pods — a game server controller, a sidecar, or in-process code inside the game server itself. The gateway does not care who sets them.
+
+### From a controller or operator
+
+If you are running [Agones](https://agones.dev) via minecraft-fleet, player counts from `GameServer.status.players` are automatically synced to pod annotations. No additional configuration is required.
+
+For any other operator, add code to patch the pod annotations whenever player counts change.
+
+### From inside the game server
+
+Use the [Kubernetes Downward API](https://kubernetes.io/docs/concepts/workloads/pods/downward-api/) to expose the pod name and namespace to the game server process, then patch the annotations via the Kubernetes API.
+
+```yaml
+env:
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+```
+
+Update the annotations whenever a player joins or leaves:
+
+```bash
+kubectl annotate pod "$POD_NAME" -n "$POD_NAMESPACE" \
+  gateway.networking.minefleet.dev/current-players="42" \
+  gateway.networking.minefleet.dev/max-players="100" \
+  --overwrite
+```
+
+### From a sidecar
+
+A sidecar container can poll the game server's status API (RCON, HTTP health endpoint, etc.) and patch pod annotations on its behalf.
+
+### Example pod annotations
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: survival-abc123
+  annotations:
+    gateway.networking.minefleet.dev/current-players: "42"
+    gateway.networking.minefleet.dev/max-players: "100"
+```
+
+## Routing behaviour
+
+### Full-server exclusion
+
+A server is **full** when `current-players >= max-players`. Full servers are excluded from routing in two stages:
+
+1. **Service availability** — the gateway counts only non-full pods when deciding whether a service has any available capacity. If all pods in a service are full, the service is skipped entirely — its routes do not match, and fallback rules for that service are also skipped.
+2. **Server selection** — when picking a specific pod within a matched service, only non-full pods are candidates. Full pods are never chosen regardless of distribution strategy.
+
+If a player cannot be routed because every candidate server is full, they receive the same kick message as if no server were available.
+
+### Least-players distribution
+
+When `distributionStrategy.type` is `least-players`, the network proxy selects the non-full pod with the lowest `current-players` value. Pods without annotations are not excluded but, lacking player count data, are only chosen if no annotated pods are available (they act as a fallback within the selection).
+
+To enable accurate `least-players` routing, set both annotations on every pod in the service. A pod with only one annotation set is treated as having no capacity data.
+
+### No annotations (default behaviour)
+
+Pods without both annotations are always routable with no capacity limit. Existing deployments that do not set these annotations behave exactly as before.
+
+## Reconciliation
+
+The controller watches pod annotation changes directly. When `gateway.networking.minefleet.dev/current-players` or `gateway.networking.minefleet.dev/max-players` changes on a pod that belongs to a routed service, the gateway reconciles immediately — there is no polling delay.
+
+The pod must belong to a Service that is referenced (directly or via discovery) by a route attached to a Gateway. Annotation changes on unrelated pods are ignored.
+
+## Querying player state from other plugins
+
+If you are writing a plugin that runs on the same network proxy as the gateway integration, you can look up a player's current `ManagedServer` through the `NetworkGateway` singleton without needing to re-implement the routing logic:
+
+```java
+import dev.minefleet.api.gateway.networking.NetworkGateway;
+
+// velocityPlayer is the platform's player object (e.g. com.velocitypowered.api.proxy.Player)
+var networkPlayer = NetworkGateway.getInstance().getPlayer(velocityPlayer);
+var connectedServer = networkPlayer.getConnectedServer(); // Optional<ManagedServer>
+
+connectedServer.ifPresent(server -> {
+    int current = server.currentPlayers().orElse(0);
+    int max = server.maxPlayers().orElse(-1);
+});
+```
+
+`getPlayer` wraps the platform player in a `NetworkPlayer` backed by the gateway's registrar. The returned `NetworkPlayer` also exposes `connectToServer(ManagedServer)` and `kick(KickReason)`, so you can route or kick the player from any plugin context.
+
+The `PlayerProvider` that backs `getPlayer` is registered by the gateway plugin at startup. It is available immediately after the gateway plugin initialises. No additional setup is required from consuming plugins.

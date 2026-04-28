@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"strconv"
 	"sync/atomic"
 
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -11,6 +12,11 @@ import (
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/topology"
+)
+
+const (
+	AnnotationCurrentPlayers = "gateway.networking.minefleet.dev/current-players"
+	AnnotationMaxPlayers     = "gateway.networking.minefleet.dev/max-players"
 )
 
 const labelServiceName = "kubernetes.io/service-name"
@@ -56,7 +62,7 @@ func (s *Snapshot) Get(namespace, name, listener string) *ListenerSnapshot {
 type GatewaySnapshotCache = map[types.NamespacedName]map[string]ListenerSnapshot
 
 // BuildListenerSnapshot constructs a ListenerSnapshot for one gateway listener.
-func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTree, backends []discoveryv1.EndpointSlice) ListenerSnapshot {
+func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTree, backends []discoveryv1.EndpointSlice, podAnnotations map[string]map[string]string) ListenerSnapshot {
 	listener := lt.Listener
 	routes := lt.Routes()
 	// Index EndpointSlices by service key (namespace/name).
@@ -82,7 +88,7 @@ func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTre
 			Namespace:            svcNS,
 			Name:                 svcName,
 			DistributionStrategy: toProtoDistStrategy(strategy),
-			Servers:              buildServers(slicesByService[key]),
+			Servers:              buildServers(slicesByService[key], podAnnotations),
 		}
 		serviceMap[key] = svc
 		return svc
@@ -153,7 +159,7 @@ func BuildSnapshot(cache GatewaySnapshotCache) Snapshot {
 	return s
 }
 
-func buildServers(slices []discoveryv1.EndpointSlice) []*apiv1alpha1.ManagedServer {
+func buildServers(slices []discoveryv1.EndpointSlice, podAnnotations map[string]map[string]string) []*apiv1alpha1.ManagedServer {
 	var servers []*apiv1alpha1.ManagedServer
 	for _, slice := range slices {
 		var port uint32
@@ -167,16 +173,34 @@ func buildServers(slices []discoveryv1.EndpointSlice) []*apiv1alpha1.ManagedServ
 			ip := ep.Addresses[0]
 			name := ip
 			uniqueID := ip
+			var podKey string
 			if ep.TargetRef != nil && ep.TargetRef.Name != "" {
 				name = ep.TargetRef.Name
 				uniqueID = ep.TargetRef.Namespace + "-" + ep.TargetRef.Name
+				podKey = ep.TargetRef.Namespace + "/" + ep.TargetRef.Name
 			}
-			servers = append(servers, &apiv1alpha1.ManagedServer{
+			server := &apiv1alpha1.ManagedServer{
 				UniqueId: uniqueID,
 				Name:     name,
 				Ip:       ip,
 				Port:     port,
-			})
+			}
+			if podKey != "" {
+				if ann, ok := podAnnotations[podKey]; ok {
+					currentStr, hasCurrent := ann[AnnotationCurrentPlayers]
+					maxStr, hasMax := ann[AnnotationMaxPlayers]
+					if hasCurrent && hasMax {
+						current, err1 := strconv.ParseUint(currentStr, 10, 32)
+						max, err2 := strconv.ParseUint(maxStr, 10, 32)
+						if err1 == nil && err2 == nil {
+							c, m := uint32(current), uint32(max)
+							server.CurrentPlayers = &c
+							server.MaxPlayers = &m
+						}
+					}
+				}
+			}
+			servers = append(servers, server)
 		}
 	}
 	return servers

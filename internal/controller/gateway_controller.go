@@ -27,11 +27,13 @@ import (
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/dataplane"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
+	networkdp "minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/gateway"
 	mfdiscovery "minefleet.dev/minecraft-gateway/internal/infrastructure"
 	"minefleet.dev/minecraft-gateway/internal/route"
 	"minefleet.dev/minecraft-gateway/internal/topology"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -406,6 +408,41 @@ func (r *GatewayReconciler) mapEdgePod(ctx context.Context, _ client.Object) []r
 	return reqs
 }
 
+// mapBackendPod maps a backend pod to the gateways that route traffic to it,
+// by finding EndpointSlices in the pod's namespace that reference it and
+// delegating to mapEndpoints for each.
+func (r *GatewayReconciler) mapBackendPod(ctx context.Context, obj client.Object) []reconcile.Request {
+	pod := obj.(*corev1.Pod)
+
+	var slices discoveryv1.EndpointSliceList
+	if err := r.List(ctx, &slices, client.InNamespace(pod.Namespace)); err != nil {
+		return nil
+	}
+
+	seen := make(map[types.NamespacedName]struct{})
+	var result []reconcile.Request
+
+	for i := range slices.Items {
+		slice := &slices.Items[i]
+		for _, ep := range slice.Endpoints {
+			if ep.TargetRef == nil || ep.TargetRef.Kind != "Pod" {
+				continue
+			}
+			if ep.TargetRef.Name != pod.Name || ep.TargetRef.Namespace != pod.Namespace {
+				continue
+			}
+			for _, req := range r.mapEndpoints(ctx, slice) {
+				if _, ok := seen[req.NamespacedName]; !ok {
+					seen[req.NamespacedName] = struct{}{}
+					result = append(result, req)
+				}
+			}
+			break
+		}
+	}
+	return result
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	r.tracer = otel.Tracer("minefleet.dev/minecraft-gateway")
@@ -440,6 +477,18 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return true
 	})
 
+	backendPodPredicate := predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			oldAnn := e.ObjectOld.GetAnnotations()
+			newAnn := e.ObjectNew.GetAnnotations()
+			return oldAnn[networkdp.AnnotationCurrentPlayers] != newAnn[networkdp.AnnotationCurrentPlayers] ||
+				oldAnn[networkdp.AnnotationMaxPlayers] != newAnn[networkdp.AnnotationMaxPlayers]
+		},
+		CreateFunc:  func(event.CreateEvent) bool { return false },
+		DeleteFunc:  func(event.DeleteEvent) bool { return false },
+		GenericFunc: func(event.GenericEvent) bool { return false },
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&gatewayv1.Gateway{}).
 		Named("gateway").
@@ -449,5 +498,6 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Watches(&mcgatewayv1alpha1.MinecraftJoinRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&mcgatewayv1alpha1.MinecraftFallbackRoute{}, handler.EnqueueRequestsFromMapFunc(r.mapRoute)).
 		Watches(&corev1.Pod{}, handler.EnqueueRequestsFromMapFunc(r.mapEdgePod), builder.WithPredicates(edgePodPredicate)).
+		Watches(&corev1.Pod{}, handler.EnqueueRequestsFromMapFunc(r.mapBackendPod), builder.WithPredicates(backendPodPredicate)).
 		Complete(r)
 }

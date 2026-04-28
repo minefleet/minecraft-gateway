@@ -57,12 +57,14 @@ public class NetworkRouter {
     private ManagedServer getRouteTarget(ManagedService service) {
         var servers = snapshot.services().get(service);
         if (servers == null || servers.isEmpty()) return null;
+        var available = servers.stream().filter(s -> !s.isFull()).toList();
+        if (available.isEmpty()) return null;
         return switch (service.distributionStrategy()) {
-            case RANDOM -> servers.get(new Random().nextInt(servers.size()));
-            case LEAST_PLAYERS -> servers.stream()
+            case RANDOM -> available.get(new Random().nextInt(available.size()));
+            case LEAST_PLAYERS -> available.stream()
                     .filter(s -> s.currentPlayers().isPresent())
                     .min(Comparator.comparingInt(s -> s.currentPlayers().getAsInt()))
-                    .orElseGet(servers::getFirst);
+                    .orElseGet(available::getFirst);
             default -> null;
         };
     }
