@@ -76,7 +76,3 @@ type MinecraftJoinRouteList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []MinecraftJoinRoute `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&MinecraftJoinRoute{}, &MinecraftJoinRouteList{})
-}
