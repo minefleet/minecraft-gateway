@@ -1,7 +1,7 @@
 [versions]
 # Networking
 protobuf = "4.34.1"
-grpc = "1.80.0"
+grpc = "1.81.0"
 
 # Integration Platform APIs
 velocity-api = "3.5.0-SNAPSHOT"

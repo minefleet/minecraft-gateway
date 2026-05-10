@@ -11,7 +11,7 @@ ARG VERSION=3.5.0-SNAPSHOT
 RUN curl -fSL -o /velocity.jar "$(PROJECT=velocity VERSION=${VERSION} sh /tools/latest_build_url.sh)"
 
 
-FROM eclipse-temurin:25.0.2_10-jre-alpine
+FROM eclipse-temurin:25.0.3_9-jre-alpine
 
 WORKDIR /velocity
 COPY --from=build /velocity.jar ./velocity.jar

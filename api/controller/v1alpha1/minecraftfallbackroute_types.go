@@ -76,7 +76,3 @@ type MinecraftFallbackRouteList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []MinecraftFallbackRoute `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&MinecraftFallbackRoute{}, &MinecraftFallbackRouteList{})
-}
