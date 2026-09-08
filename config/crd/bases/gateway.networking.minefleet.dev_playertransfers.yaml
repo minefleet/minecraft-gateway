@@ -14,7 +14,14 @@ spec:
     singular: playertransfer
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: PlayerTransfer is the Schema for the playertransfers API
@@ -37,32 +44,42 @@ spec:
           metadata:
             type: object
           spec:
-            description: spec defines the desired state of PlayerTransfer
+            description: |-
+              spec defines the desired state of PlayerTransfer. It is immutable: create a
+              new PlayerTransfer instead of retargeting one in flight.
             properties:
               gatewayName:
+                description: gatewayName is the name of the Gateway whose proxies
+                  hold the players.
                 type: string
               listenerName:
+                description: listenerName is the Gateway listener (section name) the
+                  players are connected to.
                 type: string
               players:
+                description: players lists the player UUIDs to transfer.
                 items:
-                  properties:
-                    inline:
-                      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
-                      type: string
-                  required:
-                  - inline
-                  type: object
+                  description: PlayerUUID is the Minecraft player UUID in canonical
+                    dashed form.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  type: string
                 minItems: 1
                 type: array
               policy:
+                default: AllOrNothing
+                description: policy controls whether the transfer waits for all players
+                  to be present.
+                enum:
+                - AllOrNothing
+                - BestEffort
                 type: string
               target:
+                description: target selects where the players are moved to.
                 properties:
                   labelSelector:
                     description: |-
-                      A label selector is a label query over a set of resources. The result of matchLabels and
-                      matchExpressions are ANDed. An empty label selector matches all objects. A null
-                      label selector matches no objects.
+                      labelSelector picks a single server matching the selector, using the
+                      backend's distribution strategy. All players are moved to that one server.
                     properties:
                       matchExpressions:
                         description: matchExpressions is a list of label selector
@@ -108,21 +125,84 @@ spec:
                     type: object
                     x-kubernetes-map-type: atomic
                   routeMode:
+                    description: |-
+                      routeMode evaluates the gateway's join or fallback routes individually per
+                      player, so players may land on different servers.
+                    enum:
+                    - join
+                    - fallback
                     type: string
                   serverName:
+                    description: |-
+                      serverName names an already registered server (pod name) explicitly. The
+                      controller does not resolve connection details for this mode.
                     type: string
                 type: object
+                x-kubernetes-validations:
+                - message: exactly one of routeMode, labelSelector or serverName must
+                    be set
+                  rule: '[has(self.routeMode), has(self.labelSelector), has(self.serverName)].filter(x,
+                    x).size() == 1'
               ttl:
+                description: |-
+                  ttl bounds how long the transfer waits for players to become present.
+                  Omit to wait indefinitely.
                 type: string
             required:
             - gatewayName
             - listenerName
             - players
-            - policy
             - target
             type: object
+            x-kubernetes-validations:
+            - message: spec is immutable
+              rule: self == oldSelf
           status:
             description: status defines the observed state of PlayerTransfer
+            properties:
+              assignments:
+                description: assignments holds the per-player outcome.
+                items:
+                  description: PlayerTransferAssignment records the outcome for a
+                    single player.
+                  properties:
+                    assignedServer:
+                      description: assignedServer is the server the player was moved
+                        to, once resolved.
+                      type: string
+                    phase:
+                      description: phase is the state of this player's move.
+                      enum:
+                      - Pending
+                      - Moving
+                      - Completed
+                      - Failed
+                      type: string
+                    playerUUID:
+                      description: playerUUID is the player this assignment belongs
+                        to.
+                      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      type: string
+                    reason:
+                      description: reason explains a failed assignment.
+                      type: string
+                  required:
+                  - phase
+                  - playerUUID
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - playerUUID
+                x-kubernetes-list-type: map
+              phase:
+                description: phase is the aggregate state of the transfer.
+                enum:
+                - Pending
+                - Completed
+                - PartiallyCompleted
+                - Failed
+                - Expired
+                type: string
             type: object
         required:
         - spec

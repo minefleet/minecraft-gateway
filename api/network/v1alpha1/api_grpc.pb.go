@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	NetworkXDS_GetSnapshot_FullMethodName = "/network.v1alpha1.NetworkXDS/GetSnapshot"
+	NetworkXDS_Connect_FullMethodName     = "/network.v1alpha1.NetworkXDS/Connect"
 )
 
 // NetworkXDSClient is the client API for NetworkXDS service.
@@ -27,6 +28,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NetworkXDSClient interface {
 	GetSnapshot(ctx context.Context, in *GetSnapshotRequest, opts ...grpc.CallOption) (*GetSnapshotResponse, error)
+	// Connect is the persistent bidirectional stream between a proxy and the
+	// controller. It replaces snapshot polling: the controller pushes server
+	// registrations and routing decisions, the proxy reports player presence.
+	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ProxyMessage, ControllerMessage], error)
 }
 
 type networkXDSClient struct {
@@ -47,11 +52,28 @@ func (c *networkXDSClient) GetSnapshot(ctx context.Context, in *GetSnapshotReque
 	return out, nil
 }
 
+func (c *networkXDSClient) Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ProxyMessage, ControllerMessage], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &NetworkXDS_ServiceDesc.Streams[0], NetworkXDS_Connect_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ProxyMessage, ControllerMessage]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NetworkXDS_ConnectClient = grpc.BidiStreamingClient[ProxyMessage, ControllerMessage]
+
 // NetworkXDSServer is the server API for NetworkXDS service.
 // All implementations must embed UnimplementedNetworkXDSServer
 // for forward compatibility.
 type NetworkXDSServer interface {
 	GetSnapshot(context.Context, *GetSnapshotRequest) (*GetSnapshotResponse, error)
+	// Connect is the persistent bidirectional stream between a proxy and the
+	// controller. It replaces snapshot polling: the controller pushes server
+	// registrations and routing decisions, the proxy reports player presence.
+	Connect(grpc.BidiStreamingServer[ProxyMessage, ControllerMessage]) error
 	mustEmbedUnimplementedNetworkXDSServer()
 }
 
@@ -64,6 +86,9 @@ type UnimplementedNetworkXDSServer struct{}
 
 func (UnimplementedNetworkXDSServer) GetSnapshot(context.Context, *GetSnapshotRequest) (*GetSnapshotResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSnapshot not implemented")
+}
+func (UnimplementedNetworkXDSServer) Connect(grpc.BidiStreamingServer[ProxyMessage, ControllerMessage]) error {
+	return status.Error(codes.Unimplemented, "method Connect not implemented")
 }
 func (UnimplementedNetworkXDSServer) mustEmbedUnimplementedNetworkXDSServer() {}
 func (UnimplementedNetworkXDSServer) testEmbeddedByValue()                    {}
@@ -104,6 +129,13 @@ func _NetworkXDS_GetSnapshot_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetworkXDS_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(NetworkXDSServer).Connect(&grpc.GenericServerStream[ProxyMessage, ControllerMessage]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NetworkXDS_ConnectServer = grpc.BidiStreamingServer[ProxyMessage, ControllerMessage]
+
 // NetworkXDS_ServiceDesc is the grpc.ServiceDesc for NetworkXDS service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +146,199 @@ var NetworkXDS_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSnapshot",
 			Handler:    _NetworkXDS_GetSnapshot_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Connect",
+			Handler:       _NetworkXDS_Connect_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "network/v1alpha1/api.proto",
+}
+
+const (
+	NetworkGateway_GetConnection_FullMethodName        = "/network.v1alpha1.NetworkGateway/GetConnection"
+	NetworkGateway_GetPlayersForServer_FullMethodName  = "/network.v1alpha1.NetworkGateway/GetPlayersForServer"
+	NetworkGateway_GetPlayersForService_FullMethodName = "/network.v1alpha1.NetworkGateway/GetPlayersForService"
+)
+
+// NetworkGatewayClient is the client API for NetworkGateway service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// NetworkGateway lets external components (queues, matchmakers, gameserver
+// orchestrators) query where players currently are, without maintaining a
+// stream connection of their own.
+type NetworkGatewayClient interface {
+	GetConnection(ctx context.Context, in *GetConnectionRequest, opts ...grpc.CallOption) (*GetConnectionResponse, error)
+	GetPlayersForServer(ctx context.Context, in *GetPlayersForServerRequest, opts ...grpc.CallOption) (*GetPlayersForServerResponse, error)
+	GetPlayersForService(ctx context.Context, in *GetPlayersForServiceRequest, opts ...grpc.CallOption) (*GetPlayersForServiceResponse, error)
+}
+
+type networkGatewayClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewNetworkGatewayClient(cc grpc.ClientConnInterface) NetworkGatewayClient {
+	return &networkGatewayClient{cc}
+}
+
+func (c *networkGatewayClient) GetConnection(ctx context.Context, in *GetConnectionRequest, opts ...grpc.CallOption) (*GetConnectionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetConnectionResponse)
+	err := c.cc.Invoke(ctx, NetworkGateway_GetConnection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkGatewayClient) GetPlayersForServer(ctx context.Context, in *GetPlayersForServerRequest, opts ...grpc.CallOption) (*GetPlayersForServerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPlayersForServerResponse)
+	err := c.cc.Invoke(ctx, NetworkGateway_GetPlayersForServer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkGatewayClient) GetPlayersForService(ctx context.Context, in *GetPlayersForServiceRequest, opts ...grpc.CallOption) (*GetPlayersForServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPlayersForServiceResponse)
+	err := c.cc.Invoke(ctx, NetworkGateway_GetPlayersForService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// NetworkGatewayServer is the server API for NetworkGateway service.
+// All implementations must embed UnimplementedNetworkGatewayServer
+// for forward compatibility.
+//
+// NetworkGateway lets external components (queues, matchmakers, gameserver
+// orchestrators) query where players currently are, without maintaining a
+// stream connection of their own.
+type NetworkGatewayServer interface {
+	GetConnection(context.Context, *GetConnectionRequest) (*GetConnectionResponse, error)
+	GetPlayersForServer(context.Context, *GetPlayersForServerRequest) (*GetPlayersForServerResponse, error)
+	GetPlayersForService(context.Context, *GetPlayersForServiceRequest) (*GetPlayersForServiceResponse, error)
+	mustEmbedUnimplementedNetworkGatewayServer()
+}
+
+// UnimplementedNetworkGatewayServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedNetworkGatewayServer struct{}
+
+func (UnimplementedNetworkGatewayServer) GetConnection(context.Context, *GetConnectionRequest) (*GetConnectionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetConnection not implemented")
+}
+func (UnimplementedNetworkGatewayServer) GetPlayersForServer(context.Context, *GetPlayersForServerRequest) (*GetPlayersForServerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPlayersForServer not implemented")
+}
+func (UnimplementedNetworkGatewayServer) GetPlayersForService(context.Context, *GetPlayersForServiceRequest) (*GetPlayersForServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPlayersForService not implemented")
+}
+func (UnimplementedNetworkGatewayServer) mustEmbedUnimplementedNetworkGatewayServer() {}
+func (UnimplementedNetworkGatewayServer) testEmbeddedByValue()                        {}
+
+// UnsafeNetworkGatewayServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to NetworkGatewayServer will
+// result in compilation errors.
+type UnsafeNetworkGatewayServer interface {
+	mustEmbedUnimplementedNetworkGatewayServer()
+}
+
+func RegisterNetworkGatewayServer(s grpc.ServiceRegistrar, srv NetworkGatewayServer) {
+	// If the following call panics, it indicates UnimplementedNetworkGatewayServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&NetworkGateway_ServiceDesc, srv)
+}
+
+func _NetworkGateway_GetConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConnectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkGatewayServer).GetConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkGateway_GetConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkGatewayServer).GetConnection(ctx, req.(*GetConnectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkGateway_GetPlayersForServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPlayersForServerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkGatewayServer).GetPlayersForServer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkGateway_GetPlayersForServer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkGatewayServer).GetPlayersForServer(ctx, req.(*GetPlayersForServerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkGateway_GetPlayersForService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPlayersForServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkGatewayServer).GetPlayersForService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkGateway_GetPlayersForService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkGatewayServer).GetPlayersForService(ctx, req.(*GetPlayersForServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// NetworkGateway_ServiceDesc is the grpc.ServiceDesc for NetworkGateway service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var NetworkGateway_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "network.v1alpha1.NetworkGateway",
+	HandlerType: (*NetworkGatewayServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetConnection",
+			Handler:    _NetworkGateway_GetConnection_Handler,
+		},
+		{
+			MethodName: "GetPlayersForServer",
+			Handler:    _NetworkGateway_GetPlayersForServer_Handler,
+		},
+		{
+			MethodName: "GetPlayersForService",
+			Handler:    _NetworkGateway_GetPlayersForService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

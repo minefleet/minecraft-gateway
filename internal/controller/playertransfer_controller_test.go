@@ -23,6 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	gatewaynetworkingv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
@@ -50,7 +51,14 @@ var _ = Describe("PlayerTransfer Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: gatewaynetworkingv1alpha1.PlayerTransferSpec{
+						GatewayName:  "test-gateway",
+						ListenerName: "minecraft",
+						Players:      []gatewaynetworkingv1alpha1.PlayerUUID{"6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f"},
+						Target: gatewaynetworkingv1alpha1.PlayerTransferTarget{
+							ServerName: ptr.To("lobby-0"),
+						},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

@@ -17,6 +17,172 @@ message GetSnapshotResponse {
   Snapshot snapshot = 1;
 }
 
+// PlayerContext carries the proxy-side knowledge the controller needs to
+// evaluate routing rules for a player. Permissions are pre-evaluated by the
+// proxy against the required_permissions set most recently pushed in ServerSync.
+message PlayerContext {
+  string connected_domain = 1;
+  map<string, bool> permissions = 2;
+}
+
+// ProxyHello is the mandatory first message on a Connect stream. It identifies
+// the proxy and the gateway listener it serves.
+message ProxyHello {
+  string proxy_id = 1;
+  string gateway_namespace = 2;
+  string gateway_name = 3;
+  string listener_name = 4;
+}
+
+message PresenceEntry {
+  string player_uuid = 1;
+  string server_name = 2;
+  PlayerContext context = 3;
+}
+
+// PresenceSnapshot replays every player currently connected to the proxy. It is
+// sent immediately after ProxyHello so the controller can rebuild its presence
+// map after a restart or leader failover.
+message PresenceSnapshot {
+  repeated PresenceEntry players = 1;
+}
+
+enum RouteKind {
+  ROUTE_KIND_JOIN = 0;
+  ROUTE_KIND_FALLBACK = 1;
+}
+
+// RouteRequest asks the controller to pick a server for a player. The proxy
+// blocks the join or fallback until the matching RouteResponse arrives.
+message RouteRequest {
+  string correlation_id = 1;
+  string player_uuid = 2;
+  RouteKind kind = 3;
+  PlayerContext context = 4;
+  optional string current_server_name = 5;
+}
+
+message RouteResponse {
+  enum Result {
+    RESULT_OK = 0;
+    RESULT_NO_ROUTE = 1;
+    RESULT_REJECTED = 2;
+  }
+  string correlation_id = 1;
+  Result result = 2;
+  string server_name = 3;
+}
+
+// PlayerPresenceEvent reports a player connecting to or disconnecting from a
+// backend server, keeping the controller's presence map current in real time.
+message PlayerPresenceEvent {
+  enum Kind {
+    KIND_CONNECTED = 0;
+    KIND_DISCONNECTED = 1;
+  }
+  string player_uuid = 1;
+  string server_name = 2;
+  Kind kind = 3;
+  PlayerContext context = 4;
+}
+
+// ServerPlayerCounts is reported periodically to reconcile drift between the
+// proxy's view of player counts and the controller's presence map.
+message ServerPlayerCounts {
+  map<string, uint32> counts_by_server = 1;
+}
+
+// ServerSync is the full set of servers the proxy should have registered, plus
+// the permissions it must evaluate for every RouteRequest and presence event.
+message ServerSync {
+  repeated ManagedServer servers = 1;
+  repeated string required_permissions = 2;
+}
+
+// MoveCommand instructs the proxy to move one player, on behalf of a
+// PlayerTransfer resource. command_id encodes the originating resource and
+// player as "<namespace>/<name>#<playerUUID>#<attempt>".
+message MoveCommand {
+  string command_id = 1;
+  string player_uuid = 2;
+  string server_name = 3;
+}
+
+message MoveResult {
+  string command_id = 1;
+  bool success = 2;
+  string reason = 3;
+}
+
+// ProxyMessage is anything a proxy sends to the controller.
+message ProxyMessage {
+  oneof message {
+    ProxyHello hello = 1;
+    PresenceSnapshot presence_snapshot = 2;
+    RouteRequest route_request = 3;
+    PlayerPresenceEvent presence_event = 4;
+    ServerPlayerCounts player_counts = 5;
+    MoveResult move_result = 6;
+  }
+}
+
+// ControllerMessage is anything the controller sends to a proxy.
+message ControllerMessage {
+  oneof message {
+    ServerSync server_sync = 1;
+    RouteResponse route_response = 2;
+    MoveCommand move = 3;
+  }
+}
+
 service NetworkXDS {
   rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse);
+
+  // Connect is the persistent bidirectional stream between a proxy and the
+  // controller. It replaces snapshot polling: the controller pushes server
+  // registrations and routing decisions, the proxy reports player presence.
+  rpc Connect(stream ProxyMessage) returns (stream ControllerMessage);
+}
+
+message PlayerConnection {
+  string player_uuid = 1;
+  string proxy_id = 2;
+  string server_name = 3;
+  string gateway_namespace = 4;
+  string gateway_name = 5;
+  string listener_name = 6;
+}
+
+message GetConnectionRequest {
+  string player_uuid = 1;
+}
+
+message GetConnectionResponse {
+  optional PlayerConnection connection = 1;
+}
+
+message GetPlayersForServerRequest {
+  string server_name = 1;
+}
+
+message GetPlayersForServerResponse {
+  repeated PlayerConnection connections = 1;
+}
+
+message GetPlayersForServiceRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message GetPlayersForServiceResponse {
+  repeated PlayerConnection connections = 1;
+}
+
+// NetworkGateway lets external components (queues, matchmakers, gameserver
+// orchestrators) query where players currently are, without maintaining a
+// stream connection of their own.
+service NetworkGateway {
+  rpc GetConnection(GetConnectionRequest) returns (GetConnectionResponse);
+  rpc GetPlayersForServer(GetPlayersForServerRequest) returns (GetPlayersForServerResponse);
+  rpc GetPlayersForService(GetPlayersForServiceRequest) returns (GetPlayersForServiceResponse);
 }

@@ -6,4 +6,12 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: playertransfer-sample
 spec:
-  # TODO(user): Add fields here
+  gatewayName: minecraft-gateway
+  listenerName: minecraft
+  players:
+    - 6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f
+    - 9d2c8a10-77b3-4a1e-8f0c-2b3d4e5f6a7b
+  target:
+    serverName: lobby-0
+  policy: AllOrNothing
+  ttl: 30s
