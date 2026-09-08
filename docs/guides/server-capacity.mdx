@@ -10,7 +10,7 @@ minecraft-gateway can track how many players are connected to each game server p
 
 ## How it works
 
-Player counts are read from **pod annotations** set on game server pods. The controller watches for annotation changes and rebuilds the routing snapshot immediately when they change.
+Player counts are read from **pod annotations** set on game server pods. The controller watches for annotation changes and rebuilds routing configuration immediately when they change.
 
 Two annotations work together as a pair:
 

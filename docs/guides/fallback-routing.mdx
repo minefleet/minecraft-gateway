@@ -12,7 +12,7 @@ The network proxy activates a fallback route when:
 - The primary backend server is offline (connection refused / timeout).
 - The primary server is full (player count at maximum).
 
-The network proxy evaluates `MinecraftFallbackRoute` rules in `priority` order after it finds the primary `MinecraftJoinRoute` backend unavailable.
+The controller evaluates `MinecraftFallbackRoute` rules in `priority` order when a player cannot reach their primary `MinecraftJoinRoute` backend.
 
 ## Basic fallback route
 
@@ -40,7 +40,7 @@ spec:
 
 ## Using `fallbackFor` to target specific services
 
-The `fallbackFor` field selects which services this fallback applies to using a label selector, without hardcoding service names. The controller resolves the selector against EndpointSlice labels at snapshot build time.
+The `fallbackFor` field selects which services this fallback applies to using a label selector, without hardcoding service names. The controller resolves the selector against EndpointSlice labels when it builds routing configuration.
 
 ```yaml
 filterRules:

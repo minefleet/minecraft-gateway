@@ -45,11 +45,15 @@ The edge proxy operates at layer 4 — it does not terminate the Minecraft proto
 Each Gateway listener gets a dedicated network proxy Deployment and Service. The network proxy:
 
 - Accepts the Minecraft connection from the edge layer.
-- Queries the controller's network xDS endpoint to get its routing configuration.
-- Applies join and fallback rules to decide which game server to forward the player to.
-- Forwards the connection to the selected game server, optionally using player identity forwarding (e.g. Velocity modern forwarding).
+- Holds a persistent bidirectional gRPC stream to the controller, which pushes the servers to register and answers routing decisions.
+- Reports player presence — who is on which server — so the controller always knows where every player is.
+- Forwards the connection to the server the controller selected, optionally using player identity forwarding (e.g. Velocity modern forwarding).
 
-The built-in integration uses [Velocity](https://papermc.io/software/velocity), but you can implement the [network integration API](/guides/network-integration) to use any proxy. The network proxy is the component that understands join routes, fallback routes, priorities, and distribution strategies.
+The built-in integration uses [Velocity](https://papermc.io/software/velocity), but you can implement the [network integration API](/guides/network-integration) to use any proxy.
+
+Routing decisions are made by the controller rather than by each proxy. A proxy only ever sees its own players, so when many players are routed at once every proxy would otherwise pick the same "least loaded" server from the same stale numbers and overload it. The controller sees every proxy at once and accounts for decisions it has already handed out, so load spreads correctly.
+
+If the stream is down, the proxy rejects joins rather than routing against stale state, and reconnects with exponential backoff.
 
 ### Kubernetes controller
 
@@ -59,8 +63,23 @@ The Go controller watches CRDs and reconciles the desired state:
 - **Gateway** — creates/updates the edge xDS snapshot and the network proxy Deployment + Service per listener.
 - **NetworkInfrastructure** — discovers game server Services and writes their endpoints into status.
 - **MinecraftJoinRoute / MinecraftFallbackRoute** — attach to a Gateway and define routing rules.
+- **PlayerTransfer** — moves named players to a server on request.
 
-The controller pushes configuration to the edge proxy via an xDS gRPC server on port 18000 and to the network proxies via a separate xDS server on port 19000.
+The controller pushes configuration to the edge proxy via an xDS gRPC server on port 18000. Network proxies connect to a gRPC server on port 19000, which also serves the player query API described below.
+
+### Player query API
+
+External components — queue systems, matchmakers such as OpenMatch, or gameserver orchestrators such as Agones — can ask the controller where players are, over the `NetworkGateway` gRPC service on port 19000:
+
+| Method | Answers |
+|---|---|
+| `GetConnection` | Which proxy and server one player is on. |
+| `GetPlayersForServer` | Every player on a backend server. |
+| `GetPlayersForService` | Every player across the servers of a Service. |
+
+To move players rather than just locate them, create a [PlayerTransfer](/reference/player-transfer). It needs no stream connection of its own.
+
+Only the elected leader serves port 19000. Proxies retry through the Service until the leader is reachable, so a failover is a brief reconnect rather than a reconfiguration.
 
 ## How a connection flows
 
@@ -70,13 +89,15 @@ The controller pushes configuration to the edge proxy via an xDS gRPC server on 
 4. The filter looks up `play.example.com` in the domain map. An exact match is tried first, then a wildcard match (e.g. `*.example.com`).
 5. The matching cluster name is written to Envoy dynamic metadata.
 6. `tcp_proxy` forwards to the network proxy Service for that cluster.
-7. The network proxy looks up the player's destination using its xDS snapshot. `MinecraftJoinRoute` rules are evaluated in priority order; `MinecraftFallbackRoute` rules apply when the primary server is unavailable.
-8. The network proxy forwards the player to the selected game server.
+7. The network proxy asks the controller where to send the player. The controller evaluates `MinecraftJoinRoute` rules in priority order (`MinecraftFallbackRoute` rules when the player is being moved off an unavailable server) and picks a server using live player counts from every proxy.
+8. The network proxy forwards the player to the selected game server and reports their arrival, which updates the counts behind the next decision.
 
 ## Key design decisions
 
 **Layer 4 edge routing** — The edge proxy never buffers or proxies the full Minecraft protocol. It reads just enough bytes to extract the hostname (capped at 1024 bytes), then gets out of the way. This keeps latency minimal and the edge stateless.
 
-**Separation of edge and network concerns** — Hostname-based routing (which cluster?) is an edge concern. Game-logic routing (which server within a cluster?) is a network concern. The two layers have separate xDS APIs and separate configuration paths.
+**Separation of edge and network concerns** — Hostname-based routing (which cluster?) is an edge concern. Game-logic routing (which server within a cluster?) is a network concern. The two layers have separate gRPC APIs and separate configuration paths.
+
+**Centralized routing decisions** — Proxies report what they see and apply what they are told; the controller decides. This is what makes correct distribution possible when many players are routed simultaneously across several proxies.
 
 **Kubernetes-native** — Configuration lives entirely in Kubernetes CRDs. There are no sidecars, no external databases, and no out-of-band configuration files to manage.

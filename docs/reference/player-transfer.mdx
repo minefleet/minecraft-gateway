@@ -1,0 +1,145 @@
+---
+title: PlayerTransfer
+description: Reference for the PlayerTransfer CRD, which moves named players to a server on request.
+---
+
+A `PlayerTransfer` moves a named set of players to a server. It is a one-shot command rather than standing policy: you create one, the controller carries it out, and it settles in a terminal phase. Use it from queue systems, matchmakers such as OpenMatch, or gameserver orchestrators such as Agones to move players through the Kubernetes API, without holding a gRPC connection to the controller.
+
+**API group:** `gateway.networking.minefleet.dev/v1alpha1`
+
+## Example
+
+Send a matched party to an allocated gameserver, waiting up to 30 seconds for everyone to be online:
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: PlayerTransfer
+metadata:
+  name: match-dispatch-abc123
+  namespace: default
+spec:
+  gatewayName: my-gateway
+  listenerName: minecraft
+  players:
+    - 6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f
+    - 9d2c8a10-77b3-4a1e-8f0c-2b3d4e5f6a7b
+  target:
+    serverName: gameserver-pod-xyz
+  policy: AllOrNothing
+  ttl: 30s
+```
+
+Return whoever is online to a lobby, without waiting for the rest:
+
+```yaml
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: PlayerTransfer
+metadata:
+  name: return-to-lobby
+  namespace: default
+spec:
+  gatewayName: my-gateway
+  listenerName: minecraft
+  players:
+    - 6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f
+  target:
+    routeMode: fallback
+  policy: BestEffort
+```
+
+## Spec fields
+
+The spec is **immutable**. To change where a transfer sends players, create a new one rather than editing a transfer already in flight.
+
+### `gatewayName`
+
+Name of the Gateway whose proxies hold the players. The Gateway is looked up in the PlayerTransfer's own namespace, so there is no `gatewayNamespace` field — this matches how the route CRDs reference their gateway.
+
+### `listenerName`
+
+The Gateway listener (its `sectionName`) the players are connected to. A player connected to a different gateway or listener is not addressable by this transfer.
+
+### `players`
+
+The player UUIDs to move, in canonical dashed form. At least one is required.
+
+```yaml
+players:
+  - 6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f
+```
+
+### `target`
+
+Where the players go. Exactly one of the three modes must be set.
+
+| Field | Type | Description |
+|---|---|---|
+| `serverName` | `string` | An explicit server, by pod name. Use this when the caller has already chosen the server, for example after an Agones `GameServerAllocation`. The controller passes the name through without resolving it. |
+| `labelSelector` | `LabelSelector` | Selects backend services by their endpoint labels. The controller picks **one** matching server using that service's distribution strategy, and sends every player to it. |
+| `routeMode` | `join` \| `fallback` | Evaluates the gateway's join or fallback routes for each player individually, so players may land on different servers. |
+
+### `policy`
+
+How missing players are handled. Defaults to `AllOrNothing`.
+
+| Value | Behavior |
+|---|---|
+| `AllOrNothing` | Waits until every player is simultaneously online before moving any of them. Suited to matchmaking, where a partial party is worse than a delayed one. |
+| `BestEffort` | Moves whoever is online now; players who never appear fail individually. Suited to returning players to a lobby. |
+
+Under `AllOrNothing`, a player being offline is never itself a failure — they may still connect, and the transfer keeps waiting. The transfer fails only if a move it actually attempted fails.
+
+### `ttl`
+
+How long to wait for players before giving up, as a duration string such as `30s` or `5m`. Omit it to wait indefinitely.
+
+The TTL bounds the waiting, not the moving: once a transfer has committed to moving its players, it sees those moves through and reports their results regardless of the deadline.
+
+## Pre-staging
+
+A transfer can be created **before** its players have connected. The controller indexes pending transfers by player UUID and acts the moment a matching player appears, so a match can be staged in advance and players land on the allocated gameserver as they join, with no round trip in between.
+
+## Status
+
+```yaml
+status:
+  phase: PartiallyCompleted
+  assignments:
+    - playerUUID: 6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f
+      assignedServer: gameserver-pod-xyz
+      phase: Completed
+    - playerUUID: 9d2c8a10-77b3-4a1e-8f0c-2b3d4e5f6a7b
+      phase: Failed
+      reason: PlayerNotConnected
+```
+
+### `phase`
+
+| Phase | Meaning |
+|---|---|
+| `Pending` | Waiting for players, or waiting for dispatched moves to be confirmed. |
+| `Completed` | Every player was moved. |
+| `PartiallyCompleted` | Some players were moved and others failed. Only possible under `BestEffort`. |
+| `Failed` | No player was moved, or a `AllOrNothing` move failed. |
+| `Expired` | The TTL elapsed before the players were ever all online together. |
+
+### `assignments`
+
+One entry per player, each with the server it was sent to (once chosen), its own phase (`Pending`, `Moving`, `Completed`, or `Failed`), and a `reason` when it failed.
+
+Common failure reasons:
+
+| Reason | Meaning |
+|---|---|
+| `PlayerNotConnected` | The player was not online when the transfer settled. |
+| `NoMatchingRoute` | In `routeMode`, no route matched the player. |
+| `NoMatchingServer` | No server matched the selector, or none had room. |
+| `ProxyUnavailable` | The proxy holding the player disconnected before the move was sent. |
+| `server_not_registered` | The proxy does not know the requested server. Reported by the proxy. |
+| `player_not_found` | The player left before the proxy could move them. Reported by the proxy. |
+
+Inspect a transfer with:
+
+```bash
+kubectl get playertransfer match-dispatch-abc123 -o yaml
+```

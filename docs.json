@@ -32,7 +32,8 @@
             "pages": [
               "reference/network-infrastructure",
               "reference/minecraft-join-route",
-              "reference/minecraft-fallback-route"
+              "reference/minecraft-fallback-route",
+              "reference/player-transfer"
             ]
           }
         ]

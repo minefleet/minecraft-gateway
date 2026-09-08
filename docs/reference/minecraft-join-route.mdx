@@ -112,7 +112,7 @@ A list of rule sets that define which hostnames this route matches. Each rule se
 | Field | Type | Description |
 |---|---|---|
 | `domain` | `string` | Exact hostname or wildcard pattern (e.g. `play.example.com`, `*.example.com`). |
-| `permission` | `string` | Permission node that the player must have. Evaluated by the network proxy. |
+| `permission` | `string` | Permission node that the player must have. Checked on the network proxy, which reports the result to the controller. |
 
 At least one of `domain` or `permission` must be set per rule.
 

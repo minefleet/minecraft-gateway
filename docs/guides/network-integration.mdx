@@ -1,26 +1,36 @@
 ---
 title: Network Integration
-description: How to implement a custom network proxy that integrates with minecraft-gateway using the NetworkXDS gRPC API.
+description: How to implement a custom network proxy that integrates with minecraft-gateway using the NetworkXDS gRPC stream.
 ---
 
-minecraft-gateway separates edge routing (hostname matching) from network routing (join/fallback logic). The network proxy is the component responsible for the latter, and the controller exposes a gRPC API — **NetworkXDS** — that any proxy can call to receive its routing configuration.
+minecraft-gateway separates edge routing (hostname matching) from network routing (which game server a player belongs on). The network proxy handles the connection to the player; the **controller** decides where each player goes.
+
+Proxies connect to the controller over a persistent bidirectional gRPC stream — **NetworkXDS** — and the two exchange messages for as long as the proxy lives.
 
 The built-in integration uses [Velocity](https://papermc.io/software/velocity). This guide explains how to implement your own.
 
 ## Prerequisites
 
 - Your proxy runs as a Kubernetes Deployment managed by the controller (via `networkTemplate`)
-- Your proxy can make gRPC calls to the controller's network xDS server
+- Your proxy can make gRPC calls to the controller's network server
+
+## Why the controller decides
+
+Each proxy only sees its own players. If every proxy picked servers on its own, a burst of players routed at once would send them all to whichever server looked emptiest to everyone at the same moment, and overload it.
+
+The controller sees every proxy at once, and counts decisions it has already handed out but that have not yet arrived. Your proxy therefore reports what it observes and applies what it is told, rather than choosing servers itself.
 
 ## How it works
 
-When a Gateway listener is reconciled, the controller:
+When a Gateway listener is reconciled, the controller creates a Deployment and Service for your proxy from `networkTemplate`, and injects the environment variables your proxy uses to find and identify itself to the controller.
 
-1. Creates a Deployment and Service for your proxy using the image and configuration from `networkTemplate`.
-2. Injects environment variables your proxy uses to identify itself to the xDS server.
-3. Keeps a snapshot of all routes and backends for that listener up to date.
+Your proxy then opens the stream and keeps it open:
 
-Your proxy calls `NetworkXDS.GetSnapshot` with an infinite timer to retrieve its snapshot, then uses the snapshot to make routing decisions.
+1. Send `ProxyHello` identifying yourself, then a `PresenceSnapshot` replaying every player you currently hold.
+2. Apply `ServerSync` messages, which carry the full set of servers you should have registered.
+3. Send a `RouteRequest` whenever a player joins or needs a fallback, and connect them to the server named in the matching `RouteResponse`.
+4. Send `PlayerPresenceEvent` as players connect to and disconnect from backend servers.
+5. Execute `MoveCommand` messages and reply with a `MoveResult`.
 
 ## Environment variables
 
@@ -34,66 +44,70 @@ The controller injects these environment variables into every network proxy cont
 | `GATEWAY_NETWORK_XDS_HOST` | Hostname of the NetworkXDS gRPC server |
 | `GATEWAY_NETWORK_XDS_PORT` | Port of the NetworkXDS gRPC server (default: `19000`) |
 
-## The NetworkXDS API
+Kubernetes also sets `HOSTNAME` to the pod name, which the built-in integration uses as its proxy id.
 
-The API is defined as a single unary RPC:
+## The NetworkXDS API
 
 ```protobuf
 service NetworkXDS {
-  rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse);
+  rpc Connect(stream ProxyMessage) returns (stream ControllerMessage);
 }
 
-message GetSnapshotRequest {
-  string gateway_namespace = 1;
-  string gateway_name = 2;
-  string listener_name = 3;
+message ProxyMessage {
+  oneof message {
+    ProxyHello hello = 1;
+    PresenceSnapshot presence_snapshot = 2;
+    RouteRequest route_request = 3;
+    PlayerPresenceEvent presence_event = 4;
+    ServerPlayerCounts player_counts = 5;
+    MoveResult move_result = 6;
+  }
 }
 
-message GetSnapshotResponse {
-  Snapshot snapshot = 1;
-}
-```
-
-Pass the three injected environment variables (`NAMESPACE`, `GATEWAY_NAME`, `LISTENER_NAME`) as the request fields.
-
-The server returns `UNAVAILABLE` if no snapshot has been built yet and `NOT_FOUND` if the gateway/listener combination does not exist.
-
-## The Snapshot message
-
-```protobuf
-message Snapshot {
-  string gateway_name = 1;
-  string listener_name = 2;
-  string current_generation = 3;
-  repeated ManagedService services = 4;
+message ControllerMessage {
+  oneof message {
+    ServerSync server_sync = 1;
+    RouteResponse route_response = 2;
+    MoveCommand move = 3;
+  }
 }
 ```
 
-`current_generation` is an opaque string that changes whenever the snapshot changes. Poll the endpoint periodically and re-apply configuration when the generation changes.
+### Opening the stream
 
-### ManagedService
+`ProxyHello` **must** be the first message. Send `PresenceSnapshot` immediately after it.
 
 ```protobuf
-message ManagedService {
-  string namespaced_name = 1;   // "namespace/name"
-  string namespace = 2;
-  string name = 3;
-  DistributionStrategy distribution_strategy = 4;
-  repeated ManagedServer servers = 5;
-  repeated Route routes = 6;
+message ProxyHello {
+  string proxy_id = 1;           // stable per pod; use HOSTNAME
+  string gateway_namespace = 2;  // NAMESPACE
+  string gateway_name = 3;       // GATEWAY_NAME
+  string listener_name = 4;      // LISTENER_NAME
 }
 
-enum DistributionStrategy {
-  RANDOM = 0;
-  LEAST_PLAYERS = 1;
+message PresenceSnapshot {
+  repeated PresenceEntry players = 1;
+}
+
+message PresenceEntry {
+  string player_uuid = 1;
+  string server_name = 2;
+  PlayerContext context = 3;
 }
 ```
 
-Each `ManagedService` represents a Kubernetes Service that was discovered as a backend. `servers` lists the live endpoints; `routes` lists the join and fallback rules that point to this service.
+The controller keeps presence in memory only. Replaying it on every connect is what lets it recover after a restart or a leader failover, so the replay is required, not an optimization.
 
-### ManagedServer
+Reconnecting with the same `proxy_id` replaces the earlier session.
+
+### Registering servers
 
 ```protobuf
+message ServerSync {
+  repeated ManagedServer servers = 1;
+  repeated string required_permissions = 2;
+}
+
 message ManagedServer {
   string unique_id = 1;
   string name = 2;
@@ -105,39 +119,75 @@ message ManagedServer {
 }
 ```
 
-`max_players` and `current_players` are populated when the controller can read them from the game server. Use them together with `distribution_strategy` to implement `LEAST_PLAYERS` routing.
+`ServerSync` always carries the **complete** set of servers, not a delta. Diff it against what you have registered: register anything new or changed, unregister anything absent. One is sent as soon as you connect, and again whenever the configuration changes.
 
-### Route
+`required_permissions` is described under [Routing decisions](#routing-decisions).
+
+### Routing decisions
 
 ```protobuf
-message Route {
-  uint32 priority = 1;
-  bool is_join = 2;
-  bool is_fallback = 3;
-  repeated OptionRuleSet rules = 4;
+message RouteRequest {
+  string correlation_id = 1;
+  string player_uuid = 2;
+  RouteKind kind = 3;                     // ROUTE_KIND_JOIN or ROUTE_KIND_FALLBACK
+  PlayerContext context = 4;
+  optional string current_server_name = 5;  // for fallbacks
 }
 
-message OptionRuleSet {
-  RuleType type = 1;   // NONE=0, ANY=1, ALL=2
-  repeated Rule rules = 2;
+message PlayerContext {
+  string connected_domain = 1;
+  map<string, bool> permissions = 2;
 }
 
-message Rule {
-  optional string domain = 1;
-  optional string permission = 2;
-  optional string fallback_for = 3;  // "namespace/name" of the service this is a fallback for
+message RouteResponse {
+  string correlation_id = 1;
+  Result result = 2;        // RESULT_OK, RESULT_NO_ROUTE, RESULT_REJECTED
+  string server_name = 3;
 }
 ```
 
-Join routes (`is_join = true`) route a player's initial connection. Fallback routes (`is_fallback = true`) activate when a primary backend is unavailable. Evaluate routes in descending `priority` order.
+Match the response to the request by `correlation_id`; responses may arrive in any order.
 
-## Routing algorithm
+Routing rules can test permissions, which only your proxy can evaluate. So the controller tells you which permissions it needs via `required_permissions`, and you send the results in `context.permissions` with every `RouteRequest` and every `KIND_CONNECTED` presence event. Evaluate exactly the permissions you were asked for.
 
-A minimal correct implementation:
+On `RESULT_OK`, connect the player to `server_name`. On any other result, disconnect them with a suitable message.
 
-1. **On connect:** find all join routes across all services whose `rules` match the player (domain, permission). Take the highest-priority match. Select a server from that service using `distribution_strategy`.
-2. **On failure:** if the selected server is unavailable or full, find fallback routes whose `fallback_for` matches the failed service's `namespaced_name` and whose other rules match the player. Take the highest-priority match.
-3. **Generation polling:** re-fetch the snapshot when `current_generation` changes. Apply the new routing table without disconnecting existing players.
+<Warning>
+While the stream is down, reject joins instead of routing them yourself. Routing against a stale local view is exactly what overloads servers during a mass reconnect. Reconnect with exponential backoff.
+</Warning>
+
+### Reporting presence
+
+```protobuf
+message PlayerPresenceEvent {
+  string player_uuid = 1;
+  string server_name = 2;
+  Kind kind = 3;              // KIND_CONNECTED or KIND_DISCONNECTED
+  PlayerContext context = 4;
+}
+```
+
+Send `KIND_CONNECTED` once a player has actually reached a backend server, and `KIND_DISCONNECTED` when they leave your proxy. These events are what keep the controller's player counts accurate, so routing decisions and the [player query API](/concepts/overview#player-query-api) stay correct.
+
+You may also send `ServerPlayerCounts` periodically; the controller uses it to detect drift.
+
+### Executing moves
+
+```protobuf
+message MoveCommand {
+  string command_id = 1;
+  string player_uuid = 2;
+  string server_name = 3;
+}
+
+message MoveResult {
+  string command_id = 1;
+  bool success = 2;
+  string reason = 3;
+}
+```
+
+`MoveCommand` carries out a [PlayerTransfer](/reference/player-transfer). Look the player up by UUID, connect them to the named server, and always reply with a `MoveResult` carrying the same `command_id` — the transfer's status waits on it. Use `player_not_found`, `server_not_registered`, or `connect_failed` as the failure `reason`.
 
 ## Deploying your proxy
 
@@ -164,13 +214,13 @@ spec:
             image: ghcr.io/your-org/your-proxy:latest
 ```
 
-The controller creates one Deployment per listener and injects the environment variables above. Your image should read them at startup to connect to the xDS server.
+The controller creates one Deployment per listener and injects the environment variables above. Your image should read them at startup to connect to the controller.
 
 See [Customizing the Network Proxy](/guides/customizing-network-proxy) for additional `networkTemplate` options such as mounting secrets and setting resource limits.
 
 ## Using the Java integration-api
 
-If you are writing a JVM-based proxy plugin, the `integration-api` library wraps the raw gRPC API and handles polling, diffing, and retries for you. The Velocity built-in integration is implemented using it.
+If you are writing a JVM-based proxy plugin, the `integration-api` library wraps the raw gRPC stream and handles reconnects, server diffing, and correlation for you. The Velocity built-in integration is implemented using it.
 
 ### Add the dependency
 
@@ -196,7 +246,7 @@ Replace `VERSION` with the latest version from [Maven Central](https://central.s
 
 ### Implement `ServerRegistrar`
 
-`ServerRegistrar` is called by the API whenever backend servers appear, update, or disappear in the snapshot. Use `server.name()` as the stable key in your proxy's server registry.
+`ServerRegistrar` is called whenever backend servers appear, update, or disappear. Use `server.name()` as the stable key in your proxy's server registry.
 
 ```java
 import dev.minefleet.api.gateway.networking.ManagedServer;
@@ -239,14 +289,14 @@ public class MyServerRegistrar implements ServerRegistrar {
         }
     }
 
-    // Used by NetworkPlayer to resolve the player's current server
+    @Override
     public Optional<ManagedServer> findByName(String name) {
         return Optional.ofNullable(servers.get(name));
     }
 }
 ```
 
-Throw `ServerRegistrarException` to signal a failure for a single server. The library retries failed servers up to `retries` times (default: 3), once per poll interval.
+Throw `ServerRegistrarException` to signal a failure for a single server. The library retries failed servers up to `retries` times (default: 3).
 
 ### Implement `NetworkPlayer`
 
@@ -258,6 +308,7 @@ import dev.minefleet.api.gateway.networking.player.KickReason;
 import dev.minefleet.api.gateway.networking.player.NetworkPlayer;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class MyNetworkPlayer implements NetworkPlayer {
 
@@ -270,15 +321,18 @@ public class MyNetworkPlayer implements NetworkPlayer {
     }
 
     @Override
-    public String connectedDomain() {
+    public UUID getUuid() {
+        return player.getUniqueId();
+    }
+
+    @Override
+    public String getConnectedDomain() {
         // The virtual hostname from the Minecraft handshake
         return player.getVirtualHost().getHostString();
     }
 
     @Override
-    public Optional<ManagedServer> connectedServer() {
-        // Must resolve via the registrar's map so the returned ManagedServer
-        // has the correct parentNamespacedName for fallback rule matching
+    public Optional<ManagedServer> getConnectedServer() {
         return player.getCurrentServer()
             .flatMap(s -> registrar.findByName(s.getName()));
     }
@@ -299,13 +353,12 @@ public class MyNetworkPlayer implements NetworkPlayer {
         String message = switch (reason) {
             case NO_JOIN -> "No server is available.";
             case NO_FALLBACK -> "No fallback server is available.";
+            case ROUTING_UNAVAILABLE -> "The network is temporarily unavailable.";
         };
         player.disconnect(message);
     }
 }
 ```
-
-`connectedServer()` must look up the player's current server through your registrar's internal map. The fallback routing rules match on `parentNamespacedName`, which is only available on `ManagedServer` objects tracked by the registrar — not raw proxy server objects.
 
 ### Build and start `NetworkGateway`
 
@@ -326,22 +379,33 @@ public class MyProxyPlugin {
         registrar = new MyServerRegistrar(proxy);
         gateway = NetworkGateway.builder()
             .registrar(registrar)
-            // Optional overrides (all have env-var defaults):
-            // .intervalSeconds(5)
-            // .retries(3)
-            // .context(NetworkSnapshotContext.fromEnv())
-            // .channel(myChannel)
+            // Replayed to the controller on every (re)connect
+            .presenceSupplier(this::currentPresence)
             .build();
+
+        // Needed so move commands can find a player by UUID
+        gateway.setPlayerLookup(uuid -> proxy.getPlayer(uuid)
+            .map(p -> new MyNetworkPlayer(p, registrar)));
+
         gateway.start();
     }
 
     public void onDisable() {
         gateway.stop();
     }
+
+    private List<Api.PresenceEntry> currentPresence() {
+        return proxy.getAllPlayers().stream()
+            .flatMap(p -> p.getCurrentServer().stream()
+                .map(s -> gateway.presenceEntry(new MyNetworkPlayer(p, registrar), s.getName())))
+            .toList();
+    }
 }
 ```
 
-### Wire routing events
+### Wire routing and presence events
+
+`routeJoin` and `routeFallback` return a `CompletableFuture` that completes once the controller has answered and the player has been connected or kicked. Where your proxy supports it, defer the event until that future completes rather than blocking the event thread.
 
 ```java
 // Player connects for the first time
@@ -353,9 +417,21 @@ public void onPlayerJoin(PlayerJoinEvent event) {
 public void onPlayerKicked(PlayerKickedEvent event) {
     gateway.routeFallback(new MyNetworkPlayer(event.getPlayer(), registrar));
 }
+
+// Player reached a backend server
+public void onServerConnected(ServerConnectedEvent event) {
+    gateway.reportConnected(new MyNetworkPlayer(event.getPlayer(), registrar), event.getServerName());
+}
+
+// Player left the proxy
+public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+    gateway.reportDisconnected(event.getPlayer().getUniqueId());
+}
 ```
 
-`routeJoin` evaluates `MinecraftJoinRoute` rules in priority order and calls `player.connectToServer()` on the first match. `routeFallback` evaluates `MinecraftFallbackRoute` rules. Both call `player.kick()` if no matching service is found.
+Reporting presence is not optional: the controller routes from these events, so a proxy that does not report them will be routed against as though it were empty.
+
+If the controller is unreachable, both routing methods kick the player with `ROUTING_UNAVAILABLE` instead of guessing. Check `gateway.isReady()` if you want to handle that case yourself.
 
 ### `ManagedServer` field reference
 
@@ -365,17 +441,16 @@ public void onPlayerKicked(PlayerKickedEvent event) {
 | `ipAddress()` | `String` | IP address to connect to |
 | `port()` | `int` | Port to connect to |
 | `uniqueId()` | `String` | Globally unique identifier for this server instance |
-| `parentNamespacedName()` | `String` | `"namespace/service-name"` of the Kubernetes Service |
 | `numericalId()` | `OptionalInt` | Optional numerical slot ID |
 | `maxPlayers()` | `OptionalInt` | Configured player capacity |
-| `currentPlayers()` | `OptionalInt` | Current player count (used by `least-players` distribution strategy) |
+| `currentPlayers()` | `OptionalInt` | Player count as last known to the controller |
 
 ### `NetworkGateway.Builder` options
 
 | Method | Default | Description |
 |---|---|---|
 | `registrar(ServerRegistrar)` | — (required) | Your `ServerRegistrar` implementation |
-| `intervalSeconds(int)` | `5` | How often to poll the xDS server for snapshot updates |
+| `presenceSupplier(Supplier)` | empty | Players to replay to the controller on every (re)connect |
 | `retries(int)` | `3` | Retry attempts for failed `registerOrUpdate`/`unregister` calls |
-| `context(NetworkSnapshotContext)` | from env | Which gateway/listener to subscribe to |
-| `channel(Channel)` | from env | gRPC channel to the xDS server |
+| `context(NetworkContext)` | from env | Proxy id and the gateway/listener served |
+| `channel(Channel)` | from env | gRPC channel to the controller |
