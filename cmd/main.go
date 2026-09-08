@@ -24,8 +24,9 @@ import (
 	"os"
 	"path/filepath"
 
-	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -291,6 +292,13 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "NetworkInfrastructure")
+		os.Exit(1)
+	}
+	if err := (&controller.PlayerTransferReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "PlayerTransfer")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

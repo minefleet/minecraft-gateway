@@ -91,6 +91,7 @@ rules:
   - minecraftfallbackroutes
   - minecraftjoinroutes
   - networkinfrastructures
+  - playertransfers
   verbs:
   - create
   - delete
@@ -105,6 +106,7 @@ rules:
   - minecraftfallbackroutes/finalizers
   - minecraftjoinroutes/finalizers
   - networkinfrastructures/finalizers
+  - playertransfers/finalizers
   verbs:
   - update
 - apiGroups:
@@ -113,6 +115,7 @@ rules:
   - minecraftfallbackroutes/status
   - minecraftjoinroutes/status
   - networkinfrastructures/status
+  - playertransfers/status
   verbs:
   - get
   - patch

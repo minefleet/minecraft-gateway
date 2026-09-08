@@ -5,6 +5,7 @@ resources:
 - bases/gateway.networking.minefleet.dev_minecraftfallbackroutes.yaml
 - bases/gateway.networking.minefleet.dev_networkinfrastructures.yaml
 - bases/gateway.networking.minefleet.dev_minecraftjoinroutes.yaml
+- bases/gateway.networking.minefleet.dev_playertransfers.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:

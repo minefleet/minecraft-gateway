@@ -44,6 +44,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&MinecraftFallbackRouteList{},
 		&NetworkInfrastructure{},
 		&NetworkInfrastructureList{},
+		&PlayerTransfer{},
+		&PlayerTransferList{},
 	)
 	metav1.AddToGroupVersion(scheme, GroupVersion)
 	return nil

@@ -13,4 +13,5 @@ resources:
 - minecraft_patch_config.yaml
 - forwarding_secret.yaml
 - network_config.yaml
+- gateway.networking_v1alpha1_playertransfer.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

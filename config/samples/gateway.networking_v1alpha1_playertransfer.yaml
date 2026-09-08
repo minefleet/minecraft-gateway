@@ -1,0 +1,9 @@
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: PlayerTransfer
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+  name: playertransfer-sample
+spec:
+  # TODO(user): Add fields here
