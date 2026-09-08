@@ -55,7 +55,11 @@ type GatewayReconciler struct {
 	client.Client
 	Scheme    *runtime.Scheme
 	Dataplane *dataplane.Dataplane
-	tracer    trace.Tracer
+	// Streams is the shared proxy stream state, handed to the dataplane so
+	// configuration reaches connected proxies. It is also read by the
+	// PlayerTransfer reconciler.
+	Streams *networkdp.StreamManager
+	tracer  trace.Tracer
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways;gatewayclasses,verbs=get;list;watch;create;update;patch;delete
@@ -460,9 +464,13 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if r.Dataplane == nil {
 		r.Dataplane = new(dataplane.Dataplane)
 	}
+	if r.Streams == nil {
+		r.Streams = networkdp.NewStreamManager()
+	}
 	err := mgr.Add(dataplane.Executor{
 		Client:    mgr.GetClient(),
 		Dataplane: r.Dataplane,
+		Streams:   r.Streams,
 	})
 	if err != nil {
 		return err

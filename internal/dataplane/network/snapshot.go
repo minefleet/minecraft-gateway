@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"sync/atomic"
 
@@ -10,7 +11,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
-	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/topology"
 )
 
@@ -29,14 +29,9 @@ type Config struct {
 	XDSPort int
 	// Namespace is the namespace where the controller runs.
 	Namespace string
-}
-
-// ListenerSnapshot is the routing snapshot for one gateway listener.
-type ListenerSnapshot struct {
-	GatewayNamespace string
-	GatewayName      string
-	ListenerName     string
-	Services         []*apiv1alpha1.ManagedService
+	// Streams carries the proxy stream state. It is shared with the
+	// PlayerTransfer reconciler so transfers can be pushed to proxies.
+	Streams *StreamManager
 }
 
 // Snapshot is the aggregate of all listener snapshots.
@@ -58,6 +53,17 @@ func (s *Snapshot) Get(namespace, name, listener string) *ListenerSnapshot {
 	return byListener[listener]
 }
 
+// All returns every listener snapshot in the aggregate.
+func (s *Snapshot) All() []*ListenerSnapshot {
+	var out []*ListenerSnapshot
+	for _, byListener := range s.byGateway {
+		for _, ls := range byListener {
+			out = append(out, ls)
+		}
+	}
+	return out
+}
+
 // GatewaySnapshotCache holds per-listener snapshots indexed by gateway then listener name.
 type GatewaySnapshotCache = map[types.NamespacedName]map[string]ListenerSnapshot
 
@@ -76,18 +82,19 @@ func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTre
 		slicesByService[key] = append(slicesByService[key], slice)
 	}
 
-	serviceMap := make(map[string]*apiv1alpha1.ManagedService)
+	serviceMap := make(map[string]*Service)
 
-	getOrCreate := func(svcNS, svcName string, strategy mcgatewayv1alpha1.MinecraftDistributionStrategy) *apiv1alpha1.ManagedService {
+	getOrCreate := func(svcNS, svcName string, strategy mcgatewayv1alpha1.MinecraftDistributionStrategy) *Service {
 		key := svcNS + "/" + svcName
 		if svc, ok := serviceMap[key]; ok {
 			return svc
 		}
-		svc := &apiv1alpha1.ManagedService{
+		svc := &Service{
 			NamespacedName:       key,
 			Namespace:            svcNS,
 			Name:                 svcName,
-			DistributionStrategy: toProtoDistStrategy(strategy),
+			Labels:               mergeSliceLabels(slicesByService[key]),
+			DistributionStrategy: toDistributionStrategy(strategy),
 			Servers:              buildServers(slicesByService[key], podAnnotations),
 		}
 		serviceMap[key] = svc
@@ -95,7 +102,7 @@ func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTre
 	}
 
 	for _, joinRoute := range routes.Join {
-		rules := buildJoinRules(joinRoute.JoinFilterRules())
+		ruleSets := buildJoinRuleSets(joinRoute.JoinFilterRules())
 		priority := uint32(joinRoute.Priority())
 		for _, backendRef := range joinRoute.BackendRefs() {
 			svcNS := joinRoute.GetNamespace()
@@ -103,16 +110,12 @@ func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTre
 				svcNS = string(*backendRef.Namespace)
 			}
 			svc := getOrCreate(svcNS, string(backendRef.Name), backendRef.DistributionStrategy)
-			svc.Routes = append(svc.Routes, &apiv1alpha1.Route{
-				Priority: priority,
-				IsJoin:   true,
-				Rules:    rules,
-			})
+			svc.JoinRoutes = append(svc.JoinRoutes, Route{Priority: priority, RuleSets: ruleSets})
 		}
 	}
 
 	for _, fallbackRoute := range routes.Fallback {
-		rules := buildFallbackRules(fallbackRoute.FallbackFilterRules(), backends)
+		ruleSets := buildFallbackRuleSets(fallbackRoute.FallbackFilterRules(), backends)
 		priority := uint32(fallbackRoute.Priority())
 		for _, backendRef := range fallbackRoute.BackendRefs() {
 			svcNS := fallbackRoute.GetNamespace()
@@ -120,17 +123,14 @@ func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTre
 				svcNS = string(*backendRef.Namespace)
 			}
 			svc := getOrCreate(svcNS, string(backendRef.Name), backendRef.DistributionStrategy)
-			svc.Routes = append(svc.Routes, &apiv1alpha1.Route{
-				Priority:   priority,
-				IsFallback: true,
-				Rules:      rules,
-			})
+			svc.FallbackRoutes = append(svc.FallbackRoutes, Route{Priority: priority, RuleSets: ruleSets})
 		}
 	}
 
-	services := make([]*apiv1alpha1.ManagedService, 0, len(serviceMap))
-	for _, svc := range serviceMap {
-		services = append(services, svc)
+	// Sorted so routing decisions and pushed config are reproducible.
+	services := make([]*Service, 0, len(serviceMap))
+	for _, key := range sortedKeysOf(serviceMap) {
+		services = append(services, serviceMap[key])
 	}
 
 	return ListenerSnapshot{
@@ -159,8 +159,8 @@ func BuildSnapshot(cache GatewaySnapshotCache) Snapshot {
 	return s
 }
 
-func buildServers(slices []discoveryv1.EndpointSlice, podAnnotations map[string]map[string]string) []*apiv1alpha1.ManagedServer {
-	var servers []*apiv1alpha1.ManagedServer
+func buildServers(slices []discoveryv1.EndpointSlice, podAnnotations map[string]map[string]string) []*Server {
+	var servers []*Server
 	for _, slice := range slices {
 		var port uint32
 		if len(slice.Ports) > 0 && slice.Ports[0].Port != nil {
@@ -179,10 +179,10 @@ func buildServers(slices []discoveryv1.EndpointSlice, podAnnotations map[string]
 				uniqueID = ep.TargetRef.Namespace + "-" + ep.TargetRef.Name
 				podKey = ep.TargetRef.Namespace + "/" + ep.TargetRef.Name
 			}
-			server := &apiv1alpha1.ManagedServer{
-				UniqueId: uniqueID,
+			server := &Server{
+				UniqueID: uniqueID,
 				Name:     name,
-				Ip:       ip,
+				IP:       ip,
 				Port:     port,
 			}
 			if podKey != "" {
@@ -206,40 +206,34 @@ func buildServers(slices []discoveryv1.EndpointSlice, podAnnotations map[string]
 	return servers
 }
 
-func buildJoinRules(ruleSets []mcgatewayv1alpha1.MinecraftJoinFilterRuleSet) []*apiv1alpha1.OptionRuleSet {
-	result := make([]*apiv1alpha1.OptionRuleSet, 0, len(ruleSets))
+func buildJoinRuleSets(ruleSets []mcgatewayv1alpha1.MinecraftJoinFilterRuleSet) []RuleSet {
+	result := make([]RuleSet, 0, len(ruleSets))
 	for _, rs := range ruleSets {
-		protoRules := make([]*apiv1alpha1.Rule, 0, len(rs.Rules))
+		rules := make([]Rule, 0, len(rs.Rules))
 		for _, r := range rs.Rules {
-			protoRules = append(protoRules, buildRule(r.Domain, r.Permission, ""))
+			rules = append(rules, Rule{Domain: r.Domain, Permission: r.Permission})
 		}
-		result = append(result, &apiv1alpha1.OptionRuleSet{
-			Type:  toProtoRuleType(rs.Type),
-			Rules: protoRules,
-		})
+		result = append(result, RuleSet{Type: toRuleType(rs.Type), Rules: rules})
 	}
 	return result
 }
 
-func buildFallbackRules(ruleSets []mcgatewayv1alpha1.MinecraftFallbackFilterRuleSet, backends []discoveryv1.EndpointSlice) []*apiv1alpha1.OptionRuleSet {
-	result := make([]*apiv1alpha1.OptionRuleSet, 0, len(ruleSets))
+func buildFallbackRuleSets(ruleSets []mcgatewayv1alpha1.MinecraftFallbackFilterRuleSet, backends []discoveryv1.EndpointSlice) []RuleSet {
+	result := make([]RuleSet, 0, len(ruleSets))
 	for _, rs := range ruleSets {
-		protoRules := make([]*apiv1alpha1.Rule, 0, len(rs.Rules))
+		rules := make([]Rule, 0, len(rs.Rules))
 		for _, r := range rs.Rules {
-			// Expand FallbackFor label selector to concrete service namespaced names.
+			// Expand the FallbackFor label selector to concrete service names.
 			fallbackRefs := expandFallbackFor(r.FallbackFor, backends)
-			if len(fallbackRefs) > 0 {
-				for _, ref := range fallbackRefs {
-					protoRules = append(protoRules, buildRule(r.Domain, r.Permission, ref))
-				}
-			} else {
-				protoRules = append(protoRules, buildRule(r.Domain, r.Permission, ""))
+			if len(fallbackRefs) == 0 {
+				rules = append(rules, Rule{Domain: r.Domain, Permission: r.Permission})
+				continue
+			}
+			for _, ref := range fallbackRefs {
+				rules = append(rules, Rule{Domain: r.Domain, Permission: r.Permission, FallbackFor: ref})
 			}
 		}
-		result = append(result, &apiv1alpha1.OptionRuleSet{
-			Type:  toProtoRuleType(rs.Type),
-			Rules: protoRules,
-		})
+		result = append(result, RuleSet{Type: toRuleType(rs.Type), Rules: rules})
 	}
 	return result
 }
@@ -252,7 +246,6 @@ func expandFallbackFor(sel metav1.LabelSelector, backends []discoveryv1.Endpoint
 		return nil
 	}
 	seen := make(map[string]struct{})
-	var refs []string
 	for _, slice := range backends {
 		svcName, ok := slice.Labels[labelServiceName]
 		if !ok {
@@ -261,48 +254,43 @@ func expandFallbackFor(sel metav1.LabelSelector, backends []discoveryv1.Endpoint
 		if !selector.Matches(labels.Set(slice.Labels)) {
 			continue
 		}
-		ref := slice.Namespace + "/" + svcName
-		if _, ok := seen[ref]; ok {
-			continue
+		seen[slice.Namespace+"/"+svcName] = struct{}{}
+	}
+	return sortedKeys(seen)
+}
+
+// mergeSliceLabels collects the labels of a service's EndpointSlices, which is
+// the same label source fallbackFor selectors match against.
+func mergeSliceLabels(slices []discoveryv1.EndpointSlice) map[string]string {
+	if len(slices) == 0 {
+		return nil
+	}
+	merged := make(map[string]string)
+	for _, slice := range slices {
+		for k, v := range slice.Labels {
+			merged[k] = v
 		}
-		seen[ref] = struct{}{}
-		refs = append(refs, ref)
 	}
-	return refs
+	return merged
 }
 
-func buildRule(domain, permission, fallbackFor string) *apiv1alpha1.Rule {
-	r := &apiv1alpha1.Rule{}
-	if domain != "" {
-		r.Domain = &domain
+func sortedKeys(set map[string]struct{}) []string {
+	if len(set) == 0 {
+		return nil
 	}
-	if permission != "" {
-		r.Permission = &permission
+	out := make([]string, 0, len(set))
+	for k := range set {
+		out = append(out, k)
 	}
-	if fallbackFor != "" {
-		r.FallbackFor = &fallbackFor
-	}
-	return r
+	sort.Strings(out)
+	return out
 }
 
-func toProtoRuleType(t mcgatewayv1alpha1.MinecraftFilterRuleType) apiv1alpha1.RuleType {
-	switch t {
-	case mcgatewayv1alpha1.MinecraftFilterRuleAll:
-		return apiv1alpha1.RuleType_ALL
-	case mcgatewayv1alpha1.MinecraftFilterRuleAny:
-		return apiv1alpha1.RuleType_ANY
-	case mcgatewayv1alpha1.MinecraftFilterRuleNone:
-		return apiv1alpha1.RuleType_NONE
-	default:
-		return apiv1alpha1.RuleType_ALL
+func sortedKeysOf[V any](m map[string]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
 	}
-}
-
-func toProtoDistStrategy(s mcgatewayv1alpha1.MinecraftDistributionStrategy) apiv1alpha1.DistributionStrategy {
-	switch s.Type {
-	case mcgatewayv1alpha1.MinecraftDistributionStrategyLeastPlayers:
-		return apiv1alpha1.DistributionStrategy_LEAST_PLAYERS
-	default:
-		return apiv1alpha1.DistributionStrategy_RANDOM
-	}
+	sort.Strings(out)
+	return out
 }

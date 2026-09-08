@@ -51,6 +51,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"minefleet.dev/minecraft-gateway/internal/controller"
+	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/version"
 	// +kubebuilder:scaffold:imports
 )
@@ -266,9 +267,15 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "GatewayClass")
 		os.Exit(1)
 	}
+	// The proxy stream state is shared: the Gateway reconciler hands it to the
+	// dataplane so configuration reaches connected proxies, and the
+	// PlayerTransfer reconciler reads presence from it and pushes moves.
+	streams := network.NewStreamManager()
+
 	if err := (&controller.GatewayReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:  mgr.GetClient(),
+		Scheme:  mgr.GetScheme(),
+		Streams: streams,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Gateway")
 		os.Exit(1)
@@ -295,8 +302,9 @@ func main() {
 		os.Exit(1)
 	}
 	if err := (&controller.PlayerTransferReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:  mgr.GetClient(),
+		Scheme:  mgr.GetScheme(),
+		Streams: streams,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PlayerTransfer")
 		os.Exit(1)

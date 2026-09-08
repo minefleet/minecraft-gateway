@@ -106,7 +106,6 @@ rules:
   - minecraftfallbackroutes/finalizers
   - minecraftjoinroutes/finalizers
   - networkinfrastructures/finalizers
-  - playertransfers/finalizers
   verbs:
   - update
 - apiGroups:
