@@ -11,6 +11,6 @@ spec:
   players:
     - 46bad177-5a94-459b-9f10-03335f2f5f18
   target:
-    serverName: example-gameserver-799b4bb48f-4cjmg
+    routeMode: fallback
   policy: AllOrNothing
   ttl: 30s
