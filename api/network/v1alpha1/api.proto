@@ -7,16 +7,6 @@ option java_package = "dev.minefleet.api.gateway.networking.v1alpha1";
 
 import "network/v1alpha1/types.proto";
 
-message GetSnapshotRequest {
-  string gateway_namespace = 1;
-  string gateway_name = 2;
-  string listener_name = 3;
-}
-
-message GetSnapshotResponse {
-  Snapshot snapshot = 1;
-}
-
 // PlayerContext carries the proxy-side knowledge the controller needs to
 // evaluate routing rules for a player. Permissions are pre-evaluated by the
 // proxy against the required_permissions set most recently pushed in ServerSync.
@@ -136,8 +126,6 @@ message ControllerMessage {
 }
 
 service NetworkXDS {
-  rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse);
-
   // Connect is the persistent bidirectional stream between a proxy and the
   // controller. It replaces snapshot polling: the controller pushes server
   // registrations and routing decisions, the proxy reports player presence.

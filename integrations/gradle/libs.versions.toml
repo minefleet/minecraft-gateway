@@ -21,6 +21,7 @@ protobuf = { group = "com.google.protobuf", name = "protobuf-java", version.ref 
 grpc-stub = { group = "io.grpc", name = "grpc-stub", version.ref = "grpc" }
 grpc-protobuf = { group = "io.grpc", name = "grpc-protobuf", version.ref = "grpc" }
 grpc-netty-shaded = { group = "io.grpc", name = "grpc-netty-shaded", version.ref = "grpc" }
+grpc-inprocess = { group = "io.grpc", name = "grpc-inprocess", version.ref = "grpc" }
 
 # Integration Platform APIs
 velocity-api = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity-api" }

@@ -7,15 +7,9 @@ import java.util.OptionalInt;
 public final class ManagedServer {
 
     private final Types.ManagedServer proto;
-    private final String parentNamespacedName;
 
-    public ManagedServer(String parentNamespacedName, Types.ManagedServer proto) {
+    public ManagedServer(Types.ManagedServer proto) {
         this.proto = proto;
-        this.parentNamespacedName = parentNamespacedName;
-    }
-
-    public String parentNamespacedName() {
-        return parentNamespacedName;
     }
 
     public String uniqueId() {

@@ -19,15 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NetworkXDS_GetSnapshot_FullMethodName = "/network.v1alpha1.NetworkXDS/GetSnapshot"
-	NetworkXDS_Connect_FullMethodName     = "/network.v1alpha1.NetworkXDS/Connect"
+	NetworkXDS_Connect_FullMethodName = "/network.v1alpha1.NetworkXDS/Connect"
 )
 
 // NetworkXDSClient is the client API for NetworkXDS service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NetworkXDSClient interface {
-	GetSnapshot(ctx context.Context, in *GetSnapshotRequest, opts ...grpc.CallOption) (*GetSnapshotResponse, error)
 	// Connect is the persistent bidirectional stream between a proxy and the
 	// controller. It replaces snapshot polling: the controller pushes server
 	// registrations and routing decisions, the proxy reports player presence.
@@ -40,16 +38,6 @@ type networkXDSClient struct {
 
 func NewNetworkXDSClient(cc grpc.ClientConnInterface) NetworkXDSClient {
 	return &networkXDSClient{cc}
-}
-
-func (c *networkXDSClient) GetSnapshot(ctx context.Context, in *GetSnapshotRequest, opts ...grpc.CallOption) (*GetSnapshotResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSnapshotResponse)
-	err := c.cc.Invoke(ctx, NetworkXDS_GetSnapshot_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *networkXDSClient) Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ProxyMessage, ControllerMessage], error) {
@@ -69,7 +57,6 @@ type NetworkXDS_ConnectClient = grpc.BidiStreamingClient[ProxyMessage, Controlle
 // All implementations must embed UnimplementedNetworkXDSServer
 // for forward compatibility.
 type NetworkXDSServer interface {
-	GetSnapshot(context.Context, *GetSnapshotRequest) (*GetSnapshotResponse, error)
 	// Connect is the persistent bidirectional stream between a proxy and the
 	// controller. It replaces snapshot polling: the controller pushes server
 	// registrations and routing decisions, the proxy reports player presence.
@@ -84,9 +71,6 @@ type NetworkXDSServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNetworkXDSServer struct{}
 
-func (UnimplementedNetworkXDSServer) GetSnapshot(context.Context, *GetSnapshotRequest) (*GetSnapshotResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetSnapshot not implemented")
-}
 func (UnimplementedNetworkXDSServer) Connect(grpc.BidiStreamingServer[ProxyMessage, ControllerMessage]) error {
 	return status.Error(codes.Unimplemented, "method Connect not implemented")
 }
@@ -111,24 +95,6 @@ func RegisterNetworkXDSServer(s grpc.ServiceRegistrar, srv NetworkXDSServer) {
 	s.RegisterService(&NetworkXDS_ServiceDesc, srv)
 }
 
-func _NetworkXDS_GetSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSnapshotRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NetworkXDSServer).GetSnapshot(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: NetworkXDS_GetSnapshot_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NetworkXDSServer).GetSnapshot(ctx, req.(*GetSnapshotRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _NetworkXDS_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(NetworkXDSServer).Connect(&grpc.GenericServerStream[ProxyMessage, ControllerMessage]{ServerStream: stream})
 }
@@ -142,12 +108,7 @@ type NetworkXDS_ConnectServer = grpc.BidiStreamingServer[ProxyMessage, Controlle
 var NetworkXDS_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "network.v1alpha1.NetworkXDS",
 	HandlerType: (*NetworkXDSServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetSnapshot",
-			Handler:    _NetworkXDS_GetSnapshot_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Connect",

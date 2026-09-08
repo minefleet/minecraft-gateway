@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.TextColor;
 
 import java.net.InetSocketAddress;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 class VelocityNetworkPlayer implements NetworkPlayer {
@@ -53,6 +54,11 @@ class VelocityNetworkPlayer implements NetworkPlayer {
     }
 
     @Override
+    public UUID getUuid() {
+        return player.getUniqueId();
+    }
+
+    @Override
     public String getConnectedDomain() {
         return player.getVirtualHost()
                 .map(InetSocketAddress::getHostString)
@@ -82,6 +88,9 @@ class VelocityNetworkPlayer implements NetworkPlayer {
                     Component.text("No server is currently available to join.").color(TextColor.color(0xc92222));
             case NO_FALLBACK ->
                     Component.text("No fallback server is currently available.").color(TextColor.color(0xc92222));
+            case ROUTING_UNAVAILABLE ->
+                    Component.text("The network is temporarily unavailable. Please try again shortly.")
+                            .color(TextColor.color(0xc92222));
         };
         kickHandler.accept(message);
     }
