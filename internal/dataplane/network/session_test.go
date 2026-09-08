@@ -66,11 +66,17 @@ func TestRemoveIgnoresAlreadyReplacedSession(t *testing.T) {
 	second := newProxySession(helloFor("proxy-a"))
 	r.Add(second)
 
-	// The old stream's cleanup must not evict the session that replaced it.
-	r.Remove(first)
-
+	// The old stream's cleanup must not evict the session that replaced it, and
+	// must report that it removed nothing so presence is left alone.
+	if removed := r.Remove(first); removed {
+		t.Error("removing a replaced session should report that it was not current")
+	}
 	if _, ok := r.Get("proxy-a"); !ok {
 		t.Error("the current session should still be registered")
+	}
+
+	if removed := r.Remove(second); !removed {
+		t.Error("removing the current session should report that it was current")
 	}
 }
 

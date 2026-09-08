@@ -49,9 +49,14 @@ func (s *streamServer) Connect(stream apiv1alpha1.NetworkXDS_ConnectServer) erro
 		s.mgr.presence.DropProxy(replaced.ProxyID)
 	}
 	defer func() {
-		s.mgr.sessions.Remove(session)
+		// Only forget this proxy's players if this stream is still the current
+		// one. If the proxy already reconnected, the replacement has replayed
+		// its presence and dropping it here would blind the controller.
+		current := s.mgr.sessions.Remove(session)
 		session.Close()
-		s.mgr.presence.DropProxy(session.ProxyID)
+		if current {
+			s.mgr.presence.DropProxy(session.ProxyID)
+		}
 	}()
 
 	log.Info("proxy connected",

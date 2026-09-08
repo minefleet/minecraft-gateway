@@ -110,14 +110,17 @@ func (r *SessionRegistry) Add(s *ProxySession) (replaced *ProxySession) {
 	return replaced
 }
 
-// Remove deregisters a session, unless it has already been replaced.
-func (r *SessionRegistry) Remove(s *ProxySession) {
+// Remove deregisters a session and reports whether it was still the current
+// one. A session that has already been replaced by a reconnect removes nothing,
+// so its cleanup must not disturb the session that replaced it.
+func (r *SessionRegistry) Remove(s *ProxySession) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if current, ok := r.byProxy[s.ProxyID]; !ok || current != s {
-		return
+		return false
 	}
 	r.removeLocked(s)
+	return true
 }
 
 func (r *SessionRegistry) removeLocked(s *ProxySession) {
