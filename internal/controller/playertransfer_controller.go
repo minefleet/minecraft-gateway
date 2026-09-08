@@ -306,8 +306,10 @@ func (r *PlayerTransferReconciler) redispatchStaleMoves(ctx context.Context, tra
 			continue
 		}
 		commandID := commandIDFor(transfer, string(assignment.PlayerUUID))
-		sentAt, ok := r.moves.Load(commandID)
-		if !ok || time.Since(sentAt.(time.Time)) < moveGracePeriod {
+		// A missing record means this controller never sent the command itself:
+		// leadership moved, or it restarted mid-transfer. Re-send rather than
+		// leave the transfer waiting on a result that will never arrive.
+		if sentAt, ok := r.moves.Load(commandID); ok && time.Since(sentAt.(time.Time)) < moveGracePeriod {
 			continue
 		}
 		presence, present := r.presenceFor(transfer, string(assignment.PlayerUUID))

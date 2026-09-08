@@ -371,6 +371,22 @@ var _ = Describe("PlayerTransfer Controller", func() {
 		})
 	})
 
+	It("re-sends a move whose result was lost with the previous leader", func() {
+		name := create(baseSpec(alice))
+		streams.connect(alice, "lobby-0")
+		reconcileOnce(name)
+		Expect(streams.sentMoves()).To(HaveLen(1))
+
+		// A new leader takes over: the transfer is still Moving, but nothing
+		// in memory records that the command was ever sent.
+		fresh := &PlayerTransferReconciler{Client: k8sClient, Scheme: k8sClient.Scheme(), Streams: streams}
+		_, err := fresh.Reconcile(ctx, reconcile.Request{NamespacedName: name})
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(streams.sentMoves()).To(HaveLen(2),
+			"the move must be re-sent rather than awaited forever")
+	})
+
 	It("does not reconcile a transfer that already settled", func() {
 		name := create(baseSpec(alice))
 		streams.connect(alice, "lobby-0")
