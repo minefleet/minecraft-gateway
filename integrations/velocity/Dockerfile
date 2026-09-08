@@ -18,9 +18,12 @@ COPY --from=build /velocity.jar ./velocity.jar
 RUN mkdir -p plugins
 COPY --from=build /workspace/velocity/build/libs/velocity-*-all.jar plugins/minefleet.jar
 
+COPY --chmod=755 integrations/velocity/docker-entrypoint.sh /docker-entrypoint.sh
+
 EXPOSE 25565
 
-ENTRYPOINT ["java", \
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["java", \
     "-XX:+UseG1GC", \
     "-XX:G1HeapRegionSize=4M", \
     "-XX:+UnlockExperimentalVMOptions", \

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:2026.1.1-java21-alpine
+          image: itzg/minecraft-server:2026.9.0-java25-alpine
           imagePullPolicy: IfNotPresent
           ports:
             - name: minecraft
@@ -26,7 +26,7 @@ spec:
             - name: EULA
               value: "true"
             - name: VERSION
-              value: "1.21.11"
+              value: "26.2"
             - name: TYPE
               value: "PAPER"
             - name: ONLINE_MODE

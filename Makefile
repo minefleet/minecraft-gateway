@@ -92,7 +92,7 @@ test: manifests generate fmt vet network-test setup-envtest ## Run tests.
 # The default setup assumes Kind is pre-installed and builds/loads the Manager Docker image locally.
 # CertManager is installed by default; skip with:
 # - CERT_MANAGER_INSTALL_SKIP=true
-KIND_CLUSTER ?= minecraft-gateway-test-e2e
+KIND_CLUSTER ?= minefleet-gateway-test
 
 .PHONY: image-load
 image-load: controller-image-load edge-image-load network-image-load

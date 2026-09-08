@@ -22,12 +22,11 @@ spec:
                 subPath: forwarding.secret
                 name: forwarding-secret
                 readOnly: true
-              - mountPath: "/velocity/velocity.toml"
-                subPath: velocity.toml
-                name: network-config
-                readOnly: true
-              - mountPath: "/velocity/server-icon.png"
-                subPath: server-icon.png
+              # Files placed in /config are staged into Velocity's working
+              # directory at startup. Velocity rewrites velocity.toml when it
+              # migrates config between versions, and it cannot do that on a
+              # ConfigMap mount, which is always read-only.
+              - mountPath: "/config"
                 name: network-config
                 readOnly: true
 

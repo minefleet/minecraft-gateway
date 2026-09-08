@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/go-logr/logr"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
@@ -118,14 +119,20 @@ func (s *streamServer) handle(ctx context.Context, session *ProxySession, msg *a
 		event := m.PresenceEvent
 		if event.GetKind() == apiv1alpha1.PlayerPresenceEvent_KIND_DISCONNECTED {
 			s.mgr.presence.Remove(event.GetPlayerUuid())
+			log.Info("player left", "player", event.GetPlayerUuid(), "proxy", session.ProxyID)
 			return
 		}
 		s.mgr.presence.Set(presenceOf(session, event.GetPlayerUuid(), event.GetServerName(), event.GetContext()))
 		// The player has arrived, so the capacity held for them is no longer pending.
 		s.mgr.router.Release(event.GetServerName())
+		log.Info("player present",
+			"player", event.GetPlayerUuid(),
+			"server", event.GetServerName(),
+			"gateway", session.GatewayNamespace+"/"+session.GatewayName,
+			"listener", session.ListenerName)
 
 	case *apiv1alpha1.ProxyMessage_RouteRequest:
-		s.respondToRoute(session, m.RouteRequest)
+		s.respondToRoute(log, session, m.RouteRequest)
 
 	case *apiv1alpha1.ProxyMessage_MoveResult:
 		s.mgr.publishMoveResult(MoveOutcome{
@@ -148,10 +155,12 @@ func (s *streamServer) handle(ctx context.Context, session *ProxySession, msg *a
 	}
 }
 
-func (s *streamServer) respondToRoute(session *ProxySession, req *apiv1alpha1.RouteRequest) {
+func (s *streamServer) respondToRoute(log logr.Logger, session *ProxySession, req *apiv1alpha1.RouteRequest) {
 	kind := RouteKindJoin
+	kindName := "join"
 	if req.GetKind() == apiv1alpha1.RouteKind_ROUTE_KIND_FALLBACK {
 		kind = RouteKindFallback
+		kindName = "fallback"
 	}
 
 	query := RouteQuery{
@@ -168,6 +177,18 @@ func (s *streamServer) respondToRoute(session *ProxySession, req *apiv1alpha1.Ro
 	if server, ok := s.mgr.ResolveRoute(session.GatewayNamespace, session.GatewayName, session.ListenerName, query); ok {
 		response.Result = apiv1alpha1.RouteResponse_RESULT_OK
 		response.ServerName = server.Name
+		log.Info("routed player",
+			"player", req.GetPlayerUuid(),
+			"kind", kindName,
+			"server", server.Name,
+			"domain", query.Context.ConnectedDomain)
+	} else {
+		log.Info("no route matched",
+			"player", req.GetPlayerUuid(),
+			"kind", kindName,
+			"domain", query.Context.ConnectedDomain,
+			"gateway", session.GatewayNamespace+"/"+session.GatewayName,
+			"listener", session.ListenerName)
 	}
 
 	if err := session.Send(&apiv1alpha1.ControllerMessage{

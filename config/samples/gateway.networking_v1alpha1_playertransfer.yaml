@@ -6,12 +6,11 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: playertransfer-sample
 spec:
-  gatewayName: minecraft-gateway
+  gatewayName: minefleet-gateway-sample
   listenerName: minecraft
   players:
-    - 6bf1e7f4-2c15-4c2f-9a5e-1a0b3c4d5e6f
-    - 9d2c8a10-77b3-4a1e-8f0c-2b3d4e5f6a7b
+    - 46bad177-5a94-459b-9f10-03335f2f5f18
   target:
-    serverName: lobby-0
+    serverName: example-gameserver-799b4bb48f-4cjmg
   policy: AllOrNothing
   ttl: 30s

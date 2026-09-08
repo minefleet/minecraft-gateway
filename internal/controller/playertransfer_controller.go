@@ -142,16 +142,31 @@ func (r *PlayerTransferReconciler) reconcileAllOrNothing(ctx context.Context, tr
 	}
 
 	presences := make(map[string]networkdp.Presence, len(transfer.Spec.Players))
+	var missing []string
 	for _, player := range transfer.Spec.Players {
-		presence, ok := r.presenceFor(transfer, string(player))
+		presence, ok := r.presenceFor(ctx, transfer, string(player))
 		if !ok {
-			if expired {
-				transfer.Status.Phase = mcgatewayv1alpha1.ExpiredPlayerTransferPhase
-				failRemaining(transfer, mcgatewayv1alpha1.PlayerAssignmentReasonNotConnected)
-			}
-			return
+			missing = append(missing, string(player))
+			continue
 		}
 		presences[string(player)] = presence
+	}
+
+	if len(missing) > 0 {
+		if expired {
+			transfer.Status.Phase = mcgatewayv1alpha1.ExpiredPlayerTransferPhase
+			failRemaining(transfer, mcgatewayv1alpha1.PlayerAssignmentReasonNotConnected)
+			return
+		}
+		// AllOrNothing moves nobody until everyone is here, so say who is holding
+		// it up rather than leaving the transfer silently Pending.
+		logf.FromContext(ctx).Info("waiting for players to connect",
+			"present", len(presences),
+			"of", len(transfer.Spec.Players),
+			"missing", missing,
+			"gateway", transfer.Namespace+"/"+transfer.Spec.GatewayName,
+			"listener", transfer.Spec.ListenerName)
+		return
 	}
 
 	r.dispatch(ctx, transfer, presences)
@@ -167,7 +182,7 @@ func (r *PlayerTransferReconciler) reconcileBestEffort(ctx context.Context, tran
 		if assignment.Phase != mcgatewayv1alpha1.PendingPlayerAssignmentPhase {
 			continue
 		}
-		presence, ok := r.presenceFor(transfer, string(assignment.PlayerUUID))
+		presence, ok := r.presenceFor(ctx, transfer, string(assignment.PlayerUUID))
 		if !ok {
 			if expired {
 				assignment.Phase = mcgatewayv1alpha1.FailedPlayerAssignmentPhase
@@ -285,7 +300,7 @@ func (r *PlayerTransferReconciler) resolveSelector(transfer *mcgatewayv1alpha1.P
 
 // presenceFor returns a player's presence only if they are on the gateway
 // listener this transfer addresses.
-func (r *PlayerTransferReconciler) presenceFor(transfer *mcgatewayv1alpha1.PlayerTransfer, playerUUID string) (networkdp.Presence, bool) {
+func (r *PlayerTransferReconciler) presenceFor(ctx context.Context, transfer *mcgatewayv1alpha1.PlayerTransfer, playerUUID string) (networkdp.Presence, bool) {
 	presence, ok := r.Streams.Lookup(playerUUID)
 	if !ok {
 		return networkdp.Presence{}, false
@@ -293,6 +308,12 @@ func (r *PlayerTransferReconciler) presenceFor(transfer *mcgatewayv1alpha1.Playe
 	if presence.GatewayNamespace != transfer.Namespace ||
 		presence.GatewayName != transfer.Spec.GatewayName ||
 		presence.ListenerName != transfer.Spec.ListenerName {
+		// The player is online, just not where this transfer is looking. That
+		// is nearly always a misaddressed transfer rather than a missing player.
+		logf.FromContext(ctx).Info("player is connected to a different gateway listener",
+			"player", playerUUID,
+			"playerIsOn", presence.GatewayNamespace+"/"+presence.GatewayName+"#"+presence.ListenerName,
+			"transferTargets", transfer.Namespace+"/"+transfer.Spec.GatewayName+"#"+transfer.Spec.ListenerName)
 		return networkdp.Presence{}, false
 	}
 	return presence, true
@@ -312,7 +333,7 @@ func (r *PlayerTransferReconciler) redispatchStaleMoves(ctx context.Context, tra
 		if sentAt, ok := r.moves.Load(commandID); ok && time.Since(sentAt.(time.Time)) < moveGracePeriod {
 			continue
 		}
-		presence, present := r.presenceFor(transfer, string(assignment.PlayerUUID))
+		presence, present := r.presenceFor(ctx, transfer, string(assignment.PlayerUUID))
 		if !present {
 			continue
 		}
