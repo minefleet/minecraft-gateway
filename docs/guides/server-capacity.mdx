@@ -21,6 +21,10 @@ Two annotations work together as a pair:
 
 **Both annotations must be present** for capacity tracking to activate. If either annotation is missing or cannot be parsed as a non-negative integer, both are ignored and the pod behaves as it did before — always routable, with no capacity limit.
 
+<Note>
+This is the capacity of one **game server pod**, used to decide where to route a player. It is unrelated to the number a server list ping advertises, which comes from the proxies' own configuration — see [`playerCount`](/reference/network-infrastructure#playercount).
+</Note>
+
 ## Setting the annotations
 
 The annotations can be written by any process with Kubernetes API access to pods — a game server controller, a sidecar, or in-process code inside the game server itself. The gateway does not care who sets them.

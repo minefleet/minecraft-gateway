@@ -54,6 +54,8 @@ public class NetworkGateway {
     private volatile List<String> requiredPermissions = List.of();
     /** In-flight routing requests, awaiting a response by correlation id. */
     private final Map<String, CompletableFuture<Api.RouteResponse>> pendingRoutes = new ConcurrentHashMap<>();
+    /** The last aggregated count pushed by the controller, or null if it aggregates none. */
+    private volatile PlayerCount aggregatedPlayerCount;
 
     @SuppressWarnings("rawtypes")
     private PlayerProvider playerProvider;
@@ -66,7 +68,21 @@ public class NetworkGateway {
                 builder.channel,
                 builder.context,
                 this::handle,
-                builder.presenceSupplier);
+                builder.presenceSupplier,
+                statusSupplierOf(builder.playerCountSupplier));
+    }
+
+    private static Supplier<Api.ProxyStatus> statusSupplierOf(Supplier<PlayerCount> supplier) {
+        return () -> {
+            PlayerCount own = supplier.get();
+            if (own == null) {
+                return null;
+            }
+            return Api.ProxyStatus.newBuilder()
+                    .setOnlinePlayers(Math.max(0, own.onlinePlayers()))
+                    .setMaxPlayers(Math.max(0, own.maxPlayers()))
+                    .build();
+        };
     }
 
     public void start() {
@@ -85,6 +101,29 @@ public class NetworkGateway {
     /** The permissions the controller asked this proxy to evaluate. */
     public List<String> requiredPermissions() {
         return requiredPermissions;
+    }
+
+    // ----------------------------------------------------------- player count
+
+    /**
+     * The player count a ping should advertise, summed by the controller across
+     * every proxy in the gateway's configured scope.
+     *
+     * <p>Empty when the gateway does not aggregate counts, or before the first
+     * push has arrived. Callers must leave their platform's own numbers alone in
+     * that case rather than substituting zero.
+     */
+    public Optional<PlayerCount> aggregatedPlayerCount() {
+        return Optional.ofNullable(aggregatedPlayerCount);
+    }
+
+    /**
+     * Reports this proxy's own player count to the controller. Call it whenever
+     * the count changes — a player logging in or disconnecting — so the other
+     * proxies' pings reflect it promptly.
+     */
+    public void reportPlayerCount() {
+        stream.reportStatus();
     }
 
     // ---------------------------------------------------------------- routing
@@ -201,6 +240,12 @@ public class NetworkGateway {
                 }
             }
             case MOVE -> applyMove(message.getMove());
+            case PLAYER_COUNT -> aggregatedPlayerCount = message.getPlayerCount().getAggregated()
+                    ? new PlayerCount(
+                            message.getPlayerCount().getOnlinePlayers(),
+                            message.getPlayerCount().getMaxPlayers())
+                    // The gateway stopped aggregating; go back to our own numbers.
+                    : null;
             case MESSAGE_NOT_SET -> LOGGER.fine("ignoring empty controller message");
         }
     }
@@ -337,6 +382,7 @@ public class NetworkGateway {
         private ServerRegistrar registrar;
         private int retries = 3;
         private Supplier<List<Api.PresenceEntry>> presenceSupplier = Collections::emptyList;
+        private Supplier<PlayerCount> playerCountSupplier = () -> null;
 
         public Builder channel(Channel channel) {
             this.channel = channel;
@@ -361,6 +407,16 @@ public class NetworkGateway {
         /** Supplies the players to replay whenever the stream reconnects. */
         public Builder presenceSupplier(Supplier<List<Api.PresenceEntry>> presenceSupplier) {
             this.presenceSupplier = presenceSupplier;
+            return this;
+        }
+
+        /**
+         * Supplies this proxy's own player count and the capacity its
+         * configuration admits. Without it the proxy contributes nothing to the
+         * aggregated counts and never receives one.
+         */
+        public Builder playerCountSupplier(Supplier<PlayerCount> playerCountSupplier) {
+            this.playerCountSupplier = playerCountSupplier;
             return this;
         }
 

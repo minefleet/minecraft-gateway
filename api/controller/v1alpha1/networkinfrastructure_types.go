@@ -66,7 +66,42 @@ type NetworkInfrastructureSpec struct {
 	// behavior for gateways using this infrastructure.
 	// +optional
 	Edge *EdgeSpec `json:"edgeTemplate,omitempty"`
+
+	// playerCount optionally makes the network proxies report an aggregated
+	// player count in server list ping responses, instead of each proxy
+	// replica reporting only its own. Leave it unset to keep each proxy's own
+	// numbers.
+	// +optional
+	PlayerCount *PlayerCountSpec `json:"playerCount,omitempty"`
 }
+
+// PlayerCountSpec configures the aggregated player count the network proxies
+// report in server list ping responses. The counts are summed from what each
+// connected proxy reports about itself: its current player count and the
+// capacity its own configuration admits (Velocity's show-max-players). Only
+// proxies with a live stream to the controller are counted, so a proxy that is
+// down does not advertise capacity nobody can use.
+type PlayerCountSpec struct {
+	// scope selects which proxies are summed into the counts a proxy reports.
+	// Gateway sums every proxy of every listener on the gateway, so all
+	// listeners advertise the same network-wide numbers. Listener sums only
+	// the proxies of the listener being pinged, so listeners advertise
+	// separately. Defaults to Gateway.
+	// +optional
+	// +kubebuilder:default=gateway
+	Scope PlayerCountScope `json:"scope,omitempty"`
+}
+
+// PlayerCountScope selects which proxies are aggregated into a ping response.
+// +kubebuilder:validation:Enum=gateway;listener
+type PlayerCountScope string
+
+const (
+	// GatewayPlayerCountScope sums every proxy of the gateway, across listeners.
+	GatewayPlayerCountScope PlayerCountScope = "gateway"
+	// ListenerPlayerCountScope sums only the proxies of one listener.
+	ListenerPlayerCountScope PlayerCountScope = "listener"
+)
 
 // EdgeSpec configures the edge proxy DaemonSet and the xDS resources the
 // controller pushes to it.

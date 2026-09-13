@@ -68,7 +68,9 @@ func (s *Snapshot) All() []*ListenerSnapshot {
 type GatewaySnapshotCache = map[types.NamespacedName]map[string]ListenerSnapshot
 
 // BuildListenerSnapshot constructs a ListenerSnapshot for one gateway listener.
-func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTree, backends []discoveryv1.EndpointSlice, podAnnotations map[string]map[string]string) ListenerSnapshot {
+// playerCount is the gateway's merged infrastructure setting; nil leaves each
+// proxy reporting its own player count in ping responses.
+func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTree, backends []discoveryv1.EndpointSlice, podAnnotations map[string]map[string]string, playerCount *mcgatewayv1alpha1.PlayerCountSpec) ListenerSnapshot {
 	listener := lt.Listener
 	routes := lt.Routes()
 	// Index EndpointSlices by service key (namespace/name).
@@ -138,6 +140,7 @@ func BuildListenerSnapshot(gateway types.NamespacedName, lt topology.ListenerTre
 		GatewayName:      gateway.Name,
 		ListenerName:     string(listener.GetName()),
 		Services:         services,
+		PlayerCount:      toPlayerCountConfig(playerCount),
 	}
 }
 

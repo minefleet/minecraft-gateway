@@ -82,6 +82,26 @@ message ServerPlayerCounts {
   map<string, uint32> counts_by_server = 1;
 }
 
+// ProxyStatus is one proxy's report on itself: how many players it currently
+// holds and how many its own configuration admits. A proxy sends it on connect
+// and whenever its player count changes. The controller sums these across the
+// proxies in scope to build the aggregated counts it pushes back in
+// PlayerCountSync.
+message ProxyStatus {
+  uint32 online_players = 1;
+  uint32 max_players = 2;
+}
+
+// PlayerCountSync carries the aggregated player counts a proxy should report in
+// server list ping responses, summed over every proxy in the configured scope.
+// aggregated is false when the gateway has stopped aggregating, telling a proxy
+// that was given a total to go back to reporting its own numbers.
+message PlayerCountSync {
+  uint32 online_players = 1;
+  uint32 max_players = 2;
+  bool aggregated = 3;
+}
+
 // ServerSync is the full set of servers the proxy should have registered, plus
 // the permissions it must evaluate for every RouteRequest and presence event.
 message ServerSync {
@@ -113,6 +133,7 @@ message ProxyMessage {
     PlayerPresenceEvent presence_event = 4;
     ServerPlayerCounts player_counts = 5;
     MoveResult move_result = 6;
+    ProxyStatus status = 7;
   }
 }
 
@@ -122,6 +143,7 @@ message ControllerMessage {
     ServerSync server_sync = 1;
     RouteResponse route_response = 2;
     MoveCommand move = 3;
+    PlayerCountSync player_count = 4;
   }
 }
 

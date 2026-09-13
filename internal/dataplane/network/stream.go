@@ -49,6 +49,9 @@ func (s *streamServer) Connect(stream apiv1alpha1.NetworkXDS_ConnectServer) erro
 		// The same proxy reconnected; its old presence is about to be replayed.
 		s.mgr.presence.DropProxy(replaced.ProxyID)
 	}
+	// A proxy joining or leaving changes the totals of the proxies it is
+	// aggregated with, and the newcomer has to be told the current figures.
+	s.mgr.playerCounts.MarkDirty()
 	defer func() {
 		// Only forget this proxy's players if this stream is still the current
 		// one. If the proxy already reconnected, the replacement has replayed
@@ -57,6 +60,9 @@ func (s *streamServer) Connect(stream apiv1alpha1.NetworkXDS_ConnectServer) erro
 		session.Close()
 		if current {
 			s.mgr.presence.DropProxy(session.ProxyID)
+			// A disconnected proxy must stop advertising capacity that nobody
+			// can connect to.
+			s.mgr.playerCounts.Drop(session.ProxyID)
 		}
 	}()
 
@@ -149,6 +155,16 @@ func (s *streamServer) handle(ctx context.Context, session *ProxySession, msg *a
 					"server", server, "proxyReported", reported, "controllerKnows", known)
 			}
 		}
+
+	case *apiv1alpha1.ProxyMessage_Status:
+		s.mgr.playerCounts.Set(session.ProxyID, ProxyStatus{
+			OnlinePlayers: m.Status.GetOnlinePlayers(),
+			MaxPlayers:    m.Status.GetMaxPlayers(),
+		})
+		log.V(1).Info("proxy status",
+			"proxy", session.ProxyID,
+			"online", m.Status.GetOnlinePlayers(),
+			"max", m.Status.GetMaxPlayers())
 
 	case *apiv1alpha1.ProxyMessage_Hello:
 		log.V(1).Info("ignoring repeated hello", "proxy", session.ProxyID)

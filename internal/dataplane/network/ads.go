@@ -46,6 +46,8 @@ func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, _ clie
 		}
 	}()
 
+	go mgr.RunPlayerCounts(ctx, playerCountFlushInterval)
+
 	go func() {
 		for {
 			select {

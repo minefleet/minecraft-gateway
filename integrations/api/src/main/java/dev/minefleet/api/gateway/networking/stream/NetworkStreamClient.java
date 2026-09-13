@@ -33,6 +33,13 @@ public class NetworkStreamClient {
     private static final long INITIAL_BACKOFF_MILLIS = 500;
     private static final long MAX_BACKOFF_MILLIS = 30_000;
 
+    /**
+     * How often the proxy re-reports its own player count as a safety net. The
+     * count is normally pushed as players join and leave; this only repairs the
+     * drift left by a message that was dropped while the stream was down.
+     */
+    private static final long STATUS_INTERVAL_SECONDS = 15;
+
     /** Connection state of the stream. */
     public enum State { DISCONNECTED, CONNECTING, READY }
 
@@ -41,6 +48,8 @@ public class NetworkStreamClient {
     private final Consumer<Api.ControllerMessage> onMessage;
     /** Supplies the full presence set to replay whenever the stream (re)connects. */
     private final Supplier<List<Api.PresenceEntry>> presenceSupplier;
+    /** Supplies this proxy's own player count, or null when it cannot report one. */
+    private final Supplier<Api.ProxyStatus> statusSupplier;
 
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(runnable -> {
@@ -58,10 +67,19 @@ public class NetworkStreamClient {
                                NetworkContext context,
                                Consumer<Api.ControllerMessage> onMessage,
                                Supplier<List<Api.PresenceEntry>> presenceSupplier) {
+        this(channel, context, onMessage, presenceSupplier, () -> null);
+    }
+
+    public NetworkStreamClient(Channel channel,
+                               NetworkContext context,
+                               Consumer<Api.ControllerMessage> onMessage,
+                               Supplier<List<Api.PresenceEntry>> presenceSupplier,
+                               Supplier<Api.ProxyStatus> statusSupplier) {
         this.channel = channel;
         this.context = context;
         this.onMessage = onMessage;
         this.presenceSupplier = presenceSupplier;
+        this.statusSupplier = statusSupplier;
     }
 
     public State state() {
@@ -76,6 +94,26 @@ public class NetworkStreamClient {
     public void start() {
         if (running.compareAndSet(false, true)) {
             connect();
+            scheduler.scheduleAtFixedRate(this::reportStatus,
+                    STATUS_INTERVAL_SECONDS, STATUS_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * Reports this proxy's own player count to the controller, which sums it
+     * with the other proxies of the gateway. Does nothing when the stream is
+     * down or the platform cannot supply a count; the next connect re-reports.
+     */
+    public void reportStatus() {
+        Api.ProxyStatus status;
+        try {
+            status = statusSupplier.get();
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.FINE, "could not read proxy status", e);
+            return;
+        }
+        if (status != null) {
+            send(Api.ProxyMessage.newBuilder().setStatus(status).build());
         }
     }
 
@@ -151,6 +189,9 @@ public class NetworkStreamClient {
                             .addAllPlayers(presenceSupplier.get()))
                     .build());
             state = State.READY;
+            // The controller drops a disconnected proxy's count, so re-report it
+            // before anything else can change it.
+            reportStatus();
         } catch (RuntimeException e) {
             LOGGER.log(Level.WARNING, "could not open network stream", e);
             scheduleReconnect();

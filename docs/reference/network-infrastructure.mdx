@@ -128,6 +128,30 @@ edgeTemplate:
             effect: NoSchedule
 ```
 
+### `playerCount`
+
+Optional. Makes the network proxies report an aggregated player count in server list ping responses, instead of each proxy replica reporting only the players it happens to be holding. Leave it unset and each replica reports its own numbers, which is Velocity's default behavior.
+
+| Field | Type | Description |
+|---|---|---|
+| `scope` | `string` | Which proxies are summed into the counts a proxy reports: `Gateway` (default) or `Listener`. |
+
+```yaml
+playerCount:
+  scope: Gateway
+```
+
+The controller sums what each connected proxy reports about itself: the players it currently holds, and the capacity its own `velocity.toml` admits through `show-max-players`. Three replicas configured with `show-max-players = 500` therefore advertise `1500` between them.
+
+| `scope` | Effect |
+|---|---|
+| `Gateway` | Every proxy of every listener on the gateway is summed, so all listeners advertise the same network-wide numbers. |
+| `Listener` | Only the proxies of the listener being pinged are summed, so a `vip` and a `normal` listener advertise separately. |
+
+Only proxies with a live stream to the controller are counted, so a proxy that is down stops advertising capacity nobody can connect through. Proxies whose integration does not report a count contribute nothing and keep their own numbers.
+
+The per-listener totals are also exported by the controller as the Prometheus gauges `minefleet_gateway_players_online` and `minefleet_gateway_players_max`, labeled by `gateway` and `listener`. Those are published whether or not `playerCount` is set.
+
 ## Status fields
 
 | Field | Description |
@@ -143,6 +167,7 @@ A `NetworkInfrastructure` can be referenced from a `GatewayClass` (cluster-wide 
 |---|---|
 | `edgeTemplate` | GatewayClass only — per-gateway values are ignored |
 | `networkTemplate` | Gateway-level overrides GatewayClass-level |
+| `playerCount` | Gateway-level overrides GatewayClass-level |
 | `discovery` | Gateway-level wins if present |
 
 This lets you configure the edge DaemonSet once at the class level while each gateway customizes its own network proxy.

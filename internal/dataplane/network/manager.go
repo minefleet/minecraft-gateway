@@ -19,9 +19,10 @@ type MoveRequest struct {
 // is. It is shared between the dataplane (which pushes configuration) and the
 // PlayerTransfer reconciler (which reads presence and sends move commands).
 type StreamManager struct {
-	sessions *SessionRegistry
-	presence *PresenceMap
-	router   *Router
+	sessions     *SessionRegistry
+	presence     *PresenceMap
+	router       *Router
+	playerCounts *PlayerCountAggregator
 
 	mu sync.RWMutex
 	// configs holds the latest routing configuration per gateway listener.
@@ -40,15 +41,19 @@ type MoveOutcome struct {
 func NewStreamManager() *StreamManager {
 	presence := NewPresenceMap()
 	return &StreamManager{
-		sessions: NewSessionRegistry(),
-		presence: presence,
-		router:   NewRouter(presence),
-		configs:  make(map[string]*ListenerSnapshot),
+		sessions:     NewSessionRegistry(),
+		presence:     presence,
+		router:       NewRouter(presence),
+		playerCounts: NewPlayerCountAggregator(),
+		configs:      make(map[string]*ListenerSnapshot),
 	}
 }
 
 // Presence exposes the global player presence map.
 func (m *StreamManager) Presence() *PresenceMap { return m.presence }
+
+// PlayerCounts exposes the aggregated per-proxy player counts.
+func (m *StreamManager) PlayerCounts() *PlayerCountAggregator { return m.playerCounts }
 
 // Lookup reports where a player currently is.
 func (m *StreamManager) Lookup(playerUUID string) (Presence, bool) {
@@ -89,6 +94,10 @@ func (m *StreamManager) UpdateSnapshot(snap Snapshot) {
 	m.mu.Lock()
 	m.configs = configs
 	m.mu.Unlock()
+
+	// A listener may have started or stopped aggregating player counts, so the
+	// next flush has to reconsider every proxy.
+	m.playerCounts.MarkDirty()
 
 	for _, ls := range snap.All() {
 		m.pushServerSync(ls)
@@ -139,6 +148,28 @@ func serverSyncMessage(ls *ListenerSnapshot) *apiv1alpha1.ControllerMessage {
 				Servers:             protoServers,
 				RequiredPermissions: ls.RequiredPermissions(),
 			},
+		},
+	}
+}
+
+func playerCountMessage(counts PlayerCounts) *apiv1alpha1.ControllerMessage {
+	return &apiv1alpha1.ControllerMessage{
+		Message: &apiv1alpha1.ControllerMessage_PlayerCount{
+			PlayerCount: &apiv1alpha1.PlayerCountSync{
+				Aggregated:    true,
+				OnlinePlayers: counts.OnlinePlayers,
+				MaxPlayers:    counts.MaxPlayers,
+			},
+		},
+	}
+}
+
+// playerCountDisabledMessage tells a proxy to stop using an aggregated count
+// and report its own numbers again.
+func playerCountDisabledMessage() *apiv1alpha1.ControllerMessage {
+	return &apiv1alpha1.ControllerMessage{
+		Message: &apiv1alpha1.ControllerMessage_PlayerCount{
+			PlayerCount: &apiv1alpha1.PlayerCountSync{Aggregated: false},
 		},
 	}
 }

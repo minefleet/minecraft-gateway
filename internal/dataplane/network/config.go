@@ -75,12 +75,32 @@ type Service struct {
 	FallbackRoutes       []Route
 }
 
+// PlayerCountScope selects which proxies are summed into the aggregated player
+// count a proxy reports in server list ping responses.
+type PlayerCountScope int
+
+const (
+	// PlayerCountScopeGateway sums every proxy of the gateway, across listeners.
+	PlayerCountScopeGateway PlayerCountScope = iota
+	// PlayerCountScopeListener sums only the proxies of one listener.
+	PlayerCountScopeListener
+)
+
+// PlayerCountConfig enables aggregated ping player counts for a listener. A nil
+// config leaves each proxy reporting only its own numbers.
+type PlayerCountConfig struct {
+	Scope PlayerCountScope
+}
+
 // ListenerSnapshot is the routing configuration for one gateway listener.
 type ListenerSnapshot struct {
 	GatewayNamespace string
 	GatewayName      string
 	ListenerName     string
 	Services         []*Service
+	// PlayerCount enables aggregated player counts in ping responses. Nil means
+	// each proxy reports its own count, which is Velocity's default behaviour.
+	PlayerCount *PlayerCountConfig
 }
 
 // RequiredPermissions returns the deduplicated set of permissions appearing in
@@ -134,6 +154,17 @@ func toRuleType(t mcgatewayv1alpha1.MinecraftFilterRuleType) RuleType {
 	default:
 		return RuleTypeAll
 	}
+}
+
+func toPlayerCountConfig(spec *mcgatewayv1alpha1.PlayerCountSpec) *PlayerCountConfig {
+	if spec == nil {
+		return nil
+	}
+	scope := PlayerCountScopeGateway
+	if spec.Scope == mcgatewayv1alpha1.ListenerPlayerCountScope {
+		scope = PlayerCountScopeListener
+	}
+	return &PlayerCountConfig{Scope: scope}
 }
 
 func toDistributionStrategy(s mcgatewayv1alpha1.MinecraftDistributionStrategy) DistributionStrategy {

@@ -7421,6 +7421,1135 @@ public final class Api extends com.google.protobuf.GeneratedFile {
 
   }
 
+  public interface ProxyStatusOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.ProxyStatus)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+     * @return The onlinePlayers.
+     */
+    int getOnlinePlayers();
+
+    /**
+     * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+     * @return The maxPlayers.
+     */
+    int getMaxPlayers();
+  }
+  /**
+   * <pre>
+   * ProxyStatus is one proxy's report on itself: how many players it currently
+   * holds and how many its own configuration admits. A proxy sends it on connect
+   * and whenever its player count changes. The controller sums these across the
+   * proxies in scope to build the aggregated counts it pushes back in
+   * PlayerCountSync.
+   * </pre>
+   *
+   * Protobuf type {@code network.v1alpha1.ProxyStatus}
+   */
+  public static final class ProxyStatus extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.ProxyStatus)
+      ProxyStatusOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "ProxyStatus");
+    }
+    // Use ProxyStatus.newBuilder() to construct.
+    private ProxyStatus(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private ProxyStatus() {
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_ProxyStatus_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_ProxyStatus_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_ProxyStatus_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder.class);
+    }
+
+    public static final int ONLINE_PLAYERS_FIELD_NUMBER = 1;
+    private int onlinePlayers_ = 0;
+    /**
+     * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+     * @return The onlinePlayers.
+     */
+    @java.lang.Override
+    public int getOnlinePlayers() {
+      return onlinePlayers_;
+    }
+
+    public static final int MAX_PLAYERS_FIELD_NUMBER = 2;
+    private int maxPlayers_ = 0;
+    /**
+     * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+     * @return The maxPlayers.
+     */
+    @java.lang.Override
+    public int getMaxPlayers() {
+      return maxPlayers_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (onlinePlayers_ != 0) {
+        output.writeUInt32(1, onlinePlayers_);
+      }
+      if (maxPlayers_ != 0) {
+        output.writeUInt32(2, maxPlayers_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+      if (onlinePlayers_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(1, onlinePlayers_);
+      }
+      if (maxPlayers_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(2, maxPlayers_);
+      }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) obj;
+
+      if (getOnlinePlayers()
+          != other.getOnlinePlayers()) return false;
+      if (getMaxPlayers()
+          != other.getMaxPlayers()) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + ONLINE_PLAYERS_FIELD_NUMBER;
+      hash = (53 * hash) + getOnlinePlayers();
+      hash = (37 * hash) + MAX_PLAYERS_FIELD_NUMBER;
+      hash = (53 * hash) + getMaxPlayers();
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * ProxyStatus is one proxy's report on itself: how many players it currently
+     * holds and how many its own configuration admits. A proxy sends it on connect
+     * and whenever its player count changes. The controller sums these across the
+     * proxies in scope to build the aggregated counts it pushes back in
+     * PlayerCountSync.
+     * </pre>
+     *
+     * Protobuf type {@code network.v1alpha1.ProxyStatus}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.ProxyStatus)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_ProxyStatus_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_ProxyStatus_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        onlinePlayers_ = 0;
+        maxPlayers_ = 0;
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_ProxyStatus_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.onlinePlayers_ = onlinePlayers_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.maxPlayers_ = maxPlayers_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance()) return this;
+        if (other.getOnlinePlayers() != 0) {
+          setOnlinePlayers(other.getOnlinePlayers());
+        }
+        if (other.getMaxPlayers() != 0) {
+          setMaxPlayers(other.getMaxPlayers());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8: {
+                onlinePlayers_ = input.readUInt32();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 8
+              case 16: {
+                maxPlayers_ = input.readUInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private int onlinePlayers_ ;
+      /**
+       * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+       * @return The onlinePlayers.
+       */
+      @java.lang.Override
+      public int getOnlinePlayers() {
+        return onlinePlayers_;
+      }
+      /**
+       * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+       * @param value The onlinePlayers to set.
+       * @return This builder for chaining.
+       */
+      public Builder setOnlinePlayers(int value) {
+
+        onlinePlayers_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearOnlinePlayers() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onlinePlayers_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int maxPlayers_ ;
+      /**
+       * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+       * @return The maxPlayers.
+       */
+      @java.lang.Override
+      public int getMaxPlayers() {
+        return maxPlayers_;
+      }
+      /**
+       * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+       * @param value The maxPlayers to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMaxPlayers(int value) {
+
+        maxPlayers_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMaxPlayers() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        maxPlayers_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.ProxyStatus)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.ProxyStatus)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ProxyStatus>
+        PARSER = new com.google.protobuf.AbstractParser<ProxyStatus>() {
+      @java.lang.Override
+      public ProxyStatus parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<ProxyStatus> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ProxyStatus> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface PlayerCountSyncOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.PlayerCountSync)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+     * @return The onlinePlayers.
+     */
+    int getOnlinePlayers();
+
+    /**
+     * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+     * @return The maxPlayers.
+     */
+    int getMaxPlayers();
+
+    /**
+     * <code>bool aggregated = 3 [json_name = "aggregated"];</code>
+     * @return The aggregated.
+     */
+    boolean getAggregated();
+  }
+  /**
+   * <pre>
+   * PlayerCountSync carries the aggregated player counts a proxy should report in
+   * server list ping responses, summed over every proxy in the configured scope.
+   * aggregated is false when the gateway has stopped aggregating, telling a proxy
+   * that was given a total to go back to reporting its own numbers.
+   * </pre>
+   *
+   * Protobuf type {@code network.v1alpha1.PlayerCountSync}
+   */
+  public static final class PlayerCountSync extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.PlayerCountSync)
+      PlayerCountSyncOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "PlayerCountSync");
+    }
+    // Use PlayerCountSync.newBuilder() to construct.
+    private PlayerCountSync(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private PlayerCountSync() {
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerCountSync_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerCountSync_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerCountSync_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder.class);
+    }
+
+    public static final int ONLINE_PLAYERS_FIELD_NUMBER = 1;
+    private int onlinePlayers_ = 0;
+    /**
+     * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+     * @return The onlinePlayers.
+     */
+    @java.lang.Override
+    public int getOnlinePlayers() {
+      return onlinePlayers_;
+    }
+
+    public static final int MAX_PLAYERS_FIELD_NUMBER = 2;
+    private int maxPlayers_ = 0;
+    /**
+     * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+     * @return The maxPlayers.
+     */
+    @java.lang.Override
+    public int getMaxPlayers() {
+      return maxPlayers_;
+    }
+
+    public static final int AGGREGATED_FIELD_NUMBER = 3;
+    private boolean aggregated_ = false;
+    /**
+     * <code>bool aggregated = 3 [json_name = "aggregated"];</code>
+     * @return The aggregated.
+     */
+    @java.lang.Override
+    public boolean getAggregated() {
+      return aggregated_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (onlinePlayers_ != 0) {
+        output.writeUInt32(1, onlinePlayers_);
+      }
+      if (maxPlayers_ != 0) {
+        output.writeUInt32(2, maxPlayers_);
+      }
+      if (aggregated_ != false) {
+        output.writeBool(3, aggregated_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+      if (onlinePlayers_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(1, onlinePlayers_);
+      }
+      if (maxPlayers_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(2, maxPlayers_);
+      }
+      if (aggregated_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, aggregated_);
+      }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) obj;
+
+      if (getOnlinePlayers()
+          != other.getOnlinePlayers()) return false;
+      if (getMaxPlayers()
+          != other.getMaxPlayers()) return false;
+      if (getAggregated()
+          != other.getAggregated()) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + ONLINE_PLAYERS_FIELD_NUMBER;
+      hash = (53 * hash) + getOnlinePlayers();
+      hash = (37 * hash) + MAX_PLAYERS_FIELD_NUMBER;
+      hash = (53 * hash) + getMaxPlayers();
+      hash = (37 * hash) + AGGREGATED_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getAggregated());
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * PlayerCountSync carries the aggregated player counts a proxy should report in
+     * server list ping responses, summed over every proxy in the configured scope.
+     * aggregated is false when the gateway has stopped aggregating, telling a proxy
+     * that was given a total to go back to reporting its own numbers.
+     * </pre>
+     *
+     * Protobuf type {@code network.v1alpha1.PlayerCountSync}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.PlayerCountSync)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerCountSync_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerCountSync_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        onlinePlayers_ = 0;
+        maxPlayers_ = 0;
+        aggregated_ = false;
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerCountSync_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.onlinePlayers_ = onlinePlayers_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.maxPlayers_ = maxPlayers_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.aggregated_ = aggregated_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance()) return this;
+        if (other.getOnlinePlayers() != 0) {
+          setOnlinePlayers(other.getOnlinePlayers());
+        }
+        if (other.getMaxPlayers() != 0) {
+          setMaxPlayers(other.getMaxPlayers());
+        }
+        if (other.getAggregated() != false) {
+          setAggregated(other.getAggregated());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8: {
+                onlinePlayers_ = input.readUInt32();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 8
+              case 16: {
+                maxPlayers_ = input.readUInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 24: {
+                aggregated_ = input.readBool();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 24
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private int onlinePlayers_ ;
+      /**
+       * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+       * @return The onlinePlayers.
+       */
+      @java.lang.Override
+      public int getOnlinePlayers() {
+        return onlinePlayers_;
+      }
+      /**
+       * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+       * @param value The onlinePlayers to set.
+       * @return This builder for chaining.
+       */
+      public Builder setOnlinePlayers(int value) {
+
+        onlinePlayers_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 online_players = 1 [json_name = "onlinePlayers"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearOnlinePlayers() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onlinePlayers_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int maxPlayers_ ;
+      /**
+       * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+       * @return The maxPlayers.
+       */
+      @java.lang.Override
+      public int getMaxPlayers() {
+        return maxPlayers_;
+      }
+      /**
+       * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+       * @param value The maxPlayers to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMaxPlayers(int value) {
+
+        maxPlayers_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint32 max_players = 2 [json_name = "maxPlayers"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMaxPlayers() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        maxPlayers_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private boolean aggregated_ ;
+      /**
+       * <code>bool aggregated = 3 [json_name = "aggregated"];</code>
+       * @return The aggregated.
+       */
+      @java.lang.Override
+      public boolean getAggregated() {
+        return aggregated_;
+      }
+      /**
+       * <code>bool aggregated = 3 [json_name = "aggregated"];</code>
+       * @param value The aggregated to set.
+       * @return This builder for chaining.
+       */
+      public Builder setAggregated(boolean value) {
+
+        aggregated_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool aggregated = 3 [json_name = "aggregated"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearAggregated() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        aggregated_ = false;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.PlayerCountSync)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.PlayerCountSync)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<PlayerCountSync>
+        PARSER = new com.google.protobuf.AbstractParser<PlayerCountSync>() {
+      @java.lang.Override
+      public PlayerCountSync parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<PlayerCountSync> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PlayerCountSync> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ServerSyncOrBuilder extends
       // @@protoc_insertion_point(interface_extends:network.v1alpha1.ServerSync)
       com.google.protobuf.MessageOrBuilder {
@@ -10047,6 +11176,21 @@ public final class Api extends com.google.protobuf.GeneratedFile {
      */
     dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveResultOrBuilder getMoveResultOrBuilder();
 
+    /**
+     * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+     * @return Whether the status field is set.
+     */
+    boolean hasStatus();
+    /**
+     * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+     * @return The status.
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus getStatus();
+    /**
+     * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder getStatusOrBuilder();
+
     dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage.MessageCase getMessageCase();
   }
   /**
@@ -10107,6 +11251,7 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       PRESENCE_EVENT(4),
       PLAYER_COUNTS(5),
       MOVE_RESULT(6),
+      STATUS(7),
       MESSAGE_NOT_SET(0);
       private final int value;
       private MessageCase(int value) {
@@ -10130,6 +11275,7 @@ public final class Api extends com.google.protobuf.GeneratedFile {
           case 4: return PRESENCE_EVENT;
           case 5: return PLAYER_COUNTS;
           case 6: return MOVE_RESULT;
+          case 7: return STATUS;
           case 0: return MESSAGE_NOT_SET;
           default: return null;
         }
@@ -10331,6 +11477,37 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       return dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveResult.getDefaultInstance();
     }
 
+    public static final int STATUS_FIELD_NUMBER = 7;
+    /**
+     * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+     * @return Whether the status field is set.
+     */
+    @java.lang.Override
+    public boolean hasStatus() {
+      return messageCase_ == 7;
+    }
+    /**
+     * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+     * @return The status.
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus getStatus() {
+      if (messageCase_ == 7) {
+         return (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+    }
+    /**
+     * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder getStatusOrBuilder() {
+      if (messageCase_ == 7) {
+         return (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -10363,6 +11540,9 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       if (messageCase_ == 6) {
         output.writeMessage(6, (dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveResult) message_);
       }
+      if (messageCase_ == 7) {
+        output.writeMessage(7, (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_);
+      }
       getUnknownFields().writeTo(output);
     }
     private int computeSerializedSize_0() {
@@ -10390,6 +11570,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       if (messageCase_ == 6) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(6, (dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveResult) message_);
+      }
+      if (messageCase_ == 7) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_);
       }
       return size;
     }
@@ -10441,6 +11625,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
           if (!getMoveResult()
               .equals(other.getMoveResult())) return false;
           break;
+        case 7:
+          if (!getStatus()
+              .equals(other.getStatus())) return false;
+          break;
         case 0:
         default:
       }
@@ -10479,6 +11667,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
         case 6:
           hash = (37 * hash) + MOVE_RESULT_FIELD_NUMBER;
           hash = (53 * hash) + getMoveResult().hashCode();
+          break;
+        case 7:
+          hash = (37 * hash) + STATUS_FIELD_NUMBER;
+          hash = (53 * hash) + getStatus().hashCode();
           break;
         case 0:
         default:
@@ -10636,6 +11828,9 @@ public final class Api extends com.google.protobuf.GeneratedFile {
         if (moveResultBuilder_ != null) {
           moveResultBuilder_.clear();
         }
+        if (statusBuilder_ != null) {
+          statusBuilder_.clear();
+        }
         messageCase_ = 0;
         message_ = null;
         return this;
@@ -10701,6 +11896,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
             moveResultBuilder_ != null) {
           result.message_ = moveResultBuilder_.build();
         }
+        if (messageCase_ == 7 &&
+            statusBuilder_ != null) {
+          result.message_ = statusBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -10738,6 +11937,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
           }
           case MOVE_RESULT: {
             mergeMoveResult(other.getMoveResult());
+            break;
+          }
+          case STATUS: {
+            mergeStatus(other.getStatus());
             break;
           }
           case MESSAGE_NOT_SET: {
@@ -10810,6 +12013,13 @@ public final class Api extends com.google.protobuf.GeneratedFile {
                 messageCase_ = 6;
                 break;
               } // case 50
+              case 58: {
+                input.readMessage(
+                    internalGetStatusFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                messageCase_ = 7;
+                break;
+              } // case 58
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -11682,6 +12892,146 @@ public final class Api extends com.google.protobuf.GeneratedFile {
         return moveResultBuilder_;
       }
 
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder> statusBuilder_;
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       * @return Whether the status field is set.
+       */
+      @java.lang.Override
+      public boolean hasStatus() {
+        return messageCase_ == 7;
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       * @return The status.
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus getStatus() {
+        if (statusBuilder_ == null) {
+          if (messageCase_ == 7) {
+            return (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_;
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+        } else {
+          if (messageCase_ == 7) {
+            return statusBuilder_.getMessage();
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      public Builder setStatus(dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus value) {
+        if (statusBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          message_ = value;
+          onChanged();
+        } else {
+          statusBuilder_.setMessage(value);
+        }
+        messageCase_ = 7;
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      public Builder setStatus(
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder builderForValue) {
+        if (statusBuilder_ == null) {
+          message_ = builderForValue.build();
+          onChanged();
+        } else {
+          statusBuilder_.setMessage(builderForValue.build());
+        }
+        messageCase_ = 7;
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      public Builder mergeStatus(dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus value) {
+        if (statusBuilder_ == null) {
+          if (messageCase_ == 7 &&
+              message_ != dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance()) {
+            message_ = dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.newBuilder((dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            message_ = value;
+          }
+          onChanged();
+        } else {
+          if (messageCase_ == 7) {
+            statusBuilder_.mergeFrom(value);
+          } else {
+            statusBuilder_.setMessage(value);
+          }
+        }
+        messageCase_ = 7;
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      public Builder clearStatus() {
+        if (statusBuilder_ == null) {
+          if (messageCase_ == 7) {
+            messageCase_ = 0;
+            message_ = null;
+            onChanged();
+          }
+        } else {
+          if (messageCase_ == 7) {
+            messageCase_ = 0;
+            message_ = null;
+          }
+          statusBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder getStatusBuilder() {
+        return internalGetStatusFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder getStatusOrBuilder() {
+        if ((messageCase_ == 7) && (statusBuilder_ != null)) {
+          return statusBuilder_.getMessageOrBuilder();
+        } else {
+          if (messageCase_ == 7) {
+            return (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_;
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.network.v1alpha1.ProxyStatus status = 7 [json_name = "status"];</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder> 
+          internalGetStatusFieldBuilder() {
+        if (statusBuilder_ == null) {
+          if (!(messageCase_ == 7)) {
+            message_ = dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.getDefaultInstance();
+          }
+          statusBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatusOrBuilder>(
+                  (dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyStatus) message_,
+                  getParentForChildren(),
+                  isClean());
+          message_ = null;
+        }
+        messageCase_ = 7;
+        onChanged();
+        return statusBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:network.v1alpha1.ProxyMessage)
     }
 
@@ -11782,6 +13132,21 @@ public final class Api extends com.google.protobuf.GeneratedFile {
      */
     dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveCommandOrBuilder getMoveOrBuilder();
 
+    /**
+     * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+     * @return Whether the playerCount field is set.
+     */
+    boolean hasPlayerCount();
+    /**
+     * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+     * @return The playerCount.
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync getPlayerCount();
+    /**
+     * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder getPlayerCountOrBuilder();
+
     dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage.MessageCase getMessageCase();
   }
   /**
@@ -11839,6 +13204,7 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       SERVER_SYNC(1),
       ROUTE_RESPONSE(2),
       MOVE(3),
+      PLAYER_COUNT(4),
       MESSAGE_NOT_SET(0);
       private final int value;
       private MessageCase(int value) {
@@ -11859,6 +13225,7 @@ public final class Api extends com.google.protobuf.GeneratedFile {
           case 1: return SERVER_SYNC;
           case 2: return ROUTE_RESPONSE;
           case 3: return MOVE;
+          case 4: return PLAYER_COUNT;
           case 0: return MESSAGE_NOT_SET;
           default: return null;
         }
@@ -11967,6 +13334,37 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       return dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveCommand.getDefaultInstance();
     }
 
+    public static final int PLAYER_COUNT_FIELD_NUMBER = 4;
+    /**
+     * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+     * @return Whether the playerCount field is set.
+     */
+    @java.lang.Override
+    public boolean hasPlayerCount() {
+      return messageCase_ == 4;
+    }
+    /**
+     * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+     * @return The playerCount.
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync getPlayerCount() {
+      if (messageCase_ == 4) {
+         return (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+    }
+    /**
+     * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder getPlayerCountOrBuilder() {
+      if (messageCase_ == 4) {
+         return (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -11990,6 +13388,9 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       if (messageCase_ == 3) {
         output.writeMessage(3, (dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveCommand) message_);
       }
+      if (messageCase_ == 4) {
+        output.writeMessage(4, (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_);
+      }
       getUnknownFields().writeTo(output);
     }
     private int computeSerializedSize_0() {
@@ -12005,6 +13406,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       if (messageCase_ == 3) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, (dev.minefleet.api.gateway.networking.v1alpha1.Api.MoveCommand) message_);
+      }
+      if (messageCase_ == 4) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_);
       }
       return size;
     }
@@ -12044,6 +13449,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
           if (!getMove()
               .equals(other.getMove())) return false;
           break;
+        case 4:
+          if (!getPlayerCount()
+              .equals(other.getPlayerCount())) return false;
+          break;
         case 0:
         default:
       }
@@ -12070,6 +13479,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
         case 3:
           hash = (37 * hash) + MOVE_FIELD_NUMBER;
           hash = (53 * hash) + getMove().hashCode();
+          break;
+        case 4:
+          hash = (37 * hash) + PLAYER_COUNT_FIELD_NUMBER;
+          hash = (53 * hash) + getPlayerCount().hashCode();
           break;
         case 0:
         default:
@@ -12218,6 +13631,9 @@ public final class Api extends com.google.protobuf.GeneratedFile {
         if (moveBuilder_ != null) {
           moveBuilder_.clear();
         }
+        if (playerCountBuilder_ != null) {
+          playerCountBuilder_.clear();
+        }
         messageCase_ = 0;
         message_ = null;
         return this;
@@ -12271,6 +13687,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
             moveBuilder_ != null) {
           result.message_ = moveBuilder_.build();
         }
+        if (messageCase_ == 4 &&
+            playerCountBuilder_ != null) {
+          result.message_ = playerCountBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -12296,6 +13716,10 @@ public final class Api extends com.google.protobuf.GeneratedFile {
           }
           case MOVE: {
             mergeMove(other.getMove());
+            break;
+          }
+          case PLAYER_COUNT: {
+            mergePlayerCount(other.getPlayerCount());
             break;
           }
           case MESSAGE_NOT_SET: {
@@ -12347,6 +13771,13 @@ public final class Api extends com.google.protobuf.GeneratedFile {
                 messageCase_ = 3;
                 break;
               } // case 26
+              case 34: {
+                input.readMessage(
+                    internalGetPlayerCountFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                messageCase_ = 4;
+                break;
+              } // case 34
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -12797,6 +14228,146 @@ public final class Api extends com.google.protobuf.GeneratedFile {
         messageCase_ = 3;
         onChanged();
         return moveBuilder_;
+      }
+
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder> playerCountBuilder_;
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       * @return Whether the playerCount field is set.
+       */
+      @java.lang.Override
+      public boolean hasPlayerCount() {
+        return messageCase_ == 4;
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       * @return The playerCount.
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync getPlayerCount() {
+        if (playerCountBuilder_ == null) {
+          if (messageCase_ == 4) {
+            return (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_;
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+        } else {
+          if (messageCase_ == 4) {
+            return playerCountBuilder_.getMessage();
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      public Builder setPlayerCount(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync value) {
+        if (playerCountBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          message_ = value;
+          onChanged();
+        } else {
+          playerCountBuilder_.setMessage(value);
+        }
+        messageCase_ = 4;
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      public Builder setPlayerCount(
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder builderForValue) {
+        if (playerCountBuilder_ == null) {
+          message_ = builderForValue.build();
+          onChanged();
+        } else {
+          playerCountBuilder_.setMessage(builderForValue.build());
+        }
+        messageCase_ = 4;
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      public Builder mergePlayerCount(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync value) {
+        if (playerCountBuilder_ == null) {
+          if (messageCase_ == 4 &&
+              message_ != dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance()) {
+            message_ = dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.newBuilder((dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            message_ = value;
+          }
+          onChanged();
+        } else {
+          if (messageCase_ == 4) {
+            playerCountBuilder_.mergeFrom(value);
+          } else {
+            playerCountBuilder_.setMessage(value);
+          }
+        }
+        messageCase_ = 4;
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      public Builder clearPlayerCount() {
+        if (playerCountBuilder_ == null) {
+          if (messageCase_ == 4) {
+            messageCase_ = 0;
+            message_ = null;
+            onChanged();
+          }
+        } else {
+          if (messageCase_ == 4) {
+            messageCase_ = 0;
+            message_ = null;
+          }
+          playerCountBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder getPlayerCountBuilder() {
+        return internalGetPlayerCountFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder getPlayerCountOrBuilder() {
+        if ((messageCase_ == 4) && (playerCountBuilder_ != null)) {
+          return playerCountBuilder_.getMessageOrBuilder();
+        } else {
+          if (messageCase_ == 4) {
+            return (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_;
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.network.v1alpha1.PlayerCountSync player_count = 4 [json_name = "playerCount"];</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder> 
+          internalGetPlayerCountFieldBuilder() {
+        if (playerCountBuilder_ == null) {
+          if (!(messageCase_ == 4)) {
+            message_ = dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.getDefaultInstance();
+          }
+          playerCountBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSyncOrBuilder>(
+                  (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerCountSync) message_,
+                  getParentForChildren(),
+                  isClean());
+          message_ = null;
+        }
+        messageCase_ = 4;
+        onChanged();
+        return playerCountBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:network.v1alpha1.ControllerMessage)
@@ -17924,6 +19495,16 @@ public final class Api extends com.google.protobuf.GeneratedFile {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_network_v1alpha1_ServerPlayerCounts_CountsByServerEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_ProxyStatus_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_ProxyStatus_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_PlayerCountSync_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_PlayerCountSync_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_network_v1alpha1_ServerSync_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -18032,67 +19613,75 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       "work.v1alpha1.ServerPlayerCounts.CountsB" +
       "yServerEntryR\016countsByServer\032A\n\023CountsBy" +
       "ServerEntry\022\020\n\003key\030\001 \001(\tR\003key\022\024\n\005value\030\002" +
-      " \001(\rR\005value:\0028\001\"z\n\nServerSync\0229\n\007servers" +
-      "\030\001 \003(\0132\037.network.v1alpha1.ManagedServerR" +
-      "\007servers\0221\n\024required_permissions\030\002 \003(\tR\023" +
-      "requiredPermissions\"n\n\013MoveCommand\022\035\n\nco" +
-      "mmand_id\030\001 \001(\tR\tcommandId\022\037\n\013player_uuid" +
-      "\030\002 \001(\tR\nplayerUuid\022\037\n\013server_name\030\003 \001(\tR" +
-      "\nserverName\"]\n\nMoveResult\022\035\n\ncommand_id\030" +
-      "\001 \001(\tR\tcommandId\022\030\n\007success\030\002 \001(\010R\007succe" +
-      "ss\022\026\n\006reason\030\003 \001(\tR\006reason\"\307\003\n\014ProxyMess" +
-      "age\0224\n\005hello\030\001 \001(\0132\034.network.v1alpha1.Pr" +
-      "oxyHelloH\000R\005hello\022Q\n\021presence_snapshot\030\002" +
-      " \001(\0132\".network.v1alpha1.PresenceSnapshot" +
-      "H\000R\020presenceSnapshot\022E\n\rroute_request\030\003 " +
-      "\001(\0132\036.network.v1alpha1.RouteRequestH\000R\014r" +
-      "outeRequest\022N\n\016presence_event\030\004 \001(\0132%.ne" +
-      "twork.v1alpha1.PlayerPresenceEventH\000R\rpr" +
-      "esenceEvent\022K\n\rplayer_counts\030\005 \001(\0132$.net" +
-      "work.v1alpha1.ServerPlayerCountsH\000R\014play" +
-      "erCounts\022?\n\013move_result\030\006 \001(\0132\034.network." +
-      "v1alpha1.MoveResultH\000R\nmoveResultB\t\n\007mes" +
-      "sage\"\336\001\n\021ControllerMessage\022?\n\013server_syn" +
-      "c\030\001 \001(\0132\034.network.v1alpha1.ServerSyncH\000R" +
-      "\nserverSync\022H\n\016route_response\030\002 \001(\0132\037.ne" +
-      "twork.v1alpha1.RouteResponseH\000R\rrouteRes" +
-      "ponse\0223\n\004move\030\003 \001(\0132\035.network.v1alpha1.M" +
-      "oveCommandH\000R\004moveB\t\n\007message\"\344\001\n\020Player" +
-      "Connection\022\037\n\013player_uuid\030\001 \001(\tR\nplayerU" +
-      "uid\022\031\n\010proxy_id\030\002 \001(\tR\007proxyId\022\037\n\013server" +
-      "_name\030\003 \001(\tR\nserverName\022+\n\021gateway_names" +
-      "pace\030\004 \001(\tR\020gatewayNamespace\022!\n\014gateway_" +
-      "name\030\005 \001(\tR\013gatewayName\022#\n\rlistener_name" +
-      "\030\006 \001(\tR\014listenerName\"7\n\024GetConnectionReq" +
-      "uest\022\037\n\013player_uuid\030\001 \001(\tR\nplayerUuid\"o\n" +
-      "\025GetConnectionResponse\022G\n\nconnection\030\001 \001" +
-      "(\0132\".network.v1alpha1.PlayerConnectionH\000" +
-      "R\nconnection\210\001\001B\r\n\013_connection\"=\n\032GetPla" +
-      "yersForServerRequest\022\037\n\013server_name\030\001 \001(" +
-      "\tR\nserverName\"c\n\033GetPlayersForServerResp" +
-      "onse\022D\n\013connections\030\001 \003(\0132\".network.v1al" +
-      "pha1.PlayerConnectionR\013connections\"O\n\033Ge" +
-      "tPlayersForServiceRequest\022\034\n\tnamespace\030\001" +
-      " \001(\tR\tnamespace\022\022\n\004name\030\002 \001(\tR\004name\"d\n\034G" +
-      "etPlayersForServiceResponse\022D\n\013connectio" +
-      "ns\030\001 \003(\0132\".network.v1alpha1.PlayerConnec" +
-      "tionR\013connections*9\n\tRouteKind\022\023\n\017ROUTE_" +
-      "KIND_JOIN\020\000\022\027\n\023ROUTE_KIND_FALLBACK\020\0012`\n\n" +
-      "NetworkXDS\022R\n\007Connect\022\036.network.v1alpha1" +
-      ".ProxyMessage\032#.network.v1alpha1.Control" +
-      "lerMessage(\0010\0012\335\002\n\016NetworkGateway\022`\n\rGet" +
-      "Connection\022&.network.v1alpha1.GetConnect" +
-      "ionRequest\032\'.network.v1alpha1.GetConnect" +
-      "ionResponse\022r\n\023GetPlayersForServer\022,.net" +
-      "work.v1alpha1.GetPlayersForServerRequest" +
-      "\032-.network.v1alpha1.GetPlayersForServerR" +
-      "esponse\022u\n\024GetPlayersForService\022-.networ" +
-      "k.v1alpha1.GetPlayersForServiceRequest\032." +
-      ".network.v1alpha1.GetPlayersForServiceRe" +
-      "sponseBl\n-dev.minefleet.api.gateway.netw" +
-      "orking.v1alpha1Z;github.com/minefleet/mi" +
-      "necraft-gateway/api/network/v1alpha1b\006pr" +
-      "oto3"
+      " \001(\rR\005value:\0028\001\"U\n\013ProxyStatus\022%\n\016online" +
+      "_players\030\001 \001(\rR\ronlinePlayers\022\037\n\013max_pla" +
+      "yers\030\002 \001(\rR\nmaxPlayers\"y\n\017PlayerCountSyn" +
+      "c\022%\n\016online_players\030\001 \001(\rR\ronlinePlayers" +
+      "\022\037\n\013max_players\030\002 \001(\rR\nmaxPlayers\022\036\n\nagg" +
+      "regated\030\003 \001(\010R\naggregated\"z\n\nServerSync\022" +
+      "9\n\007servers\030\001 \003(\0132\037.network.v1alpha1.Mana" +
+      "gedServerR\007servers\0221\n\024required_permissio" +
+      "ns\030\002 \003(\tR\023requiredPermissions\"n\n\013MoveCom" +
+      "mand\022\035\n\ncommand_id\030\001 \001(\tR\tcommandId\022\037\n\013p" +
+      "layer_uuid\030\002 \001(\tR\nplayerUuid\022\037\n\013server_n" +
+      "ame\030\003 \001(\tR\nserverName\"]\n\nMoveResult\022\035\n\nc" +
+      "ommand_id\030\001 \001(\tR\tcommandId\022\030\n\007success\030\002 " +
+      "\001(\010R\007success\022\026\n\006reason\030\003 \001(\tR\006reason\"\200\004\n" +
+      "\014ProxyMessage\0224\n\005hello\030\001 \001(\0132\034.network.v" +
+      "1alpha1.ProxyHelloH\000R\005hello\022Q\n\021presence_" +
+      "snapshot\030\002 \001(\0132\".network.v1alpha1.Presen" +
+      "ceSnapshotH\000R\020presenceSnapshot\022E\n\rroute_" +
+      "request\030\003 \001(\0132\036.network.v1alpha1.RouteRe" +
+      "questH\000R\014routeRequest\022N\n\016presence_event\030" +
+      "\004 \001(\0132%.network.v1alpha1.PlayerPresenceE" +
+      "ventH\000R\rpresenceEvent\022K\n\rplayer_counts\030\005" +
+      " \001(\0132$.network.v1alpha1.ServerPlayerCoun" +
+      "tsH\000R\014playerCounts\022?\n\013move_result\030\006 \001(\0132" +
+      "\034.network.v1alpha1.MoveResultH\000R\nmoveRes" +
+      "ult\0227\n\006status\030\007 \001(\0132\035.network.v1alpha1.P" +
+      "roxyStatusH\000R\006statusB\t\n\007message\"\246\002\n\021Cont" +
+      "rollerMessage\022?\n\013server_sync\030\001 \001(\0132\034.net" +
+      "work.v1alpha1.ServerSyncH\000R\nserverSync\022H" +
+      "\n\016route_response\030\002 \001(\0132\037.network.v1alpha" +
+      "1.RouteResponseH\000R\rrouteResponse\0223\n\004move" +
+      "\030\003 \001(\0132\035.network.v1alpha1.MoveCommandH\000R" +
+      "\004move\022F\n\014player_count\030\004 \001(\0132!.network.v1" +
+      "alpha1.PlayerCountSyncH\000R\013playerCountB\t\n" +
+      "\007message\"\344\001\n\020PlayerConnection\022\037\n\013player_" +
+      "uuid\030\001 \001(\tR\nplayerUuid\022\031\n\010proxy_id\030\002 \001(\t" +
+      "R\007proxyId\022\037\n\013server_name\030\003 \001(\tR\nserverNa" +
+      "me\022+\n\021gateway_namespace\030\004 \001(\tR\020gatewayNa" +
+      "mespace\022!\n\014gateway_name\030\005 \001(\tR\013gatewayNa" +
+      "me\022#\n\rlistener_name\030\006 \001(\tR\014listenerName\"" +
+      "7\n\024GetConnectionRequest\022\037\n\013player_uuid\030\001" +
+      " \001(\tR\nplayerUuid\"o\n\025GetConnectionRespons" +
+      "e\022G\n\nconnection\030\001 \001(\0132\".network.v1alpha1" +
+      ".PlayerConnectionH\000R\nconnection\210\001\001B\r\n\013_c" +
+      "onnection\"=\n\032GetPlayersForServerRequest\022" +
+      "\037\n\013server_name\030\001 \001(\tR\nserverName\"c\n\033GetP" +
+      "layersForServerResponse\022D\n\013connections\030\001" +
+      " \003(\0132\".network.v1alpha1.PlayerConnection" +
+      "R\013connections\"O\n\033GetPlayersForServiceReq" +
+      "uest\022\034\n\tnamespace\030\001 \001(\tR\tnamespace\022\022\n\004na" +
+      "me\030\002 \001(\tR\004name\"d\n\034GetPlayersForServiceRe" +
+      "sponse\022D\n\013connections\030\001 \003(\0132\".network.v1" +
+      "alpha1.PlayerConnectionR\013connections*9\n\t" +
+      "RouteKind\022\023\n\017ROUTE_KIND_JOIN\020\000\022\027\n\023ROUTE_" +
+      "KIND_FALLBACK\020\0012`\n\nNetworkXDS\022R\n\007Connect" +
+      "\022\036.network.v1alpha1.ProxyMessage\032#.netwo" +
+      "rk.v1alpha1.ControllerMessage(\0010\0012\335\002\n\016Ne" +
+      "tworkGateway\022`\n\rGetConnection\022&.network." +
+      "v1alpha1.GetConnectionRequest\032\'.network." +
+      "v1alpha1.GetConnectionResponse\022r\n\023GetPla" +
+      "yersForServer\022,.network.v1alpha1.GetPlay" +
+      "ersForServerRequest\032-.network.v1alpha1.G" +
+      "etPlayersForServerResponse\022u\n\024GetPlayers" +
+      "ForService\022-.network.v1alpha1.GetPlayers" +
+      "ForServiceRequest\032..network.v1alpha1.Get" +
+      "PlayersForServiceResponseBl\n-dev.minefle" +
+      "et.api.gateway.networking.v1alpha1Z;gith" +
+      "ub.com/minefleet/minecraft-gateway/api/n" +
+      "etwork/v1alpha1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -18159,74 +19748,86 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ServerPlayerCounts_CountsByServerEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_network_v1alpha1_ServerSync_descriptor =
+    internal_static_network_v1alpha1_ProxyStatus_descriptor =
       getDescriptor().getMessageType(8);
+    internal_static_network_v1alpha1_ProxyStatus_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_ProxyStatus_descriptor,
+        new java.lang.String[] { "OnlinePlayers", "MaxPlayers", });
+    internal_static_network_v1alpha1_PlayerCountSync_descriptor =
+      getDescriptor().getMessageType(9);
+    internal_static_network_v1alpha1_PlayerCountSync_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_PlayerCountSync_descriptor,
+        new java.lang.String[] { "OnlinePlayers", "MaxPlayers", "Aggregated", });
+    internal_static_network_v1alpha1_ServerSync_descriptor =
+      getDescriptor().getMessageType(10);
     internal_static_network_v1alpha1_ServerSync_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ServerSync_descriptor,
         new java.lang.String[] { "Servers", "RequiredPermissions", });
     internal_static_network_v1alpha1_MoveCommand_descriptor =
-      getDescriptor().getMessageType(9);
+      getDescriptor().getMessageType(11);
     internal_static_network_v1alpha1_MoveCommand_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_MoveCommand_descriptor,
         new java.lang.String[] { "CommandId", "PlayerUuid", "ServerName", });
     internal_static_network_v1alpha1_MoveResult_descriptor =
-      getDescriptor().getMessageType(10);
+      getDescriptor().getMessageType(12);
     internal_static_network_v1alpha1_MoveResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_MoveResult_descriptor,
         new java.lang.String[] { "CommandId", "Success", "Reason", });
     internal_static_network_v1alpha1_ProxyMessage_descriptor =
-      getDescriptor().getMessageType(11);
+      getDescriptor().getMessageType(13);
     internal_static_network_v1alpha1_ProxyMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ProxyMessage_descriptor,
-        new java.lang.String[] { "Hello", "PresenceSnapshot", "RouteRequest", "PresenceEvent", "PlayerCounts", "MoveResult", "Message", });
+        new java.lang.String[] { "Hello", "PresenceSnapshot", "RouteRequest", "PresenceEvent", "PlayerCounts", "MoveResult", "Status", "Message", });
     internal_static_network_v1alpha1_ControllerMessage_descriptor =
-      getDescriptor().getMessageType(12);
+      getDescriptor().getMessageType(14);
     internal_static_network_v1alpha1_ControllerMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_ControllerMessage_descriptor,
-        new java.lang.String[] { "ServerSync", "RouteResponse", "Move", "Message", });
+        new java.lang.String[] { "ServerSync", "RouteResponse", "Move", "PlayerCount", "Message", });
     internal_static_network_v1alpha1_PlayerConnection_descriptor =
-      getDescriptor().getMessageType(13);
+      getDescriptor().getMessageType(15);
     internal_static_network_v1alpha1_PlayerConnection_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_PlayerConnection_descriptor,
         new java.lang.String[] { "PlayerUuid", "ProxyId", "ServerName", "GatewayNamespace", "GatewayName", "ListenerName", });
     internal_static_network_v1alpha1_GetConnectionRequest_descriptor =
-      getDescriptor().getMessageType(14);
+      getDescriptor().getMessageType(16);
     internal_static_network_v1alpha1_GetConnectionRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetConnectionRequest_descriptor,
         new java.lang.String[] { "PlayerUuid", });
     internal_static_network_v1alpha1_GetConnectionResponse_descriptor =
-      getDescriptor().getMessageType(15);
+      getDescriptor().getMessageType(17);
     internal_static_network_v1alpha1_GetConnectionResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetConnectionResponse_descriptor,
         new java.lang.String[] { "Connection", });
     internal_static_network_v1alpha1_GetPlayersForServerRequest_descriptor =
-      getDescriptor().getMessageType(16);
+      getDescriptor().getMessageType(18);
     internal_static_network_v1alpha1_GetPlayersForServerRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetPlayersForServerRequest_descriptor,
         new java.lang.String[] { "ServerName", });
     internal_static_network_v1alpha1_GetPlayersForServerResponse_descriptor =
-      getDescriptor().getMessageType(17);
+      getDescriptor().getMessageType(19);
     internal_static_network_v1alpha1_GetPlayersForServerResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetPlayersForServerResponse_descriptor,
         new java.lang.String[] { "Connections", });
     internal_static_network_v1alpha1_GetPlayersForServiceRequest_descriptor =
-      getDescriptor().getMessageType(18);
+      getDescriptor().getMessageType(20);
     internal_static_network_v1alpha1_GetPlayersForServiceRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetPlayersForServiceRequest_descriptor,
         new java.lang.String[] { "Namespace", "Name", });
     internal_static_network_v1alpha1_GetPlayersForServiceResponse_descriptor =
-      getDescriptor().getMessageType(19);
+      getDescriptor().getMessageType(21);
     internal_static_network_v1alpha1_GetPlayersForServiceResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetPlayersForServiceResponse_descriptor,

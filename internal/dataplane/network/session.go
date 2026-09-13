@@ -43,6 +43,11 @@ func (s *ProxySession) listenerKey() string {
 	return s.GatewayNamespace + "/" + s.GatewayName + "#" + s.ListenerName
 }
 
+// gatewayKey identifies the gateway a session serves, across its listeners.
+func (s *ProxySession) gatewayKey() string {
+	return s.GatewayNamespace + "/" + s.GatewayName
+}
+
 // Send queues a message to the proxy. It reports an error rather than blocking
 // when the proxy has fallen too far behind; the caller closes the session.
 func (s *ProxySession) Send(msg *apiv1alpha1.ControllerMessage) error {
@@ -81,12 +86,14 @@ type SessionRegistry struct {
 	mu         sync.RWMutex
 	byProxy    map[string]*ProxySession
 	byListener map[string]map[string]*ProxySession
+	byGateway  map[string]map[string]*ProxySession
 }
 
 func NewSessionRegistry() *SessionRegistry {
 	return &SessionRegistry{
 		byProxy:    make(map[string]*ProxySession),
 		byListener: make(map[string]map[string]*ProxySession),
+		byGateway:  make(map[string]map[string]*ProxySession),
 	}
 }
 
@@ -107,6 +114,11 @@ func (r *SessionRegistry) Add(s *ProxySession) (replaced *ProxySession) {
 		r.byListener[key] = make(map[string]*ProxySession)
 	}
 	r.byListener[key][s.ProxyID] = s
+	gwKey := s.gatewayKey()
+	if _, ok := r.byGateway[gwKey]; !ok {
+		r.byGateway[gwKey] = make(map[string]*ProxySession)
+	}
+	r.byGateway[gwKey][s.ProxyID] = s
 	return replaced
 }
 
@@ -132,6 +144,13 @@ func (r *SessionRegistry) removeLocked(s *ProxySession) {
 			delete(r.byListener, key)
 		}
 	}
+	gwKey := s.gatewayKey()
+	if sessions, ok := r.byGateway[gwKey]; ok {
+		delete(sessions, s.ProxyID)
+		if len(sessions) == 0 {
+			delete(r.byGateway, gwKey)
+		}
+	}
 }
 
 // Get returns a session by proxy id.
@@ -149,6 +168,29 @@ func (r *SessionRegistry) ForListener(namespace, name, listener string) []*Proxy
 	sessions := r.byListener[namespace+"/"+name+"#"+listener]
 	out := make([]*ProxySession, 0, len(sessions))
 	for _, s := range sessions {
+		out = append(out, s)
+	}
+	return out
+}
+
+// ForGateway returns every proxy serving a gateway, across all its listeners.
+func (r *SessionRegistry) ForGateway(namespace, name string) []*ProxySession {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	sessions := r.byGateway[namespace+"/"+name]
+	out := make([]*ProxySession, 0, len(sessions))
+	for _, s := range sessions {
+		out = append(out, s)
+	}
+	return out
+}
+
+// All returns every connected proxy.
+func (r *SessionRegistry) All() []*ProxySession {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make([]*ProxySession, 0, len(r.byProxy))
+	for _, s := range r.byProxy {
 		out = append(out, s)
 	}
 	return out

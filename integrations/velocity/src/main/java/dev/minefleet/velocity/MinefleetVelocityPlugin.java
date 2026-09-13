@@ -5,15 +5,18 @@ import com.velocitypowered.api.event.EventTask;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
+import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.minefleet.api.BuildInfo;
 import dev.minefleet.api.gateway.networking.NetworkGateway;
+import dev.minefleet.api.gateway.networking.PlayerCount;
 import dev.minefleet.api.gateway.networking.v1alpha1.Api;
 import org.slf4j.Logger;
 
@@ -47,6 +50,7 @@ public class MinefleetVelocityPlugin {
         gateway = NetworkGateway.builder()
                 .registrar(registrar)
                 .presenceSupplier(this::currentPresence)
+                .playerCountSupplier(this::ownPlayerCount)
                 .build();
         gateway.setPlayerProvider(Player.class, p -> VelocityNetworkPlayer.of(p, proxy, registrar));
         gateway.setPlayerLookup(uuid -> proxy.getPlayer(uuid)
@@ -78,6 +82,30 @@ public class MinefleetVelocityPlugin {
         return entries;
     }
 
+    /**
+     * This proxy's own contribution to the network-wide count: the players it
+     * holds, and the capacity its velocity.toml admits. One replica's
+     * show-max-players is what one replica will take, so summing it across the
+     * replicas gives how many players the network as a whole can hold.
+     */
+    private PlayerCount ownPlayerCount() {
+        return new PlayerCount(proxy.getPlayerCount(), proxy.getConfiguration().getShowMaxPlayers());
+    }
+
+    /**
+     * Replaces the player numbers in a ping with the network-wide totals, so a
+     * ping answered by whichever replica took the connection still shows every
+     * player behind the gateway. Without an aggregate — the gateway does not
+     * aggregate, or none has arrived yet — Velocity's own numbers stand.
+     */
+    @Subscribe
+    public void onProxyPing(ProxyPingEvent event) {
+        gateway.aggregatedPlayerCount().ifPresent(count -> event.setPing(event.getPing().asBuilder()
+                .onlinePlayers(count.onlinePlayers())
+                .maximumPlayers(count.maxPlayers())
+                .build()));
+    }
+
     // Routing now round-trips to the controller, so the join is completed
     // asynchronously rather than blocking Velocity's event thread.
     @Subscribe
@@ -101,7 +129,15 @@ public class MinefleetVelocityPlugin {
     }
 
     @Subscribe
+    public void onPostLogin(PostLoginEvent ignoredEvent) {
+        // Reported here rather than on ServerPostConnectEvent so players still
+        // choosing a server are counted, which is what Velocity's own ping shows.
+        gateway.reportPlayerCount();
+    }
+
+    @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         gateway.reportDisconnected(event.getPlayer().getUniqueId());
+        gateway.reportPlayerCount();
     }
 }

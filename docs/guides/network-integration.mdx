@@ -31,6 +31,7 @@ Your proxy then opens the stream and keeps it open:
 3. Send a `RouteRequest` whenever a player joins or needs a fallback, and connect them to the server named in the matching `RouteResponse`.
 4. Send `PlayerPresenceEvent` as players connect to and disconnect from backend servers.
 5. Execute `MoveCommand` messages and reply with a `MoveResult`.
+6. Send a `ProxyStatus` whenever your own player count changes, and use the `PlayerCountSync` you get back to answer server list pings.
 
 ## Environment variables
 
@@ -61,6 +62,7 @@ message ProxyMessage {
     PlayerPresenceEvent presence_event = 4;
     ServerPlayerCounts player_counts = 5;
     MoveResult move_result = 6;
+    ProxyStatus status = 7;
   }
 }
 
@@ -69,6 +71,7 @@ message ControllerMessage {
     ServerSync server_sync = 1;
     RouteResponse route_response = 2;
     MoveCommand move = 3;
+    PlayerCountSync player_count = 4;
   }
 }
 ```
@@ -170,6 +173,33 @@ message PlayerPresenceEvent {
 Send `KIND_CONNECTED` once a player has actually reached a backend server, and `KIND_DISCONNECTED` when they leave your proxy. These events are what keep the controller's player counts accurate, so routing decisions and the [player query API](/concepts/overview#player-query-api) stay correct.
 
 You may also send `ServerPlayerCounts` periodically; the controller uses it to detect drift.
+
+### Aggregated ping player counts
+
+A ping is answered by whichever proxy replica took the connection, so on its own each replica advertises only the players it holds. Report your own count and the controller sums it with the other proxies of the gateway, pushing the total back for you to show instead.
+
+```protobuf
+message ProxyStatus {
+  uint32 online_players = 1;
+  uint32 max_players = 2;
+}
+
+message PlayerCountSync {
+  uint32 online_players = 1;
+  uint32 max_players = 2;
+  bool aggregated = 3;
+}
+```
+
+Send a `ProxyStatus` right after connecting and whenever your player count changes — a player logging in or disconnecting. `max_players` is the capacity **your own configuration** admits, which for Velocity is `show-max-players`; the controller never guesses it. Re-send it on a timer as well, so a report dropped while the stream was down is repaired.
+
+`PlayerCountSync` arrives only when the gateway's [`playerCount`](/reference/network-infrastructure#playercount) is configured, and carries the totals summed over the proxies in its scope. Use it verbatim in your ping response. Until one arrives — the gateway does not aggregate, or you have only just connected — show your own numbers rather than substituting zero.
+
+A `PlayerCountSync` with `aggregated` set to `false` means the gateway has stopped aggregating: discard the total you were given and go back to your own numbers.
+
+<Note>
+The controller drops a proxy's figures when its stream closes, so a proxy that is down stops advertising capacity nobody can connect through. That is also why it re-reads your report on every reconnect rather than remembering the last one.
+</Note>
 
 ### Executing moves
 
@@ -381,6 +411,9 @@ public class MyProxyPlugin {
             .registrar(registrar)
             // Replayed to the controller on every (re)connect
             .presenceSupplier(this::currentPresence)
+            // This proxy's own count, summed with the other proxies for pings
+            .playerCountSupplier(() -> new PlayerCount(
+                proxy.getPlayerCount(), proxy.getConfiguration().getShowMaxPlayers()))
             .build();
 
         // Needed so move commands can find a player by UUID
@@ -426,6 +459,20 @@ public void onServerConnected(ServerConnectedEvent event) {
 // Player left the proxy
 public void onPlayerDisconnect(PlayerDisconnectEvent event) {
     gateway.reportDisconnected(event.getPlayer().getUniqueId());
+    gateway.reportPlayerCount();
+}
+
+// Player logged in to the proxy, before they have picked a server
+public void onPostLogin(PostLoginEvent event) {
+    gateway.reportPlayerCount();
+}
+
+// Someone pinged the proxy
+public void onPing(ProxyPingEvent event) {
+    gateway.aggregatedPlayerCount().ifPresent(count -> event.setPing(event.getPing().asBuilder()
+        .onlinePlayers(count.onlinePlayers())
+        .maximumPlayers(count.maxPlayers())
+        .build()));
 }
 ```
 
@@ -451,6 +498,7 @@ If the controller is unreachable, both routing methods kick the player with `ROU
 |---|---|---|
 | `registrar(ServerRegistrar)` | — (required) | Your `ServerRegistrar` implementation |
 | `presenceSupplier(Supplier)` | empty | Players to replay to the controller on every (re)connect |
+| `playerCountSupplier(Supplier)` | none | This proxy's own `PlayerCount` — players held, and the capacity its config admits. Without it the proxy reports no count and never receives an aggregate |
 | `retries(int)` | `3` | Retry attempts for failed `registerOrUpdate`/`unregister` calls |
 | `context(NetworkContext)` | from env | Proxy id and the gateway/listener served |
 | `channel(Channel)` | from env | gRPC channel to the controller |

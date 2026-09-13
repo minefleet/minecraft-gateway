@@ -12,7 +12,13 @@ spec:
         minefleet.dev/environment: sample
     namespaceSelector:
       from: Same
+  # Ping responses show the whole network rather than the one proxy replica that
+  # answered. The totals are summed from each proxy's own show-max-players and
+  # its live player count.
+  playerCount:
+    scope: gateway
   networkTemplate:
+    replicas: 2
     template:
       spec:
         containers:

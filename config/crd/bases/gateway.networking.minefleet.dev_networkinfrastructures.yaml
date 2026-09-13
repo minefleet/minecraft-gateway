@@ -17470,6 +17470,26 @@ spec:
                         type: object
                     type: object
                 type: object
+              playerCount:
+                description: |-
+                  playerCount optionally makes the network proxies report an aggregated
+                  player count in server list ping responses, instead of each proxy
+                  replica reporting only its own. Leave it unset to keep each proxy's own
+                  numbers.
+                properties:
+                  scope:
+                    default: gateway
+                    description: |-
+                      scope selects which proxies are summed into the counts a proxy reports.
+                      Gateway sums every proxy of every listener on the gateway, so all
+                      listeners advertise the same network-wide numbers. Listener sums only
+                      the proxies of the listener being pinged, so listeners advertise
+                      separately. Defaults to Gateway.
+                    enum:
+                    - gateway
+                    - listener
+                    type: string
+                type: object
             required:
             - discovery
             type: object

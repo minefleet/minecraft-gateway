@@ -137,6 +137,7 @@ class NetworkGatewayStreamTest {
     private ScriptedController controller;
     private RecordingRegistrar registrar;
     private NetworkGateway gateway;
+    private AtomicReference<PlayerCount> ownPlayerCount;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -147,10 +148,12 @@ class NetworkGatewayStreamTest {
         channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
 
         registrar = new RecordingRegistrar();
+        ownPlayerCount = new AtomicReference<>(new PlayerCount(3, 500));
         gateway = NetworkGateway.builder()
                 .channel(channel)
                 .context(new NetworkContext("proxy-a", "default", "gw", "minecraft"))
                 .registrar(registrar)
+                .playerCountSupplier(ownPlayerCount::get)
                 .build();
     }
 
@@ -341,5 +344,74 @@ class NetworkGatewayStreamTest {
         gateway.reportDisconnected(player.uuid);
         Api.ProxyMessage disconnect = controller.awaitMessage(Api.ProxyMessage.MessageCase.PRESENCE_EVENT);
         assertEquals(Api.PlayerPresenceEvent.Kind.KIND_DISCONNECTED, disconnect.getPresenceEvent().getKind());
+    }
+
+    @Test
+    void reportsItsOwnPlayerCountOnConnect() throws Exception {
+        gateway.start();
+
+        Api.ProxyMessage status = controller.awaitMessage(Api.ProxyMessage.MessageCase.STATUS);
+        assertEquals(3, status.getStatus().getOnlinePlayers());
+        assertEquals(500, status.getStatus().getMaxPlayers());
+    }
+
+    @Test
+    void reportsItsOwnPlayerCountWhenItChanges() throws Exception {
+        gateway.start();
+        controller.awaitMessage(Api.ProxyMessage.MessageCase.STATUS);
+
+        ownPlayerCount.set(new PlayerCount(4, 500));
+        gateway.reportPlayerCount();
+
+        Api.ProxyMessage status = controller.awaitMessage(Api.ProxyMessage.MessageCase.STATUS);
+        assertEquals(4, status.getStatus().getOnlinePlayers());
+    }
+
+    @Test
+    void takesTheAggregatedPlayerCountPushedByTheController() throws Exception {
+        gateway.start();
+        controller.awaitMessage(Api.ProxyMessage.MessageCase.HELLO);
+
+        assertTrue(gateway.aggregatedPlayerCount().isEmpty(),
+                "no aggregate should be assumed before the controller pushes one");
+
+        controller.send(aggregatedCount(352, 1550));
+
+        PlayerCount aggregated = gateway.aggregatedPlayerCount().orElseThrow();
+        assertEquals(352, aggregated.onlinePlayers());
+        assertEquals(1550, aggregated.maxPlayers());
+    }
+
+    @Test
+    void dropsTheAggregateWhenTheGatewayStopsAggregating() throws Exception {
+        gateway.start();
+        controller.awaitMessage(Api.ProxyMessage.MessageCase.HELLO);
+        controller.send(aggregatedCount(352, 1550));
+        assertTrue(gateway.aggregatedPlayerCount().isPresent());
+
+        controller.send(Api.ControllerMessage.newBuilder()
+                .setPlayerCount(Api.PlayerCountSync.newBuilder().setAggregated(false))
+                .build());
+
+        assertTrue(gateway.aggregatedPlayerCount().isEmpty(),
+                "the proxy should fall back to its own numbers, not advertise zero");
+    }
+
+    private static Api.ControllerMessage aggregatedCount(int online, int max) {
+        return Api.ControllerMessage.newBuilder()
+                .setPlayerCount(Api.PlayerCountSync.newBuilder()
+                        .setAggregated(true).setOnlinePlayers(online).setMaxPlayers(max))
+                .build();
+    }
+
+    @Test
+    void reportsNoPlayerCountWhenThePlatformSuppliesNone() throws Exception {
+        ownPlayerCount.set(null);
+        gateway.start();
+
+        // The hello still arrives; only the status is withheld.
+        controller.awaitMessage(Api.ProxyMessage.MessageCase.HELLO);
+        controller.awaitMessage(Api.ProxyMessage.MessageCase.PRESENCE_SNAPSHOT);
+        assertTrue(controller.received.isEmpty(), "a proxy that cannot count players should report none");
     }
 }
