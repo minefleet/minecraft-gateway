@@ -10,7 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/events"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/topology"
 )
@@ -35,7 +35,7 @@ type Config struct {
 	Streams *StreamManager
 	// Events records failed player moves against the Gateway they addressed.
 	// Optional: without it, failures are only logged and counted.
-	Events record.EventRecorder
+	Events events.EventRecorder
 }
 
 // Snapshot is the aggregate of all listener snapshots.

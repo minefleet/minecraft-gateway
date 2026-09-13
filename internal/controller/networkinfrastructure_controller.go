@@ -41,6 +41,10 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
+// portNameMinecraft is the Service port name a discovered game server may use
+// to say which of its ports players connect to.
+const portNameMinecraft = "minecraft"
+
 // NetworkInfrastructureReconciler reconciles a NetworkInfrastructure object
 type NetworkInfrastructureReconciler struct {
 	client.Client
@@ -161,7 +165,7 @@ func minecraftPort(svc corev1.Service) *gatewayv1.PortNumber {
 		if port.Protocol != corev1.ProtocolTCP {
 			continue
 		}
-		if port.Name == "minecraft" || port.Port == 25565 {
+		if port.Name == portNameMinecraft || port.Port == 25565 {
 			return ptr.To(port.Port)
 		}
 		if fallback == nil {

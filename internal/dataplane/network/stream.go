@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/events"
 	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -25,14 +25,14 @@ type streamServer struct {
 	moves *MoveEngine
 	// events reports failed moves against the Gateway they were addressed to,
 	// so kubectl describe explains them. Nil when no recorder was supplied.
-	events record.EventRecorder
+	events events.EventRecorder
 }
 
-func newStreamServer(mgr *StreamManager, events record.EventRecorder) *streamServer {
+func newStreamServer(mgr *StreamManager, recorder events.EventRecorder) *streamServer {
 	return &streamServer{
 		mgr:    mgr,
 		moves:  NewMoveEngine(mgr),
-		events: events,
+		events: recorder,
 	}
 }
 
@@ -50,7 +50,7 @@ func (s *streamServer) recordMoveFailure(namespace, name string, result PlayerMo
 	if target == "" {
 		target = "no server"
 	}
-	s.events.Eventf(gateway, corev1.EventTypeWarning, "PlayerMoveFailed",
+	s.events.Eventf(gateway, nil, corev1.EventTypeWarning, "PlayerMoveFailed", "MovePlayer",
 		"%s to %s: %s", result.PlayerUUID, target, result.Reason)
 }
 

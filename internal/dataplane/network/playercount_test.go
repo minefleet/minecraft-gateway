@@ -176,7 +176,7 @@ func TestListenerScopeSumsOnlyItsOwnProxies(t *testing.T) {
 }
 
 func TestListenerWithoutPlayerCountIsNeverPushed(t *testing.T) {
-	mgr := managerWith(t, map[string]*PlayerCountConfig{"minecraft": nil})
+	mgr := managerWith(t, map[string]*PlayerCountConfig{testListener: nil})
 
 	session := newProxySession(helloFor("proxy-a"))
 	mgr.sessions.Add(session)
@@ -191,7 +191,7 @@ func TestListenerWithoutPlayerCountIsNeverPushed(t *testing.T) {
 
 func TestSilentProxiesAreNotToldTheNetworkIsEmpty(t *testing.T) {
 	mgr := managerWith(t, map[string]*PlayerCountConfig{
-		"minecraft": {Scope: PlayerCountScopeGateway},
+		testListener: {Scope: PlayerCountScopeGateway},
 	})
 
 	session := newProxySession(helloFor("proxy-a"))
@@ -207,7 +207,7 @@ func TestSilentProxiesAreNotToldTheNetworkIsEmpty(t *testing.T) {
 
 func TestUnchangedCountsAreNotResent(t *testing.T) {
 	mgr := managerWith(t, map[string]*PlayerCountConfig{
-		"minecraft": {Scope: PlayerCountScopeGateway},
+		testListener: {Scope: PlayerCountScopeGateway},
 	})
 
 	session := newProxySession(helloFor("proxy-a"))
@@ -228,7 +228,7 @@ func TestUnchangedCountsAreNotResent(t *testing.T) {
 
 func TestFlushIsSkippedWhenNothingChanged(t *testing.T) {
 	mgr := managerWith(t, map[string]*PlayerCountConfig{
-		"minecraft": {Scope: PlayerCountScopeGateway},
+		testListener: {Scope: PlayerCountScopeGateway},
 	})
 
 	session := newProxySession(helloFor("proxy-a"))
@@ -246,7 +246,7 @@ func TestFlushIsSkippedWhenNothingChanged(t *testing.T) {
 
 func TestProxyIsToldToStopAggregatingWhenTheSettingIsRemoved(t *testing.T) {
 	mgr := managerWith(t, map[string]*PlayerCountConfig{
-		"minecraft": {Scope: PlayerCountScopeGateway},
+		testListener: {Scope: PlayerCountScopeGateway},
 	})
 
 	session := newProxySession(helloFor("proxy-a"))
@@ -257,7 +257,7 @@ func TestProxyIsToldToStopAggregatingWhenTheSettingIsRemoved(t *testing.T) {
 		t.Fatal("the proxy should first be given an aggregate")
 	}
 
-	reconfigure(t, mgr, map[string]*PlayerCountConfig{"minecraft": nil})
+	reconfigure(t, mgr, map[string]*PlayerCountConfig{testListener: nil})
 	mgr.flushPlayerCounts()
 
 	sync := nextPlayerCountMessage(session)

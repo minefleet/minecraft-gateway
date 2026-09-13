@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/events"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/topology"
@@ -65,7 +65,7 @@ type Executor struct {
 	// here and the reconcilers are leader-gated, so they always share a process.
 	Streams *network.StreamManager
 	// Events records failed player moves against the Gateway they addressed.
-	Events record.EventRecorder
+	Events events.EventRecorder
 }
 
 func (e Executor) Start(ctx context.Context) error {

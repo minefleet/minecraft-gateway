@@ -8,10 +8,14 @@ import (
 
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/events"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 )
 
 const (
+	// testListener is the gateway listener every move fixture addresses.
+	testListener = "minecraft"
+
 	alice = "11111111-1111-1111-1111-111111111111"
 	bob   = "22222222-2222-2222-2222-222222222222"
 )
@@ -28,10 +32,10 @@ func newMoveHarness(t *testing.T, servers ...*Server) *moveHarness {
 	t.Helper()
 	gw := types.NamespacedName{Namespace: "default", Name: "gw"}
 	cache := GatewaySnapshotCache{gw: map[string]ListenerSnapshot{
-		"minecraft": {
+		testListener: {
 			GatewayNamespace: gw.Namespace,
 			GatewayName:      gw.Name,
-			ListenerName:     "minecraft",
+			ListenerName:     testListener,
 			Services: []*Service{{
 				NamespacedName: "default/arena",
 				Namespace:      "default",
@@ -60,7 +64,7 @@ func (h *moveHarness) connect(playerUUID, server string) {
 		ServerName:       server,
 		GatewayNamespace: "default",
 		GatewayName:      "gw",
-		ListenerName:     "minecraft",
+		ListenerName:     testListener,
 	})
 }
 
@@ -90,8 +94,9 @@ func (h *moveHarness) replyToMoves(success bool, reason string) <-chan []string 
 	return moved
 }
 
-func serverNamed(name string) *Server {
-	return &Server{UniqueID: name, Name: name, IP: "10.0.0.1", Port: 25565}
+// arenaServer is the one backend every move test targets.
+func arenaServer() *Server {
+	return &Server{UniqueID: "arena-0", Name: "arena-0", IP: "10.0.0.1", Port: 25565}
 }
 
 func resultFor(results []PlayerMoveResult, playerUUID string) PlayerMoveResult {
@@ -104,12 +109,12 @@ func resultFor(results []PlayerMoveResult, playerUUID string) PlayerMoveResult {
 }
 
 func TestMoveToNamedServer(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	h.replyToMoves(true, "")
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice},
 		Target:  MoveTarget{ServerName: "arena-0"},
 	})
@@ -124,7 +129,7 @@ func TestMoveToNamedServer(t *testing.T) {
 }
 
 func TestMoveBySelectorSendsEveryoneToOneServer(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	h.connect(bob, "lobby-1")
 	h.replyToMoves(true, "")
@@ -135,7 +140,7 @@ func TestMoveBySelectorSendsEveryoneToOneServer(t *testing.T) {
 	}
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice, bob},
 		Target:  MoveTarget{Selector: selector},
 	})
@@ -151,13 +156,13 @@ func TestMoveBySelectorSendsEveryoneToOneServer(t *testing.T) {
 }
 
 func TestMoveByRouteResolvesPerPlayer(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	h.replyToMoves(true, "")
 
 	kind := RouteKindJoin
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice},
 		Target:  MoveTarget{Route: &kind},
 	})
@@ -170,12 +175,12 @@ func TestMoveByRouteResolvesPerPlayer(t *testing.T) {
 }
 
 func TestAllOrNothingMovesNobodyWhenOnePlayerIsAbsent(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	moved := h.replyToMoves(true, "")
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice, bob},
 		Target:  MoveTarget{ServerName: "arena-0"},
 		Policy:  MoveAllOrNothing,
@@ -200,12 +205,12 @@ func TestAllOrNothingMovesNobodyWhenOnePlayerIsAbsent(t *testing.T) {
 }
 
 func TestBestEffortMovesThePlayersItCan(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	h.replyToMoves(true, "")
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice, bob},
 		Target:  MoveTarget{ServerName: "arena-0"},
 		Policy:  MoveBestEffort,
@@ -224,7 +229,7 @@ func TestBestEffortMovesThePlayersItCan(t *testing.T) {
 }
 
 func TestWaitLetsALatecomerJoinTheMove(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	h.replyToMoves(true, "")
 
@@ -236,7 +241,7 @@ func TestWaitLetsALatecomerJoinTheMove(t *testing.T) {
 
 	start := time.Now()
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice, bob},
 		Target:  MoveTarget{ServerName: "arena-0"},
 		Policy:  MoveAllOrNothing,
@@ -258,7 +263,7 @@ func TestWaitLetsALatecomerJoinTheMove(t *testing.T) {
 }
 
 func TestPlayerOnAnotherListenerCountsAsAbsent(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.mgr.presence.Set(Presence{
 		PlayerUUID:       alice,
 		ProxyID:          "proxy-vip",
@@ -270,7 +275,7 @@ func TestPlayerOnAnotherListenerCountsAsAbsent(t *testing.T) {
 	h.replyToMoves(true, "")
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice},
 		Target:  MoveTarget{ServerName: "arena-0"},
 		Policy:  MoveBestEffort,
@@ -284,12 +289,12 @@ func TestPlayerOnAnotherListenerCountsAsAbsent(t *testing.T) {
 }
 
 func TestProxyFailureIsReportedPerPlayer(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 	h.replyToMoves(false, "server_not_registered")
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice},
 		Target:  MoveTarget{ServerName: "arena-0"},
 	})
@@ -302,7 +307,7 @@ func TestProxyFailureIsReportedPerPlayer(t *testing.T) {
 }
 
 func TestUnknownListenerIsRejected(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 
 	if _, err := h.engine.Execute(context.Background(), MoveOrder{
 		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "nope",
@@ -314,7 +319,7 @@ func TestUnknownListenerIsRejected(t *testing.T) {
 }
 
 func TestTransferMovesAreNotDeliveredToTheEngine(t *testing.T) {
-	h := newMoveHarness(t, serverNamed("arena-0"))
+	h := newMoveHarness(t, arenaServer())
 	h.connect(alice, "lobby-0")
 
 	// A PlayerTransfer's result, which the engine must ignore.
@@ -332,7 +337,7 @@ func TestTransferMovesAreNotDeliveredToTheEngine(t *testing.T) {
 	}()
 
 	results, err := h.engine.Execute(context.Background(), MoveOrder{
-		GatewayNamespace: "default", GatewayName: "gw", ListenerName: "minecraft",
+		GatewayNamespace: "default", GatewayName: "gw", ListenerName: testListener,
 		Players: []string{alice},
 		Target:  MoveTarget{ServerName: "arena-0"},
 	})
@@ -342,4 +347,50 @@ func TestTransferMovesAreNotDeliveredToTheEngine(t *testing.T) {
 	if result := resultFor(results, alice); !result.Success {
 		t.Errorf("got %+v, want the engine's own result to settle the move", result)
 	}
+}
+
+func TestFailedMoveIsReportedAsAnEventOnTheGateway(t *testing.T) {
+	recorder := events.NewFakeRecorder(4)
+	srv := newStreamServer(NewStreamManager(), recorder)
+
+	srv.recordMoveFailure("default", "gw", PlayerMoveResult{
+		PlayerUUID: alice,
+		ServerName: "arena-3",
+		Reason:     "server_not_registered",
+	})
+
+	select {
+	case got := <-recorder.Events:
+		want := "Warning PlayerMoveFailed " + alice + " to arena-3: server_not_registered"
+		if got != want {
+			t.Errorf("event = %q, want %q", got, want)
+		}
+	default:
+		t.Fatal("no event was recorded for a failed move")
+	}
+}
+
+func TestMoveFailureWithoutAServerStillExplainsItself(t *testing.T) {
+	recorder := events.NewFakeRecorder(4)
+	srv := newStreamServer(NewStreamManager(), recorder)
+
+	srv.recordMoveFailure("default", "gw", PlayerMoveResult{
+		PlayerUUID: alice,
+		Reason:     mcgatewayv1alpha1.PlayerAssignmentReasonNoMatchingRoute,
+	})
+
+	select {
+	case got := <-recorder.Events:
+		if !strings.Contains(got, "no server") || !strings.Contains(got, "NoMatchingRoute") {
+			t.Errorf("event = %q, want it to name the missing target and the reason", got)
+		}
+	default:
+		t.Fatal("no event was recorded")
+	}
+}
+
+func TestMovesAreRecordedWithoutARecorder(t *testing.T) {
+	srv := newStreamServer(NewStreamManager(), nil)
+	// Must not panic: the recorder is optional.
+	srv.recordMoveFailure("default", "gw", PlayerMoveResult{PlayerUUID: alice, Reason: "MoveFailed"})
 }

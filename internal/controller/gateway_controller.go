@@ -472,7 +472,7 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Client:    mgr.GetClient(),
 		Dataplane: r.Dataplane,
 		Streams:   r.Streams,
-		Events:    mgr.GetEventRecorderFor("minefleet-gateway"),
+		Events:    mgr.GetEventRecorder("minefleet-gateway"),
 	})
 	if err != nil {
 		return err

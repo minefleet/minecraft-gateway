@@ -11,7 +11,7 @@ func helloFor(proxyID string) *apiv1alpha1.ProxyHello {
 		ProxyId:          proxyID,
 		GatewayNamespace: "default",
 		GatewayName:      "gw",
-		ListenerName:     "minecraft",
+		ListenerName:     testListener,
 	}
 }
 
@@ -48,7 +48,7 @@ func TestRegistryForListener(t *testing.T) {
 	other.ListenerName = "other"
 	r.Add(newProxySession(other))
 
-	if got := len(r.ForListener("default", "gw", "minecraft")); got != 2 {
+	if got := len(r.ForListener("default", "gw", testListener)); got != 2 {
 		t.Errorf("ForListener returned %d sessions, want 2", got)
 	}
 	if got := len(r.ForListener("default", "gw", "other")); got != 1 {
