@@ -68,7 +68,7 @@ data:
     # ... rest of your config
 ```
 
-**Mount it in `networkTemplate`:**
+**Mount it at `/config` in `networkTemplate`:**
 
 ```yaml
 networkTemplate:
@@ -77,14 +77,24 @@ networkTemplate:
       containers:
         - name: network
           volumeMounts:
-            - mountPath: /velocity/velocity.toml
-              subPath: velocity.toml
+            - mountPath: /config
               name: velocity-config
+              readOnly: true
       volumes:
         - name: velocity-config
           configMap:
             name: velocity-config
 ```
+
+Everything in `/config` is copied into Velocity's working directory when the container starts, so the same volume can also carry files such as `server-icon.png`.
+
+<Warning>
+Mount the volume at `/config` — not directly onto `/velocity/velocity.toml`.
+
+Velocity rewrites `velocity.toml` in place when it migrates the config between versions, and Kubernetes always mounts ConfigMap and Secret volumes read-only. Mounting the file directly makes that write fail with `Read-only file system` and the proxy exits during startup. Setting `readOnly: false` on the mount does not help; that field is not what makes the volume read-only.
+
+The copy lives in the container's writable layer and is discarded on restart, so the ConfigMap stays the only source of truth.
+</Warning>
 
 ## Setting resource requests and limits
 
@@ -136,9 +146,9 @@ networkTemplate:
               subPath: forwarding.secret
               name: forwarding-secret
               readOnly: true
-            - mountPath: /velocity/velocity.toml
-              subPath: velocity.toml
+            - mountPath: /config
               name: velocity-config
+              readOnly: true
       volumes:
         - name: forwarding-secret
           secret:

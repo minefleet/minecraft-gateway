@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/events"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/edge"
 	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/topology"
@@ -59,6 +60,12 @@ func CreateDataplane(ctx context.Context, c client.Client, cfg Config) Dataplane
 type Executor struct {
 	Client    client.Client
 	Dataplane *Dataplane
+	// Streams is shared with the PlayerTransfer reconciler so transfers can be
+	// pushed to the proxies holding the players. Both the gRPC server started
+	// here and the reconcilers are leader-gated, so they always share a process.
+	Streams *network.StreamManager
+	// Events records failed player moves against the Gateway they addressed.
+	Events events.EventRecorder
 }
 
 func (e Executor) Start(ctx context.Context) error {
@@ -79,6 +86,8 @@ func (e Executor) Start(ctx context.Context) error {
 		Network: network.Config{
 			Namespace: string(controllerNamespace),
 			XDSPort:   19000,
+			Streams:   e.Streams,
+			Events:    e.Events,
 		},
 	})
 	*e.Dataplane = plane

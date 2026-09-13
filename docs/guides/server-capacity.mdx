@@ -10,7 +10,7 @@ minecraft-gateway can track how many players are connected to each game server p
 
 ## How it works
 
-Player counts are read from **pod annotations** set on game server pods. The controller watches for annotation changes and rebuilds the routing snapshot immediately when they change.
+Player counts are read from **pod annotations** set on game server pods. The controller watches for annotation changes and rebuilds routing configuration immediately when they change.
 
 Two annotations work together as a pair:
 
@@ -20,6 +20,10 @@ Two annotations work together as a pair:
 | `gateway.networking.minefleet.dev/max-players` | Maximum number of players this pod should accept. |
 
 **Both annotations must be present** for capacity tracking to activate. If either annotation is missing or cannot be parsed as a non-negative integer, both are ignored and the pod behaves as it did before — always routable, with no capacity limit.
+
+<Note>
+This is the capacity of one **game server pod**, used to decide where to route a player. It is unrelated to the number a server list ping advertises, which comes from the proxies' own configuration — see [`playerCount`](/reference/network-infrastructure#playercount).
+</Note>
 
 ## Setting the annotations
 

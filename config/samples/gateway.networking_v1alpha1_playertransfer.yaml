@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.minefleet.dev/v1alpha1
+kind: PlayerTransfer
+metadata:
+  labels:
+    app.kubernetes.io/name: minecraft-gateway
+    app.kubernetes.io/managed-by: kustomize
+  name: playertransfer-sample
+spec:
+  gatewayName: minefleet-gateway-sample
+  listenerName: minecraft
+  players:
+    - 46bad177-5a94-459b-9f10-03335f2f5f18
+  target:
+    routeMode: fallback
+  policy: AllOrNothing
+  ttl: 30s

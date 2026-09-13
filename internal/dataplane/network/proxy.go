@@ -29,6 +29,10 @@ const (
 	labelManagedByValue = "minefleet-gateway"
 	labelGatewayName    = "minefleet.dev/gateway-name"
 	labelListener       = "minefleet.dev/listener"
+
+	// portNameMinecraft names the proxy's game port, on both the container and
+	// the Service that fronts it.
+	portNameMinecraft = "minecraft"
 )
 
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
@@ -179,7 +183,7 @@ func (m *ProxyManager) buildDeployment(gateway types.NamespacedName, listener to
 					Image: fmt.Sprintf("ghcr.io/minefleet/minecraft-proxy:%s-velocity", version.Version),
 					Ports: []corev1.ContainerPort{
 						{
-							Name:          "minecraft",
+							Name:          portNameMinecraft,
 							ContainerPort: 25565,
 							Protocol:      corev1.ProtocolTCP,
 						},
@@ -268,7 +272,7 @@ func (m *ProxyManager) buildService(gateway types.NamespacedName, listener topol
 				labelListener:    listenerName,
 			},
 			Ports: []corev1.ServicePort{{
-				Name:       "minecraft",
+				Name:       portNameMinecraft,
 				Port:       port,
 				TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: port},
 			}},

@@ -1,6 +1,8 @@
 [versions]
 # Networking
-protobuf = "4.34.1"
+# Must be >= the gencode version produced by the protocolbuffers/java plugin
+# pinned in api/buf.gen.yaml; the runtime rejects older runtimes than gencode.
+protobuf = "4.36.1"
 grpc = "1.81.0"
 
 # Integration Platform APIs
@@ -19,6 +21,7 @@ protobuf = { group = "com.google.protobuf", name = "protobuf-java", version.ref 
 grpc-stub = { group = "io.grpc", name = "grpc-stub", version.ref = "grpc" }
 grpc-protobuf = { group = "io.grpc", name = "grpc-protobuf", version.ref = "grpc" }
 grpc-netty-shaded = { group = "io.grpc", name = "grpc-netty-shaded", version.ref = "grpc" }
+grpc-inprocess = { group = "io.grpc", name = "grpc-inprocess", version.ref = "grpc" }
 
 # Integration Platform APIs
 velocity-api = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity-api" }

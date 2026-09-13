@@ -24,8 +24,9 @@ import (
 	"os"
 	"path/filepath"
 
-	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+
+	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -50,6 +51,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"minefleet.dev/minecraft-gateway/internal/controller"
+	"minefleet.dev/minecraft-gateway/internal/dataplane/network"
 	"minefleet.dev/minecraft-gateway/internal/version"
 	// +kubebuilder:scaffold:imports
 )
@@ -265,9 +267,15 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "GatewayClass")
 		os.Exit(1)
 	}
+	// The proxy stream state is shared: the Gateway reconciler hands it to the
+	// dataplane so configuration reaches connected proxies, and the
+	// PlayerTransfer reconciler reads presence from it and pushes moves.
+	streams := network.NewStreamManager()
+
 	if err := (&controller.GatewayReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:  mgr.GetClient(),
+		Scheme:  mgr.GetScheme(),
+		Streams: streams,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Gateway")
 		os.Exit(1)
@@ -291,6 +299,14 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "NetworkInfrastructure")
+		os.Exit(1)
+	}
+	if err := (&controller.PlayerTransferReconciler{
+		Client:  mgr.GetClient(),
+		Scheme:  mgr.GetScheme(),
+		Streams: streams,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "PlayerTransfer")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

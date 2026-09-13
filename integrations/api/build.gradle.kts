@@ -63,6 +63,7 @@ dependencies {
     compileOnly(libs.javax.annotations)
 
     testImplementation(libs.bundles.junit)
+    testImplementation(libs.grpc.inprocess)
     testImplementation(libs.bundles.mockito)
     testRuntimeOnly(libs.junit.platform.launcher)
     mockitoAgent(libs.mockito.core) { isTransitive = false }

@@ -88,7 +88,7 @@ See the [MinecraftJoinRoute reference](/reference/minecraft-join-route) for full
 
 ### MinecraftFallbackRoute
 
-A `MinecraftFallbackRoute` defines where players go when a primary server is unavailable or full. It supports a `fallbackFor` selector that dynamically resolves to a set of services at snapshot build time. Fallback routes are evaluated by the network proxy and do not affect edge-layer routing.
+A `MinecraftFallbackRoute` defines where players go when a primary server is unavailable or full. It supports a `fallbackFor` selector that dynamically resolves to a set of services when routing configuration is built. Fallback routes are evaluated by the controller and do not affect edge-layer routing.
 
 See the [MinecraftFallbackRoute reference](/reference/minecraft-fallback-route) for full field documentation.
 
@@ -104,3 +104,8 @@ When both the `GatewayClass` and the `Gateway` have a `parametersRef`, the contr
 | Labels/annotations | Merged; gateway level wins on conflict |
 
 This lets you set cluster-wide edge configuration centrally while allowing individual gateways to customize their network proxy and discovery settings.
+### PlayerTransfer
+
+A `PlayerTransfer` moves named players to a server. Unlike the route CRDs, which describe standing policy, a transfer is a one-shot command: it names the players, says where they should go, and settles once they have been moved. It exists so external systems — queues, matchmakers, gameserver orchestrators — can move players through the Kubernetes API without holding a stream connection to the controller.
+
+See the [PlayerTransfer reference](/reference/player-transfer) for full field documentation.

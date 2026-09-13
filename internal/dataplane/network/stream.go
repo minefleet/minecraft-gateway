@@ -1,0 +1,309 @@
+package network
+
+import (
+	"context"
+	"errors"
+	"io"
+
+	"github.com/go-logr/logr"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/events"
+	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+)
+
+// streamServer implements the proxy-facing Connect stream and the external
+// NetworkGateway query and move API, all backed by the same StreamManager.
+type streamServer struct {
+	apiv1alpha1.UnimplementedNetworkXDSServer
+	apiv1alpha1.UnimplementedNetworkGatewayServer
+	mgr   *StreamManager
+	moves *MoveEngine
+	// events reports failed moves against the Gateway they were addressed to,
+	// so kubectl describe explains them. Nil when no recorder was supplied.
+	events events.EventRecorder
+}
+
+func newStreamServer(mgr *StreamManager, recorder events.EventRecorder) *streamServer {
+	return &streamServer{
+		mgr:    mgr,
+		moves:  NewMoveEngine(mgr),
+		events: recorder,
+	}
+}
+
+// recordMoveFailure reports a failed move as an Event on the addressed Gateway.
+// Events expire on their own, so this leaves no objects behind to clean up.
+func (s *streamServer) recordMoveFailure(namespace, name string, result PlayerMoveResult) {
+	if s.events == nil {
+		return
+	}
+	gateway := &gatewayv1.Gateway{
+		TypeMeta:   metav1.TypeMeta{APIVersion: gatewayv1.GroupVersion.String(), Kind: "Gateway"},
+		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: name},
+	}
+	target := result.ServerName
+	if target == "" {
+		target = "no server"
+	}
+	s.events.Eventf(gateway, nil, corev1.EventTypeWarning, "PlayerMoveFailed", "MovePlayer",
+		"%s to %s: %s", result.PlayerUUID, target, result.Reason)
+}
+
+// Connect is the persistent bidirectional stream with one proxy. The proxy
+// opens it with a hello and a full presence replay, then reports presence and
+// asks for routing decisions; the controller pushes server registrations,
+// routing decisions and move commands back.
+func (s *streamServer) Connect(stream apiv1alpha1.NetworkXDS_ConnectServer) error {
+	ctx := stream.Context()
+	log := logf.FromContext(ctx)
+
+	first, err := stream.Recv()
+	if err != nil {
+		return err
+	}
+	hello := first.GetHello()
+	if hello == nil {
+		return status.Error(codes.InvalidArgument, "first message must be a hello")
+	}
+	if hello.GetProxyId() == "" {
+		return status.Error(codes.InvalidArgument, "hello must carry a proxy id")
+	}
+
+	session := newProxySession(hello)
+	if replaced := s.mgr.sessions.Add(session); replaced != nil {
+		// The same proxy reconnected; its old presence is about to be replayed.
+		s.mgr.presence.DropProxy(replaced.ProxyID)
+	}
+	// A proxy joining or leaving changes the totals of the proxies it is
+	// aggregated with, and the newcomer has to be told the current figures.
+	s.mgr.playerCounts.MarkDirty()
+	defer func() {
+		// Only forget this proxy's players if this stream is still the current
+		// one. If the proxy already reconnected, the replacement has replayed
+		// its presence and dropping it here would blind the controller.
+		current := s.mgr.sessions.Remove(session)
+		session.Close()
+		if current {
+			s.mgr.presence.DropProxy(session.ProxyID)
+			// A disconnected proxy must stop advertising capacity that nobody
+			// can connect to.
+			s.mgr.playerCounts.Drop(session.ProxyID)
+		}
+	}()
+
+	log.Info("proxy connected",
+		"proxy", session.ProxyID,
+		"gateway", session.GatewayNamespace+"/"+session.GatewayName,
+		"listener", session.ListenerName)
+
+	// Send the current server set straight away so a proxy that connects
+	// between configuration changes is not left empty.
+	if cfg := s.mgr.ConfigFor(session.GatewayNamespace, session.GatewayName, session.ListenerName); cfg != nil {
+		if err := session.Send(serverSyncMessage(cfg)); err != nil {
+			return err
+		}
+	}
+
+	writerDone := make(chan error, 1)
+	go func() {
+		for msg := range session.Outgoing() {
+			if err := stream.Send(msg); err != nil {
+				writerDone <- err
+				return
+			}
+		}
+		writerDone <- nil
+	}()
+
+	for {
+		select {
+		case err := <-writerDone:
+			return err
+		default:
+		}
+
+		msg, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			log.Info("proxy disconnected", "proxy", session.ProxyID)
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		s.handle(ctx, session, msg)
+	}
+}
+
+func (s *streamServer) handle(ctx context.Context, session *ProxySession, msg *apiv1alpha1.ProxyMessage) {
+	log := logf.FromContext(ctx)
+
+	switch m := msg.Message.(type) {
+	case *apiv1alpha1.ProxyMessage_PresenceSnapshot:
+		entries := make([]Presence, 0, len(m.PresenceSnapshot.GetPlayers()))
+		for _, entry := range m.PresenceSnapshot.GetPlayers() {
+			entries = append(entries, presenceOf(session, entry.GetPlayerUuid(), entry.GetServerName(), entry.GetContext()))
+		}
+		s.mgr.presence.ReplaceForProxy(session.ProxyID, entries)
+		log.V(1).Info("replayed proxy presence", "proxy", session.ProxyID, "players", len(entries))
+
+	case *apiv1alpha1.ProxyMessage_PresenceEvent:
+		event := m.PresenceEvent
+		if event.GetKind() == apiv1alpha1.PlayerPresenceEvent_KIND_DISCONNECTED {
+			s.mgr.presence.Remove(event.GetPlayerUuid())
+			log.Info("player left", "player", event.GetPlayerUuid(), "proxy", session.ProxyID)
+			return
+		}
+		s.mgr.presence.Set(presenceOf(session, event.GetPlayerUuid(), event.GetServerName(), event.GetContext()))
+		// The player has arrived, so the capacity held for them is no longer pending.
+		s.mgr.router.Release(event.GetServerName())
+		log.Info("player present",
+			"player", event.GetPlayerUuid(),
+			"server", event.GetServerName(),
+			"gateway", session.GatewayNamespace+"/"+session.GatewayName,
+			"listener", session.ListenerName)
+
+	case *apiv1alpha1.ProxyMessage_RouteRequest:
+		s.respondToRoute(log, session, m.RouteRequest)
+
+	case *apiv1alpha1.ProxyMessage_MoveResult:
+		s.mgr.publishMoveResult(MoveOutcome{
+			CommandID: m.MoveResult.GetCommandId(),
+			Success:   m.MoveResult.GetSuccess(),
+			Reason:    m.MoveResult.GetReason(),
+		})
+
+	case *apiv1alpha1.ProxyMessage_PlayerCounts:
+		// Counts are derived from presence; this only surfaces drift.
+		for server, reported := range m.PlayerCounts.GetCountsByServer() {
+			if known := s.mgr.presence.CountForServer(server); known != int(reported) {
+				log.V(1).Info("player count drift",
+					"server", server, "proxyReported", reported, "controllerKnows", known)
+			}
+		}
+
+	case *apiv1alpha1.ProxyMessage_Status:
+		s.mgr.playerCounts.Set(session.ProxyID, ProxyStatus{
+			OnlinePlayers: m.Status.GetOnlinePlayers(),
+			MaxPlayers:    m.Status.GetMaxPlayers(),
+		})
+		log.V(1).Info("proxy status",
+			"proxy", session.ProxyID,
+			"online", m.Status.GetOnlinePlayers(),
+			"max", m.Status.GetMaxPlayers())
+
+	case *apiv1alpha1.ProxyMessage_Hello:
+		log.V(1).Info("ignoring repeated hello", "proxy", session.ProxyID)
+	}
+}
+
+func (s *streamServer) respondToRoute(log logr.Logger, session *ProxySession, req *apiv1alpha1.RouteRequest) {
+	kind := RouteKindJoin
+	kindName := "join"
+	if req.GetKind() == apiv1alpha1.RouteKind_ROUTE_KIND_FALLBACK {
+		kind = RouteKindFallback
+		kindName = "fallback"
+	}
+
+	query := RouteQuery{
+		PlayerUUID:        req.GetPlayerUuid(),
+		Kind:              kind,
+		Context:           contextOf(req.GetContext()),
+		CurrentServerName: req.GetCurrentServerName(),
+	}
+
+	response := &apiv1alpha1.RouteResponse{
+		CorrelationId: req.GetCorrelationId(),
+		Result:        apiv1alpha1.RouteResponse_RESULT_NO_ROUTE,
+	}
+	if server, ok := s.mgr.ResolveRoute(session.GatewayNamespace, session.GatewayName, session.ListenerName, query); ok {
+		response.Result = apiv1alpha1.RouteResponse_RESULT_OK
+		response.ServerName = server.Name
+		log.Info("routed player",
+			"player", req.GetPlayerUuid(),
+			"kind", kindName,
+			"server", server.Name,
+			"domain", query.Context.ConnectedDomain)
+	} else {
+		log.Info("no route matched",
+			"player", req.GetPlayerUuid(),
+			"kind", kindName,
+			"domain", query.Context.ConnectedDomain,
+			"gateway", session.GatewayNamespace+"/"+session.GatewayName,
+			"listener", session.ListenerName)
+	}
+
+	if err := session.Send(&apiv1alpha1.ControllerMessage{
+		Message: &apiv1alpha1.ControllerMessage_RouteResponse{RouteResponse: response},
+	}); err != nil {
+		session.Close()
+	}
+}
+
+func presenceOf(session *ProxySession, playerUUID, serverName string, ctx *apiv1alpha1.PlayerContext) Presence {
+	return Presence{
+		PlayerUUID:       playerUUID,
+		ProxyID:          session.ProxyID,
+		ServerName:       serverName,
+		GatewayNamespace: session.GatewayNamespace,
+		GatewayName:      session.GatewayName,
+		ListenerName:     session.ListenerName,
+		Context:          contextOf(ctx),
+	}
+}
+
+func contextOf(ctx *apiv1alpha1.PlayerContext) PlayerContext {
+	if ctx == nil {
+		return PlayerContext{}
+	}
+	return PlayerContext{
+		ConnectedDomain: ctx.GetConnectedDomain(),
+		Permissions:     ctx.GetPermissions(),
+	}
+}
+
+// GetConnection reports where one player currently is.
+func (s *streamServer) GetConnection(_ context.Context, req *apiv1alpha1.GetConnectionRequest) (*apiv1alpha1.GetConnectionResponse, error) {
+	presence, ok := s.mgr.presence.Lookup(req.GetPlayerUuid())
+	if !ok {
+		return &apiv1alpha1.GetConnectionResponse{}, nil
+	}
+	return &apiv1alpha1.GetConnectionResponse{Connection: connectionOf(presence)}, nil
+}
+
+// GetPlayersForServer reports every player on one backend server.
+func (s *streamServer) GetPlayersForServer(_ context.Context, req *apiv1alpha1.GetPlayersForServerRequest) (*apiv1alpha1.GetPlayersForServerResponse, error) {
+	return &apiv1alpha1.GetPlayersForServerResponse{
+		Connections: connectionsOf(s.mgr.presence.PlayersForServer(req.GetServerName())),
+	}, nil
+}
+
+// GetPlayersForService reports every player across the servers of one Service.
+func (s *streamServer) GetPlayersForService(_ context.Context, req *apiv1alpha1.GetPlayersForServiceRequest) (*apiv1alpha1.GetPlayersForServiceResponse, error) {
+	return &apiv1alpha1.GetPlayersForServiceResponse{
+		Connections: connectionsOf(s.mgr.PlayersForService(req.GetNamespace(), req.GetName())),
+	}, nil
+}
+
+func connectionsOf(players []Presence) []*apiv1alpha1.PlayerConnection {
+	out := make([]*apiv1alpha1.PlayerConnection, 0, len(players))
+	for _, pr := range players {
+		out = append(out, connectionOf(pr))
+	}
+	return out
+}
+
+func connectionOf(pr Presence) *apiv1alpha1.PlayerConnection {
+	return &apiv1alpha1.PlayerConnection{
+		PlayerUuid:       pr.PlayerUUID,
+		ProxyId:          pr.ProxyID,
+		ServerName:       pr.ServerName,
+		GatewayNamespace: pr.GatewayNamespace,
+		GatewayName:      pr.GatewayName,
+		ListenerName:     pr.ListenerName,
+	}
+}

@@ -1,0 +1,153 @@
+---
+title: Moving Players
+description: Connect players to a server from outside the cluster with the MovePlayers RPC, and when to use a PlayerTransfer resource instead.
+---
+
+There are two ways to move players between servers, and they take the same targets and the same policies.
+
+| | [`PlayerTransfer`](/reference/player-transfer) | `MovePlayers` RPC |
+|---|---|---|
+| Shape | A resource you create | A gRPC call |
+| Outcome | Written to `status` | Returned on the call |
+| Leaves behind | An object, until you delete it | Nothing |
+| Survives a controller restart | Yes, the reconciler resumes it | No, the call fails |
+| Best for | Pre-staged, declarative, auditable transfers | Matchmakers and queues that move players now and act on the answer |
+
+Reach for the resource when the transfer should be part of your cluster state. Reach for the RPC when a caller needs an answer.
+
+## Prerequisites
+
+- A Gateway with a listener whose proxies are connected to the controller.
+- Network access to the controller's gRPC service on port 19000, usually `minecraft-gateway-network-xds.<controller-namespace>:19000`.
+
+Only the elected leader serves port 19000. A channel built against the Service reconnects by itself across a failover.
+
+## Calling MovePlayers
+
+```protobuf
+rpc MovePlayers(MovePlayersRequest) returns (MovePlayersResponse);
+
+message MovePlayersRequest {
+  string gateway_namespace = 1;
+  string gateway_name = 2;
+  string listener_name = 3;
+  repeated string players = 4;
+
+  oneof target {
+    RouteKind route_mode = 5;
+    LabelSelector label_selector = 6;
+    string server_name = 7;
+  }
+
+  MovePolicy policy = 8;
+  uint32 wait_seconds = 9;
+}
+```
+
+The call blocks until every player has a terminal outcome, then returns one `PlayerMoveResult` per player:
+
+```protobuf
+message PlayerMoveResult {
+  string player_uuid = 1;
+  string server_name = 2;
+  bool success = 3;
+  string reason = 4;
+}
+```
+
+### Targets
+
+Exactly one target must be set. They behave identically to a PlayerTransfer's.
+
+| Target | Effect |
+|---|---|
+| `server_name` | Every player goes to the named server. The controller does not resolve connection details; the proxy looks it up by name. |
+| `label_selector` | One server is picked from the services carrying those labels, using their distribution strategy. Every player goes to that one server. |
+| `route_mode` | The gateway's join or fallback routes are evaluated per player, so players may land on different servers. |
+
+### Policies and waiting
+
+`policy` decides what happens when a player is not connected:
+
+- `MOVE_POLICY_ALL_OR_NOTHING` (the default) dispatches nobody until every player is present — so a party is never split across servers.
+- `MOVE_POLICY_BEST_EFFORT` moves each player as they become present and fails the rest individually.
+
+`wait_seconds` bounds how long the call tolerates players who are not online yet, the same pre-staging a PlayerTransfer's `ttl` allows. Leave it at zero and absent players fail immediately as `PlayerNotConnected`; the call still briefly awaits the moves it did dispatch. A player connecting wakes the call straight away rather than waiting out the timer.
+
+A player who is online but connected to a *different* gateway listener counts as absent. Moving them would take them off a listener the caller never addressed.
+
+### Failure reasons
+
+| `reason` | Meaning |
+|---|---|
+| `PlayerNotConnected` | The player is not on the addressed listener, and did not arrive within `wait_seconds`. |
+| `NoMatchingRoute` | `route_mode` was set but no route matched this player. |
+| `NoMatchingServer` | No server matched the selector, or no target was resolvable. |
+| `ProxyUnavailable` | The proxy holding the player disconnected before the move could be sent. |
+| `MoveFailed` | The proxy reported a failure without a reason of its own. |
+
+A proxy may also supply its own reason, such as `server_not_registered` or `connect_failed`.
+
+<Warning>
+Set a gRPC deadline that outlives `wait_seconds`. If the deadline fires first the call returns `DEADLINE_EXCEEDED` and you lose the results — but moves already handed to a proxy are still carried out. Use `GetConnection` to find out where those players ended up.
+</Warning>
+
+## Using the Java client
+
+The published `integration-api` includes a client for components outside the proxies. It is separate from `NetworkGateway`, which is the proxy-side API and holds an open stream.
+
+```java
+import dev.minefleet.api.gateway.networking.MoveResult;
+import dev.minefleet.api.gateway.networking.MoveTarget;
+import dev.minefleet.api.gateway.networking.NetworkGatewayClient;
+
+try (var client = NetworkGatewayClient.forTarget("minecraft-gateway-network-xds.minefleet-system:19000")) {
+    var listener = new NetworkGatewayClient.GatewayListener("default", "public", "minecraft");
+
+    MoveResult result = client.movePlayers(
+        listener,
+        List.of(alice, bob),
+        MoveTarget.server("arena-3"));
+
+    if (!result.allSucceeded()) {
+        result.failures().forEach(failure ->
+            logger.warn("{} did not move: {}", failure.playerUuid(), failure.reason().orElseThrow()));
+    }
+}
+```
+
+To pre-stage a match, pass a policy and a wait. The call returns as soon as the last player has been moved:
+
+```java
+MoveResult result = client.movePlayers(
+    listener,
+    party,
+    MoveTarget.matching(Map.of("role", "arena")),
+    NetworkGatewayClient.MovePolicy.ALL_OR_NOTHING,
+    Duration.ofSeconds(30));
+```
+
+The client sets a deadline that outlives the wait for you.
+
+## Watching moves
+
+Every move, whichever path asked for it, is counted:
+
+```
+minefleet_gateway_player_moves_total{source="api", result="ok"}
+minefleet_gateway_player_moves_total{source="playertransfer", result="failed", reason="NoMatchingRoute"}
+```
+
+`source` separates the RPC (`api`) from the resource (`playertransfer`), so both show on one dashboard.
+
+Failed moves are also recorded as Events on the Gateway they addressed, which expire on their own:
+
+```bash
+kubectl describe gateway public
+```
+
+```
+Events:
+  Type     Reason            Age   Message
+  Warning  PlayerMoveFailed  2m    11111111-... to arena-3: server_not_registered
+```

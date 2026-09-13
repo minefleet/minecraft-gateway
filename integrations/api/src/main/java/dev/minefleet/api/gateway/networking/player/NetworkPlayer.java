@@ -3,8 +3,11 @@ package dev.minefleet.api.gateway.networking.player;
 import dev.minefleet.api.gateway.networking.ManagedServer;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface NetworkPlayer {
+    UUID getUuid();
+
     String getConnectedDomain();
 
     Optional<ManagedServer> getConnectedServer();

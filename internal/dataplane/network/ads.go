@@ -4,65 +4,23 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"sync"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
+	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-type networkXDSServer struct {
-	mcgatewayv1alpha1.UnimplementedNetworkXDSServer
-	mu       sync.RWMutex
-	snapshot *Snapshot
-}
-
-func newNetworkXDSServer() *networkXDSServer {
-	return &networkXDSServer{}
-}
-
-func (s *networkXDSServer) updateSnapshot(snap Snapshot) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.snapshot = &snap
-}
-
-// GetSnapshot implements NetworkXDSServer.
-func (s *networkXDSServer) GetSnapshot(ctx context.Context, req *mcgatewayv1alpha1.GetSnapshotRequest) (*mcgatewayv1alpha1.GetSnapshotResponse, error) {
-	s.mu.RLock()
-	snap := s.snapshot
-	s.mu.RUnlock()
-
-	if snap == nil {
-		return nil, status.Error(codes.Unavailable, "snapshot not yet available")
-	}
-
-	ls := snap.Get(req.GatewayNamespace, req.GatewayName, req.ListenerName)
-	if ls == nil {
-		return nil, status.Errorf(codes.NotFound, "no snapshot for %s/%s listener %s",
-			req.GatewayNamespace, req.GatewayName, req.ListenerName)
-	}
-
-	return &mcgatewayv1alpha1.GetSnapshotResponse{
-		Snapshot: &mcgatewayv1alpha1.Snapshot{
-			GatewayName:       ls.GatewayName,
-			ListenerName:      ls.ListenerName,
-			CurrentGeneration: snap.Generation,
-			Services:          ls.Services,
-		},
-	}, nil
-}
-
-func (s *networkXDSServer) start(ctx context.Context, port int) error {
+// serve runs the gRPC server carrying both the proxy stream and the external
+// player query API.
+func serve(ctx context.Context, srv *streamServer, port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return fmt.Errorf("network xds listen :%d: %w", port, err)
 	}
 	grpcServer := grpc.NewServer()
-	mcgatewayv1alpha1.RegisterNetworkXDSServer(grpcServer, s)
+	apiv1alpha1.RegisterNetworkXDSServer(grpcServer, srv)
+	apiv1alpha1.RegisterNetworkGatewayServer(grpcServer, srv)
 
 	go func() {
 		<-ctx.Done()
@@ -72,16 +30,23 @@ func (s *networkXDSServer) start(ctx context.Context, port int) error {
 	return grpcServer.Serve(lis)
 }
 
-// StartADS starts the network xDS gRPC server and a goroutine that applies incoming snapshots.
+// StartADS starts the network gRPC server and a goroutine that applies incoming
+// routing configuration, pushing it to the connected proxies.
 func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, _ client.Client) {
 	log := logf.FromContext(ctx)
-	srv := newNetworkXDSServer()
+	mgr := cfg.Streams
+	if mgr == nil {
+		mgr = NewStreamManager()
+	}
+	srv := newStreamServer(mgr, cfg.Events)
 
 	go func() {
-		if err := srv.start(ctx, cfg.XDSPort); err != nil && ctx.Err() == nil {
-			log.Error(err, "network xDS server stopped unexpectedly")
+		if err := serve(ctx, srv, cfg.XDSPort); err != nil && ctx.Err() == nil {
+			log.Error(err, "network gRPC server stopped unexpectedly")
 		}
 	}()
+
+	go mgr.RunPlayerCounts(ctx, playerCountFlushInterval)
 
 	go func() {
 		for {
@@ -92,8 +57,8 @@ func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, _ clie
 				if !ok {
 					return
 				}
-				srv.updateSnapshot(snap)
-				log.V(1).Info("updated network xDS snapshot", "generation", snap.Generation)
+				mgr.UpdateSnapshot(snap)
+				log.V(1).Info("updated network routing configuration", "generation", snap.Generation)
 			}
 		}
 	}()

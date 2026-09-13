@@ -20,6 +20,13 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
   - namespaces
   - pods
   verbs:
@@ -91,6 +98,7 @@ rules:
   - minecraftfallbackroutes
   - minecraftjoinroutes
   - networkinfrastructures
+  - playertransfers
   verbs:
   - create
   - delete
@@ -113,6 +121,7 @@ rules:
   - minecraftfallbackroutes/status
   - minecraftjoinroutes/status
   - networkinfrastructures/status
+  - playertransfers/status
   verbs:
   - get
   - patch

@@ -12,35 +12,35 @@ public final class NetworkXDSGrpc {
   public static final java.lang.String SERVICE_NAME = "network.v1alpha1.NetworkXDS";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest,
-      dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse> getGetSnapshotMethod;
+  private static volatile io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage,
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage> getConnectMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetSnapshot",
-      requestType = dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.class,
-      responseType = dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest,
-      dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse> getGetSnapshotMethod() {
-    io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest, dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse> getGetSnapshotMethod;
-    if ((getGetSnapshotMethod = NetworkXDSGrpc.getGetSnapshotMethod) == null) {
+      fullMethodName = SERVICE_NAME + '/' + "Connect",
+      requestType = dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage.class,
+      responseType = dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
+  public static io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage,
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage> getConnectMethod() {
+    io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage, dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage> getConnectMethod;
+    if ((getConnectMethod = NetworkXDSGrpc.getConnectMethod) == null) {
       synchronized (NetworkXDSGrpc.class) {
-        if ((getGetSnapshotMethod = NetworkXDSGrpc.getGetSnapshotMethod) == null) {
-          NetworkXDSGrpc.getGetSnapshotMethod = getGetSnapshotMethod =
-              io.grpc.MethodDescriptor.<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest, dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetSnapshot"))
+        if ((getConnectMethod = NetworkXDSGrpc.getConnectMethod) == null) {
+          NetworkXDSGrpc.getConnectMethod = getConnectMethod =
+              io.grpc.MethodDescriptor.<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage, dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Connect"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest.getDefaultInstance()))
+                  dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new NetworkXDSMethodDescriptorSupplier("GetSnapshot"))
+                  dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage.getDefaultInstance()))
+              .setSchemaDescriptor(new NetworkXDSMethodDescriptorSupplier("Connect"))
               .build();
         }
       }
     }
-    return getGetSnapshotMethod;
+    return getConnectMethod;
   }
 
   /**
@@ -107,10 +107,15 @@ public final class NetworkXDSGrpc {
   public interface AsyncService {
 
     /**
+     * <pre>
+     * Connect is the persistent bidirectional stream between a proxy and the
+     * controller. It replaces snapshot polling: the controller pushes server
+     * registrations and routing decisions, the proxy reports player presence.
+     * </pre>
      */
-    default void getSnapshot(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest request,
-        io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetSnapshotMethod(), responseObserver);
+    default io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage> connect(
+        io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage> responseObserver) {
+      return io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall(getConnectMethod(), responseObserver);
     }
   }
 
@@ -142,11 +147,16 @@ public final class NetworkXDSGrpc {
     }
 
     /**
+     * <pre>
+     * Connect is the persistent bidirectional stream between a proxy and the
+     * controller. It replaces snapshot polling: the controller pushes server
+     * registrations and routing decisions, the proxy reports player presence.
+     * </pre>
      */
-    public void getSnapshot(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest request,
-        io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getGetSnapshotMethod(), getCallOptions()), request, responseObserver);
+    public io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage> connect(
+        io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage> responseObserver) {
+      return io.grpc.stub.ClientCalls.asyncBidiStreamingCall(
+          getChannel().newCall(getConnectMethod(), getCallOptions()), responseObserver);
     }
   }
 
@@ -167,10 +177,17 @@ public final class NetworkXDSGrpc {
     }
 
     /**
+     * <pre>
+     * Connect is the persistent bidirectional stream between a proxy and the
+     * controller. It replaces snapshot polling: the controller pushes server
+     * registrations and routing decisions, the proxy reports player presence.
+     * </pre>
      */
-    public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse getSnapshot(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest request) throws io.grpc.StatusException {
-      return io.grpc.stub.ClientCalls.blockingV2UnaryCall(
-          getChannel(), getGetSnapshotMethod(), getCallOptions(), request);
+    @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/10918")
+    public io.grpc.stub.BlockingClientCall<dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage, dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage>
+        connect() {
+      return io.grpc.stub.ClientCalls.blockingBidiStreamingCall(
+          getChannel(), getConnectMethod(), getCallOptions());
     }
   }
 
@@ -189,13 +206,6 @@ public final class NetworkXDSGrpc {
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new NetworkXDSBlockingStub(channel, callOptions);
     }
-
-    /**
-     */
-    public dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse getSnapshot(dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getGetSnapshotMethod(), getCallOptions(), request);
-    }
   }
 
   /**
@@ -213,17 +223,9 @@ public final class NetworkXDSGrpc {
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new NetworkXDSFutureStub(channel, callOptions);
     }
-
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse> getSnapshot(
-        dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getGetSnapshotMethod(), getCallOptions()), request);
-    }
   }
 
-  private static final int METHODID_GET_SNAPSHOT = 0;
+  private static final int METHODID_CONNECT = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -242,10 +244,6 @@ public final class NetworkXDSGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_GET_SNAPSHOT:
-          serviceImpl.getSnapshot((dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest) request,
-              (io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse>) responseObserver);
-          break;
         default:
           throw new AssertionError();
       }
@@ -256,6 +254,9 @@ public final class NetworkXDSGrpc {
     public io.grpc.stub.StreamObserver<Req> invoke(
         io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
+        case METHODID_CONNECT:
+          return (io.grpc.stub.StreamObserver<Req>) serviceImpl.connect(
+              (io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage>) responseObserver);
         default:
           throw new AssertionError();
       }
@@ -265,12 +266,12 @@ public final class NetworkXDSGrpc {
   public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
     return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
         .addMethod(
-          getGetSnapshotMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
+          getConnectMethod(),
+          io.grpc.stub.ServerCalls.asyncBidiStreamingCall(
             new MethodHandlers<
-              dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotRequest,
-              dev.minefleet.api.gateway.networking.v1alpha1.Api.GetSnapshotResponse>(
-                service, METHODID_GET_SNAPSHOT)))
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.ProxyMessage,
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.ControllerMessage>(
+                service, METHODID_CONNECT)))
         .build();
   }
 
@@ -319,7 +320,7 @@ public final class NetworkXDSGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new NetworkXDSFileDescriptorSupplier())
-              .addMethod(getGetSnapshotMethod())
+              .addMethod(getConnectMethod())
               .build();
         }
       }

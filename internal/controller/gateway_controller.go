@@ -55,7 +55,11 @@ type GatewayReconciler struct {
 	client.Client
 	Scheme    *runtime.Scheme
 	Dataplane *dataplane.Dataplane
-	tracer    trace.Tracer
+	// Streams is the shared proxy stream state, handed to the dataplane so
+	// configuration reaches connected proxies. It is also read by the
+	// PlayerTransfer reconciler.
+	Streams *networkdp.StreamManager
+	tracer  trace.Tracer
 }
 
 // +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gateways;gatewayclasses,verbs=get;list;watch;create;update;patch;delete
@@ -71,6 +75,7 @@ type GatewayReconciler struct {
 // +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
 func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	ctx, span := r.tracer.Start(ctx, "GatewayReconciler.Reconcile",
@@ -460,9 +465,14 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if r.Dataplane == nil {
 		r.Dataplane = new(dataplane.Dataplane)
 	}
+	if r.Streams == nil {
+		r.Streams = networkdp.NewStreamManager()
+	}
 	err := mgr.Add(dataplane.Executor{
 		Client:    mgr.GetClient(),
 		Dataplane: r.Dataplane,
+		Streams:   r.Streams,
+		Events:    mgr.GetEventRecorder("minefleet-gateway"),
 	})
 	if err != nil {
 		return err

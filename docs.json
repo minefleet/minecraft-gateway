@@ -24,6 +24,7 @@
               "guides/fallback-routing",
               "guides/server-capacity",
               "guides/customizing-network-proxy",
+              "guides/moving-players",
               "guides/network-integration"
             ]
           },
@@ -32,7 +33,8 @@
             "pages": [
               "reference/network-infrastructure",
               "reference/minecraft-join-route",
-              "reference/minecraft-fallback-route"
+              "reference/minecraft-fallback-route",
+              "reference/player-transfer"
             ]
           }
         ]

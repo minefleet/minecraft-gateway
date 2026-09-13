@@ -50,7 +50,7 @@ func (d *NetworkDataplane) SyncGateway(tree *topology.GatewayTree) error {
 	d.snapshotCache[name] = make(map[string]network.ListenerSnapshot)
 	for _, lt := range tree.Listeners() {
 		listenerName := string(lt.Listener.GetName())
-		d.snapshotCache[name][listenerName] = network.BuildListenerSnapshot(name, lt, backends, podAnnotations)
+		d.snapshotCache[name][listenerName] = network.BuildListenerSnapshot(name, lt, backends, podAnnotations, infra.Config.PlayerCount)
 	}
 	snap := network.BuildSnapshot(d.snapshotCache)
 	d.mu.Unlock()

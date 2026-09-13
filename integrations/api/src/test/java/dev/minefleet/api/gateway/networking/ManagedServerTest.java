@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ManagedServerTest {
 
     private ManagedServer server(int current, int max) {
-        return new ManagedServer("ns/svc", Types.ManagedServer.newBuilder()
+        return new ManagedServer(Types.ManagedServer.newBuilder()
                 .setUniqueId("s1").setName("server-1")
                 .setCurrentPlayers(current)
                 .setMaxPlayers(max)
@@ -17,14 +17,14 @@ class ManagedServerTest {
     }
 
     private ManagedServer serverWithoutMax(int current) {
-        return new ManagedServer("ns/svc", Types.ManagedServer.newBuilder()
+        return new ManagedServer(Types.ManagedServer.newBuilder()
                 .setUniqueId("s1").setName("server-1")
                 .setCurrentPlayers(current)
                 .build());
     }
 
     private ManagedServer serverWithoutAny() {
-        return new ManagedServer("ns/svc", Types.ManagedServer.newBuilder()
+        return new ManagedServer(Types.ManagedServer.newBuilder()
                 .setUniqueId("s1").setName("server-1")
                 .build());
     }
@@ -41,7 +41,7 @@ class ManagedServerTest {
 
     @Test
     void isFull_onlyMaxPlayers_returnsFalse() {
-        var s = new ManagedServer("ns/svc", Types.ManagedServer.newBuilder()
+        var s = new ManagedServer(Types.ManagedServer.newBuilder()
                 .setUniqueId("s1").setName("server-1").setMaxPlayers(10).build());
         assertFalse(s.isFull());
     }

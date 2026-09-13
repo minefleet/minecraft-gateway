@@ -104,13 +104,21 @@ func merge(first *Infrastructure, second *Infrastructure) (Infrastructure, error
 		network = second.Config.Network
 	}
 
+	// PlayerCount describes one network's ping response, so a gateway may set
+	// its own; the class value is the default for gateways that do not.
+	playerCount := first.Config.PlayerCount
+	if second.Config.PlayerCount != nil {
+		playerCount = second.Config.PlayerCount
+	}
+
 	return Infrastructure{
 		Labels:      labels,
 		Annotations: annotations,
 		Config: mcgatewayv1alpha1.NetworkInfrastructureSpec{
-			Discovery: second.Config.Discovery,
-			Network:   network,
-			Edge:      first.Config.Edge, // always class-level only
+			Discovery:   second.Config.Discovery,
+			Network:     network,
+			Edge:        first.Config.Edge, // always class-level only
+			PlayerCount: playerCount,
 		},
 		Status: first.Status,
 	}, nil

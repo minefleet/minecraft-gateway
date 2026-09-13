@@ -7,16 +7,265 @@ option java_package = "dev.minefleet.api.gateway.networking.v1alpha1";
 
 import "network/v1alpha1/types.proto";
 
-message GetSnapshotRequest {
-  string gateway_namespace = 1;
-  string gateway_name = 2;
-  string listener_name = 3;
+// PlayerContext carries the proxy-side knowledge the controller needs to
+// evaluate routing rules for a player. Permissions are pre-evaluated by the
+// proxy against the required_permissions set most recently pushed in ServerSync.
+message PlayerContext {
+  string connected_domain = 1;
+  map<string, bool> permissions = 2;
 }
 
-message GetSnapshotResponse {
-  Snapshot snapshot = 1;
+// ProxyHello is the mandatory first message on a Connect stream. It identifies
+// the proxy and the gateway listener it serves.
+message ProxyHello {
+  string proxy_id = 1;
+  string gateway_namespace = 2;
+  string gateway_name = 3;
+  string listener_name = 4;
+}
+
+message PresenceEntry {
+  string player_uuid = 1;
+  string server_name = 2;
+  PlayerContext context = 3;
+}
+
+// PresenceSnapshot replays every player currently connected to the proxy. It is
+// sent immediately after ProxyHello so the controller can rebuild its presence
+// map after a restart or leader failover.
+message PresenceSnapshot {
+  repeated PresenceEntry players = 1;
+}
+
+enum RouteKind {
+  ROUTE_KIND_JOIN = 0;
+  ROUTE_KIND_FALLBACK = 1;
+}
+
+// RouteRequest asks the controller to pick a server for a player. The proxy
+// blocks the join or fallback until the matching RouteResponse arrives.
+message RouteRequest {
+  string correlation_id = 1;
+  string player_uuid = 2;
+  RouteKind kind = 3;
+  PlayerContext context = 4;
+  optional string current_server_name = 5;
+}
+
+message RouteResponse {
+  enum Result {
+    RESULT_OK = 0;
+    RESULT_NO_ROUTE = 1;
+    RESULT_REJECTED = 2;
+  }
+  string correlation_id = 1;
+  Result result = 2;
+  string server_name = 3;
+}
+
+// PlayerPresenceEvent reports a player connecting to or disconnecting from a
+// backend server, keeping the controller's presence map current in real time.
+message PlayerPresenceEvent {
+  enum Kind {
+    KIND_CONNECTED = 0;
+    KIND_DISCONNECTED = 1;
+  }
+  string player_uuid = 1;
+  string server_name = 2;
+  Kind kind = 3;
+  PlayerContext context = 4;
+}
+
+// ServerPlayerCounts is reported periodically to reconcile drift between the
+// proxy's view of player counts and the controller's presence map.
+message ServerPlayerCounts {
+  map<string, uint32> counts_by_server = 1;
+}
+
+// ProxyStatus is one proxy's report on itself: how many players it currently
+// holds and how many its own configuration admits. A proxy sends it on connect
+// and whenever its player count changes. The controller sums these across the
+// proxies in scope to build the aggregated counts it pushes back in
+// PlayerCountSync.
+message ProxyStatus {
+  uint32 online_players = 1;
+  uint32 max_players = 2;
+}
+
+// PlayerCountSync carries the aggregated player counts a proxy should report in
+// server list ping responses, summed over every proxy in the configured scope.
+// aggregated is false when the gateway has stopped aggregating, telling a proxy
+// that was given a total to go back to reporting its own numbers.
+message PlayerCountSync {
+  uint32 online_players = 1;
+  uint32 max_players = 2;
+  bool aggregated = 3;
+}
+
+// ServerSync is the full set of servers the proxy should have registered, plus
+// the permissions it must evaluate for every RouteRequest and presence event.
+message ServerSync {
+  repeated ManagedServer servers = 1;
+  repeated string required_permissions = 2;
+}
+
+// MoveCommand instructs the proxy to move one player, on behalf of a
+// PlayerTransfer resource. command_id encodes the originating resource and
+// player as "<namespace>/<name>#<playerUUID>#<attempt>".
+message MoveCommand {
+  string command_id = 1;
+  string player_uuid = 2;
+  string server_name = 3;
+}
+
+message MoveResult {
+  string command_id = 1;
+  bool success = 2;
+  string reason = 3;
+}
+
+// ProxyMessage is anything a proxy sends to the controller.
+message ProxyMessage {
+  oneof message {
+    ProxyHello hello = 1;
+    PresenceSnapshot presence_snapshot = 2;
+    RouteRequest route_request = 3;
+    PlayerPresenceEvent presence_event = 4;
+    ServerPlayerCounts player_counts = 5;
+    MoveResult move_result = 6;
+    ProxyStatus status = 7;
+  }
+}
+
+// ControllerMessage is anything the controller sends to a proxy.
+message ControllerMessage {
+  oneof message {
+    ServerSync server_sync = 1;
+    RouteResponse route_response = 2;
+    MoveCommand move = 3;
+    PlayerCountSync player_count = 4;
+  }
 }
 
 service NetworkXDS {
-  rpc GetSnapshot(GetSnapshotRequest) returns (GetSnapshotResponse);
+  // Connect is the persistent bidirectional stream between a proxy and the
+  // controller. It replaces snapshot polling: the controller pushes server
+  // registrations and routing decisions, the proxy reports player presence.
+  rpc Connect(stream ProxyMessage) returns (stream ControllerMessage);
+}
+
+message PlayerConnection {
+  string player_uuid = 1;
+  string proxy_id = 2;
+  string server_name = 3;
+  string gateway_namespace = 4;
+  string gateway_name = 5;
+  string listener_name = 6;
+}
+
+message GetConnectionRequest {
+  string player_uuid = 1;
+}
+
+message GetConnectionResponse {
+  optional PlayerConnection connection = 1;
+}
+
+message GetPlayersForServerRequest {
+  string server_name = 1;
+}
+
+message GetPlayersForServerResponse {
+  repeated PlayerConnection connections = 1;
+}
+
+message GetPlayersForServiceRequest {
+  string namespace = 1;
+  string name = 2;
+}
+
+message GetPlayersForServiceResponse {
+  repeated PlayerConnection connections = 1;
+}
+
+// LabelSelectorRequirement mirrors the Kubernetes type of the same name, so a
+// MovePlayers selector can express everything a PlayerTransfer can.
+message LabelSelectorRequirement {
+  string key = 1;
+  // operator is one of In, NotIn, Exists, DoesNotExist.
+  string operator = 2;
+  repeated string values = 3;
+}
+
+message LabelSelector {
+  map<string, string> match_labels = 1;
+  repeated LabelSelectorRequirement match_expressions = 2;
+}
+
+// MovePolicy controls how players who are not connected are handled.
+enum MovePolicy {
+  // MOVE_POLICY_ALL_OR_NOTHING moves nobody until every player is present.
+  MOVE_POLICY_ALL_OR_NOTHING = 0;
+  // MOVE_POLICY_BEST_EFFORT moves each player as they become present and fails
+  // the rest individually.
+  MOVE_POLICY_BEST_EFFORT = 1;
+}
+
+// MovePlayersRequest asks the controller to connect players to a server. It is
+// the imperative counterpart of the PlayerTransfer resource and takes the same
+// targets and policies.
+message MovePlayersRequest {
+  string gateway_namespace = 1;
+  string gateway_name = 2;
+  string listener_name = 3;
+  repeated string players = 4;
+
+  // Exactly one target must be set.
+  oneof target {
+    // route_mode evaluates the gateway's join or fallback routes per player, so
+    // players may land on different servers.
+    RouteKind route_mode = 5;
+    // label_selector picks one server from the services matching the selector,
+    // using their distribution strategy. Every player goes to that one server.
+    LabelSelector label_selector = 6;
+    // server_name names an already registered server explicitly.
+    string server_name = 7;
+  }
+
+  MovePolicy policy = 8;
+
+  // wait_seconds bounds how long the call waits for players who are not
+  // connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+  // absent players immediately; the moves of players who are present are still
+  // awaited. The call never outlives the client's gRPC deadline.
+  uint32 wait_seconds = 9;
+}
+
+// PlayerMoveResult is the terminal outcome for one player.
+message PlayerMoveResult {
+  string player_uuid = 1;
+  // server_name is where the player was sent, once a target was resolved.
+  string server_name = 2;
+  bool success = 3;
+  // reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+  // NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+  string reason = 4;
+}
+
+message MovePlayersResponse {
+  repeated PlayerMoveResult results = 1;
+}
+
+// NetworkGateway lets external components (queues, matchmakers, gameserver
+// orchestrators) query where players currently are and move them, without
+// maintaining a stream connection of their own.
+service NetworkGateway {
+  rpc GetConnection(GetConnectionRequest) returns (GetConnectionResponse);
+  rpc GetPlayersForServer(GetPlayersForServerRequest) returns (GetPlayersForServerResponse);
+  rpc GetPlayersForService(GetPlayersForServiceRequest) returns (GetPlayersForServiceResponse);
+
+  // MovePlayers connects players to a server and blocks until the proxies
+  // report the outcome. Moves already handed to a proxy are carried out even if
+  // the call is cut short by its deadline.
+  rpc MovePlayers(MovePlayersRequest) returns (MovePlayersResponse);
 }
