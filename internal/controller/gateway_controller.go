@@ -75,6 +75,7 @@ type GatewayReconciler struct {
 // +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
 func (r *GatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	ctx, span := r.tracer.Start(ctx, "GatewayReconciler.Reconcile",
@@ -471,6 +472,7 @@ func (r *GatewayReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Client:    mgr.GetClient(),
 		Dataplane: r.Dataplane,
 		Streams:   r.Streams,
+		Events:    mgr.GetEventRecorderFor("minefleet-gateway"),
 	})
 	if err != nil {
 		return err

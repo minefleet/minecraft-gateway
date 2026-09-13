@@ -24,7 +24,6 @@ import (
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
@@ -252,50 +251,44 @@ func (r *PlayerTransferReconciler) dispatch(ctx context.Context, transfer *mcgat
 	}
 }
 
-// targetFor resolves the destination server for one player.
-func (r *PlayerTransferReconciler) targetFor(transfer *mcgatewayv1alpha1.PlayerTransfer, presence networkdp.Presence, shared *networkdp.Server) (string, string) {
+// moveTargetOf converts the resource's target into the internal one, so a
+// transfer and a MovePlayers call resolve destinations by the same rules.
+func moveTargetOf(transfer *mcgatewayv1alpha1.PlayerTransfer) networkdp.MoveTarget {
 	target := transfer.Spec.Target
 
 	switch {
 	case target.ServerName != nil:
-		// The caller already picked the server; the proxy resolves it by name.
-		return *target.ServerName, ""
-
-	case shared != nil:
-		return shared.Name, ""
+		return networkdp.MoveTarget{ServerName: *target.ServerName}
 
 	case target.Route != nil:
 		kind := networkdp.RouteKindJoin
 		if *target.Route == mcgatewayv1alpha1.FallbackPlayerTransferRouteMode {
 			kind = networkdp.RouteKindFallback
 		}
-		server, ok := r.Streams.ResolveRoute(
-			transfer.Namespace, transfer.Spec.GatewayName, transfer.Spec.ListenerName,
-			networkdp.RouteQuery{
-				PlayerUUID:        presence.PlayerUUID,
-				Kind:              kind,
-				Context:           presence.Context,
-				CurrentServerName: presence.ServerName,
-			})
-		if !ok {
-			return "", mcgatewayv1alpha1.PlayerAssignmentReasonNoMatchingRoute
+		return networkdp.MoveTarget{Route: &kind}
+
+	case target.Selector != nil:
+		selector, err := metav1.LabelSelectorAsSelector(target.Selector)
+		if err != nil {
+			return networkdp.MoveTarget{}
 		}
-		return server.Name, ""
+		return networkdp.MoveTarget{Selector: selector}
 	}
 
-	return "", mcgatewayv1alpha1.PlayerAssignmentReasonNoMatchingServer
+	return networkdp.MoveTarget{}
+}
+
+// targetFor resolves the destination server for one player.
+func (r *PlayerTransferReconciler) targetFor(transfer *mcgatewayv1alpha1.PlayerTransfer, presence networkdp.Presence, shared *networkdp.Server) (string, string) {
+	return networkdp.ResolveMoveTarget(r.Streams,
+		transfer.Namespace, transfer.Spec.GatewayName, transfer.Spec.ListenerName,
+		moveTargetOf(transfer), presence, shared)
 }
 
 func (r *PlayerTransferReconciler) resolveSelector(transfer *mcgatewayv1alpha1.PlayerTransfer) (*networkdp.Server, bool) {
-	selector, err := metav1.LabelSelectorAsSelector(transfer.Spec.Target.Selector)
-	if err != nil || selector.Empty() {
-		return nil, false
-	}
-	return r.Streams.ResolveSelector(
+	return networkdp.ResolveSharedServer(r.Streams,
 		transfer.Namespace, transfer.Spec.GatewayName, transfer.Spec.ListenerName,
-		func(svc *networkdp.Service) bool {
-			return selector.Matches(labels.Set(svc.Labels))
-		})
+		moveTargetOf(transfer).Selector)
 }
 
 // presenceFor returns a player's presence only if they are on the gateway
@@ -383,6 +376,7 @@ func (r *PlayerTransferReconciler) applyMoveResult(ctx context.Context, outcome 
 				assignment.Reason = mcgatewayv1alpha1.PlayerAssignmentReasonMoveFailed
 			}
 		}
+		networkdp.RecordPlayerTransferMove(outcome.Success, assignment.Reason)
 	}
 
 	partial := transfer.Spec.Policy == mcgatewayv1alpha1.BestEffortPlayerTransferPolicy

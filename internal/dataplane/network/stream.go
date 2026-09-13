@@ -8,20 +8,50 @@ import (
 	"github.com/go-logr/logr"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/record"
 	apiv1alpha1 "minefleet.dev/minecraft-gateway/api/network/v1alpha1"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // streamServer implements the proxy-facing Connect stream and the external
-// NetworkGateway query API, both backed by the same StreamManager.
+// NetworkGateway query and move API, all backed by the same StreamManager.
 type streamServer struct {
 	apiv1alpha1.UnimplementedNetworkXDSServer
 	apiv1alpha1.UnimplementedNetworkGatewayServer
-	mgr *StreamManager
+	mgr   *StreamManager
+	moves *MoveEngine
+	// events reports failed moves against the Gateway they were addressed to,
+	// so kubectl describe explains them. Nil when no recorder was supplied.
+	events record.EventRecorder
 }
 
-func newStreamServer(mgr *StreamManager) *streamServer {
-	return &streamServer{mgr: mgr}
+func newStreamServer(mgr *StreamManager, events record.EventRecorder) *streamServer {
+	return &streamServer{
+		mgr:    mgr,
+		moves:  NewMoveEngine(mgr),
+		events: events,
+	}
+}
+
+// recordMoveFailure reports a failed move as an Event on the addressed Gateway.
+// Events expire on their own, so this leaves no objects behind to clean up.
+func (s *streamServer) recordMoveFailure(namespace, name string, result PlayerMoveResult) {
+	if s.events == nil {
+		return
+	}
+	gateway := &gatewayv1.Gateway{
+		TypeMeta:   metav1.TypeMeta{APIVersion: gatewayv1.GroupVersion.String(), Kind: "Gateway"},
+		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: name},
+	}
+	target := result.ServerName
+	if target == "" {
+		target = "no server"
+	}
+	s.events.Eventf(gateway, corev1.EventTypeWarning, "PlayerMoveFailed",
+		"%s to %s: %s", result.PlayerUUID, target, result.Reason)
 }
 
 // Connect is the persistent bidirectional stream with one proxy. The proxy

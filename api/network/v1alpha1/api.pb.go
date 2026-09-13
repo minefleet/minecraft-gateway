@@ -67,6 +67,56 @@ func (RouteKind) EnumDescriptor() ([]byte, []int) {
 	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{0}
 }
 
+// MovePolicy controls how players who are not connected are handled.
+type MovePolicy int32
+
+const (
+	// MOVE_POLICY_ALL_OR_NOTHING moves nobody until every player is present.
+	MovePolicy_MOVE_POLICY_ALL_OR_NOTHING MovePolicy = 0
+	// MOVE_POLICY_BEST_EFFORT moves each player as they become present and fails
+	// the rest individually.
+	MovePolicy_MOVE_POLICY_BEST_EFFORT MovePolicy = 1
+)
+
+// Enum value maps for MovePolicy.
+var (
+	MovePolicy_name = map[int32]string{
+		0: "MOVE_POLICY_ALL_OR_NOTHING",
+		1: "MOVE_POLICY_BEST_EFFORT",
+	}
+	MovePolicy_value = map[string]int32{
+		"MOVE_POLICY_ALL_OR_NOTHING": 0,
+		"MOVE_POLICY_BEST_EFFORT":    1,
+	}
+)
+
+func (x MovePolicy) Enum() *MovePolicy {
+	p := new(MovePolicy)
+	*p = x
+	return p
+}
+
+func (x MovePolicy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MovePolicy) Descriptor() protoreflect.EnumDescriptor {
+	return file_network_v1alpha1_api_proto_enumTypes[1].Descriptor()
+}
+
+func (MovePolicy) Type() protoreflect.EnumType {
+	return &file_network_v1alpha1_api_proto_enumTypes[1]
+}
+
+func (x MovePolicy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MovePolicy.Descriptor instead.
+func (MovePolicy) EnumDescriptor() ([]byte, []int) {
+	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{1}
+}
+
 type RouteResponse_Result int32
 
 const (
@@ -100,11 +150,11 @@ func (x RouteResponse_Result) String() string {
 }
 
 func (RouteResponse_Result) Descriptor() protoreflect.EnumDescriptor {
-	return file_network_v1alpha1_api_proto_enumTypes[1].Descriptor()
+	return file_network_v1alpha1_api_proto_enumTypes[2].Descriptor()
 }
 
 func (RouteResponse_Result) Type() protoreflect.EnumType {
-	return &file_network_v1alpha1_api_proto_enumTypes[1]
+	return &file_network_v1alpha1_api_proto_enumTypes[2]
 }
 
 func (x RouteResponse_Result) Number() protoreflect.EnumNumber {
@@ -146,11 +196,11 @@ func (x PlayerPresenceEvent_Kind) String() string {
 }
 
 func (PlayerPresenceEvent_Kind) Descriptor() protoreflect.EnumDescriptor {
-	return file_network_v1alpha1_api_proto_enumTypes[2].Descriptor()
+	return file_network_v1alpha1_api_proto_enumTypes[3].Descriptor()
 }
 
 func (PlayerPresenceEvent_Kind) Type() protoreflect.EnumType {
-	return &file_network_v1alpha1_api_proto_enumTypes[2]
+	return &file_network_v1alpha1_api_proto_enumTypes[3]
 }
 
 func (x PlayerPresenceEvent_Kind) Number() protoreflect.EnumNumber {
@@ -1580,6 +1630,397 @@ func (x *GetPlayersForServiceResponse) GetConnections() []*PlayerConnection {
 	return nil
 }
 
+// LabelSelectorRequirement mirrors the Kubernetes type of the same name, so a
+// MovePlayers selector can express everything a PlayerTransfer can.
+type LabelSelectorRequirement struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Key   string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// operator is one of In, NotIn, Exists, DoesNotExist.
+	Operator      string   `protobuf:"bytes,2,opt,name=operator,proto3" json:"operator,omitempty"`
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LabelSelectorRequirement) Reset() {
+	*x = LabelSelectorRequirement{}
+	mi := &file_network_v1alpha1_api_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LabelSelectorRequirement) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LabelSelectorRequirement) ProtoMessage() {}
+
+func (x *LabelSelectorRequirement) ProtoReflect() protoreflect.Message {
+	mi := &file_network_v1alpha1_api_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LabelSelectorRequirement.ProtoReflect.Descriptor instead.
+func (*LabelSelectorRequirement) Descriptor() ([]byte, []int) {
+	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *LabelSelectorRequirement) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *LabelSelectorRequirement) GetOperator() string {
+	if x != nil {
+		return x.Operator
+	}
+	return ""
+}
+
+func (x *LabelSelectorRequirement) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+type LabelSelector struct {
+	state            protoimpl.MessageState      `protogen:"open.v1"`
+	MatchLabels      map[string]string           `protobuf:"bytes,1,rep,name=match_labels,json=matchLabels,proto3" json:"match_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	MatchExpressions []*LabelSelectorRequirement `protobuf:"bytes,2,rep,name=match_expressions,json=matchExpressions,proto3" json:"match_expressions,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *LabelSelector) Reset() {
+	*x = LabelSelector{}
+	mi := &file_network_v1alpha1_api_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LabelSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LabelSelector) ProtoMessage() {}
+
+func (x *LabelSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_network_v1alpha1_api_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LabelSelector.ProtoReflect.Descriptor instead.
+func (*LabelSelector) Descriptor() ([]byte, []int) {
+	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *LabelSelector) GetMatchLabels() map[string]string {
+	if x != nil {
+		return x.MatchLabels
+	}
+	return nil
+}
+
+func (x *LabelSelector) GetMatchExpressions() []*LabelSelectorRequirement {
+	if x != nil {
+		return x.MatchExpressions
+	}
+	return nil
+}
+
+// MovePlayersRequest asks the controller to connect players to a server. It is
+// the imperative counterpart of the PlayerTransfer resource and takes the same
+// targets and policies.
+type MovePlayersRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GatewayNamespace string                 `protobuf:"bytes,1,opt,name=gateway_namespace,json=gatewayNamespace,proto3" json:"gateway_namespace,omitempty"`
+	GatewayName      string                 `protobuf:"bytes,2,opt,name=gateway_name,json=gatewayName,proto3" json:"gateway_name,omitempty"`
+	ListenerName     string                 `protobuf:"bytes,3,opt,name=listener_name,json=listenerName,proto3" json:"listener_name,omitempty"`
+	Players          []string               `protobuf:"bytes,4,rep,name=players,proto3" json:"players,omitempty"`
+	// Exactly one target must be set.
+	//
+	// Types that are valid to be assigned to Target:
+	//
+	//	*MovePlayersRequest_RouteMode
+	//	*MovePlayersRequest_LabelSelector
+	//	*MovePlayersRequest_ServerName
+	Target isMovePlayersRequest_Target `protobuf_oneof:"target"`
+	Policy MovePolicy                  `protobuf:"varint,8,opt,name=policy,proto3,enum=network.v1alpha1.MovePolicy" json:"policy,omitempty"`
+	// wait_seconds bounds how long the call waits for players who are not
+	// connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+	// absent players immediately; the moves of players who are present are still
+	// awaited. The call never outlives the client's gRPC deadline.
+	WaitSeconds   uint32 `protobuf:"varint,9,opt,name=wait_seconds,json=waitSeconds,proto3" json:"wait_seconds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MovePlayersRequest) Reset() {
+	*x = MovePlayersRequest{}
+	mi := &file_network_v1alpha1_api_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MovePlayersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MovePlayersRequest) ProtoMessage() {}
+
+func (x *MovePlayersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_network_v1alpha1_api_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MovePlayersRequest.ProtoReflect.Descriptor instead.
+func (*MovePlayersRequest) Descriptor() ([]byte, []int) {
+	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *MovePlayersRequest) GetGatewayNamespace() string {
+	if x != nil {
+		return x.GatewayNamespace
+	}
+	return ""
+}
+
+func (x *MovePlayersRequest) GetGatewayName() string {
+	if x != nil {
+		return x.GatewayName
+	}
+	return ""
+}
+
+func (x *MovePlayersRequest) GetListenerName() string {
+	if x != nil {
+		return x.ListenerName
+	}
+	return ""
+}
+
+func (x *MovePlayersRequest) GetPlayers() []string {
+	if x != nil {
+		return x.Players
+	}
+	return nil
+}
+
+func (x *MovePlayersRequest) GetTarget() isMovePlayersRequest_Target {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+func (x *MovePlayersRequest) GetRouteMode() RouteKind {
+	if x != nil {
+		if x, ok := x.Target.(*MovePlayersRequest_RouteMode); ok {
+			return x.RouteMode
+		}
+	}
+	return RouteKind_ROUTE_KIND_JOIN
+}
+
+func (x *MovePlayersRequest) GetLabelSelector() *LabelSelector {
+	if x != nil {
+		if x, ok := x.Target.(*MovePlayersRequest_LabelSelector); ok {
+			return x.LabelSelector
+		}
+	}
+	return nil
+}
+
+func (x *MovePlayersRequest) GetServerName() string {
+	if x != nil {
+		if x, ok := x.Target.(*MovePlayersRequest_ServerName); ok {
+			return x.ServerName
+		}
+	}
+	return ""
+}
+
+func (x *MovePlayersRequest) GetPolicy() MovePolicy {
+	if x != nil {
+		return x.Policy
+	}
+	return MovePolicy_MOVE_POLICY_ALL_OR_NOTHING
+}
+
+func (x *MovePlayersRequest) GetWaitSeconds() uint32 {
+	if x != nil {
+		return x.WaitSeconds
+	}
+	return 0
+}
+
+type isMovePlayersRequest_Target interface {
+	isMovePlayersRequest_Target()
+}
+
+type MovePlayersRequest_RouteMode struct {
+	// route_mode evaluates the gateway's join or fallback routes per player, so
+	// players may land on different servers.
+	RouteMode RouteKind `protobuf:"varint,5,opt,name=route_mode,json=routeMode,proto3,enum=network.v1alpha1.RouteKind,oneof"`
+}
+
+type MovePlayersRequest_LabelSelector struct {
+	// label_selector picks one server from the services matching the selector,
+	// using their distribution strategy. Every player goes to that one server.
+	LabelSelector *LabelSelector `protobuf:"bytes,6,opt,name=label_selector,json=labelSelector,proto3,oneof"`
+}
+
+type MovePlayersRequest_ServerName struct {
+	// server_name names an already registered server explicitly.
+	ServerName string `protobuf:"bytes,7,opt,name=server_name,json=serverName,proto3,oneof"`
+}
+
+func (*MovePlayersRequest_RouteMode) isMovePlayersRequest_Target() {}
+
+func (*MovePlayersRequest_LabelSelector) isMovePlayersRequest_Target() {}
+
+func (*MovePlayersRequest_ServerName) isMovePlayersRequest_Target() {}
+
+// PlayerMoveResult is the terminal outcome for one player.
+type PlayerMoveResult struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	PlayerUuid string                 `protobuf:"bytes,1,opt,name=player_uuid,json=playerUuid,proto3" json:"player_uuid,omitempty"`
+	// server_name is where the player was sent, once a target was resolved.
+	ServerName string `protobuf:"bytes,2,opt,name=server_name,json=serverName,proto3" json:"server_name,omitempty"`
+	Success    bool   `protobuf:"varint,3,opt,name=success,proto3" json:"success,omitempty"`
+	// reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+	// NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+	Reason        string `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerMoveResult) Reset() {
+	*x = PlayerMoveResult{}
+	mi := &file_network_v1alpha1_api_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerMoveResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerMoveResult) ProtoMessage() {}
+
+func (x *PlayerMoveResult) ProtoReflect() protoreflect.Message {
+	mi := &file_network_v1alpha1_api_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerMoveResult.ProtoReflect.Descriptor instead.
+func (*PlayerMoveResult) Descriptor() ([]byte, []int) {
+	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *PlayerMoveResult) GetPlayerUuid() string {
+	if x != nil {
+		return x.PlayerUuid
+	}
+	return ""
+}
+
+func (x *PlayerMoveResult) GetServerName() string {
+	if x != nil {
+		return x.ServerName
+	}
+	return ""
+}
+
+func (x *PlayerMoveResult) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *PlayerMoveResult) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type MovePlayersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Results       []*PlayerMoveResult    `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MovePlayersResponse) Reset() {
+	*x = MovePlayersResponse{}
+	mi := &file_network_v1alpha1_api_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MovePlayersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MovePlayersResponse) ProtoMessage() {}
+
+func (x *MovePlayersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_network_v1alpha1_api_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MovePlayersResponse.ProtoReflect.Descriptor instead.
+func (*MovePlayersResponse) Descriptor() ([]byte, []int) {
+	return file_network_v1alpha1_api_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *MovePlayersResponse) GetResults() []*PlayerMoveResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
 var File_network_v1alpha1_api_proto protoreflect.FileDescriptor
 
 const file_network_v1alpha1_api_proto_rawDesc = "" +
@@ -1708,17 +2149,54 @@ const file_network_v1alpha1_api_proto_rawDesc = "" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"d\n" +
 	"\x1cGetPlayersForServiceResponse\x12D\n" +
-	"\vconnections\x18\x01 \x03(\v2\".network.v1alpha1.PlayerConnectionR\vconnections*9\n" +
+	"\vconnections\x18\x01 \x03(\v2\".network.v1alpha1.PlayerConnectionR\vconnections\"`\n" +
+	"\x18LabelSelectorRequirement\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\boperator\x18\x02 \x01(\tR\boperator\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"\xfd\x01\n" +
+	"\rLabelSelector\x12S\n" +
+	"\fmatch_labels\x18\x01 \x03(\v20.network.v1alpha1.LabelSelector.MatchLabelsEntryR\vmatchLabels\x12W\n" +
+	"\x11match_expressions\x18\x02 \x03(\v2*.network.v1alpha1.LabelSelectorRequirementR\x10matchExpressions\x1a>\n" +
+	"\x10MatchLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb1\x03\n" +
+	"\x12MovePlayersRequest\x12+\n" +
+	"\x11gateway_namespace\x18\x01 \x01(\tR\x10gatewayNamespace\x12!\n" +
+	"\fgateway_name\x18\x02 \x01(\tR\vgatewayName\x12#\n" +
+	"\rlistener_name\x18\x03 \x01(\tR\flistenerName\x12\x18\n" +
+	"\aplayers\x18\x04 \x03(\tR\aplayers\x12<\n" +
+	"\n" +
+	"route_mode\x18\x05 \x01(\x0e2\x1b.network.v1alpha1.RouteKindH\x00R\trouteMode\x12H\n" +
+	"\x0elabel_selector\x18\x06 \x01(\v2\x1f.network.v1alpha1.LabelSelectorH\x00R\rlabelSelector\x12!\n" +
+	"\vserver_name\x18\a \x01(\tH\x00R\n" +
+	"serverName\x124\n" +
+	"\x06policy\x18\b \x01(\x0e2\x1c.network.v1alpha1.MovePolicyR\x06policy\x12!\n" +
+	"\fwait_seconds\x18\t \x01(\rR\vwaitSecondsB\b\n" +
+	"\x06target\"\x86\x01\n" +
+	"\x10PlayerMoveResult\x12\x1f\n" +
+	"\vplayer_uuid\x18\x01 \x01(\tR\n" +
+	"playerUuid\x12\x1f\n" +
+	"\vserver_name\x18\x02 \x01(\tR\n" +
+	"serverName\x12\x18\n" +
+	"\asuccess\x18\x03 \x01(\bR\asuccess\x12\x16\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\"S\n" +
+	"\x13MovePlayersResponse\x12<\n" +
+	"\aresults\x18\x01 \x03(\v2\".network.v1alpha1.PlayerMoveResultR\aresults*9\n" +
 	"\tRouteKind\x12\x13\n" +
 	"\x0fROUTE_KIND_JOIN\x10\x00\x12\x17\n" +
-	"\x13ROUTE_KIND_FALLBACK\x10\x012`\n" +
+	"\x13ROUTE_KIND_FALLBACK\x10\x01*I\n" +
+	"\n" +
+	"MovePolicy\x12\x1e\n" +
+	"\x1aMOVE_POLICY_ALL_OR_NOTHING\x10\x00\x12\x1b\n" +
+	"\x17MOVE_POLICY_BEST_EFFORT\x10\x012`\n" +
 	"\n" +
 	"NetworkXDS\x12R\n" +
-	"\aConnect\x12\x1e.network.v1alpha1.ProxyMessage\x1a#.network.v1alpha1.ControllerMessage(\x010\x012\xdd\x02\n" +
+	"\aConnect\x12\x1e.network.v1alpha1.ProxyMessage\x1a#.network.v1alpha1.ControllerMessage(\x010\x012\xb9\x03\n" +
 	"\x0eNetworkGateway\x12`\n" +
 	"\rGetConnection\x12&.network.v1alpha1.GetConnectionRequest\x1a'.network.v1alpha1.GetConnectionResponse\x12r\n" +
 	"\x13GetPlayersForServer\x12,.network.v1alpha1.GetPlayersForServerRequest\x1a-.network.v1alpha1.GetPlayersForServerResponse\x12u\n" +
-	"\x14GetPlayersForService\x12-.network.v1alpha1.GetPlayersForServiceRequest\x1a..network.v1alpha1.GetPlayersForServiceResponseBl\n" +
+	"\x14GetPlayersForService\x12-.network.v1alpha1.GetPlayersForServiceRequest\x1a..network.v1alpha1.GetPlayersForServiceResponse\x12Z\n" +
+	"\vMovePlayers\x12$.network.v1alpha1.MovePlayersRequest\x1a%.network.v1alpha1.MovePlayersResponseBl\n" +
 	"-dev.minefleet.api.gateway.networking.v1alpha1Z;github.com/minefleet/minecraft-gateway/api/network/v1alpha1b\x06proto3"
 
 var (
@@ -1733,76 +2211,91 @@ func file_network_v1alpha1_api_proto_rawDescGZIP() []byte {
 	return file_network_v1alpha1_api_proto_rawDescData
 }
 
-var file_network_v1alpha1_api_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_network_v1alpha1_api_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_network_v1alpha1_api_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_network_v1alpha1_api_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_network_v1alpha1_api_proto_goTypes = []any{
 	(RouteKind)(0),                       // 0: network.v1alpha1.RouteKind
-	(RouteResponse_Result)(0),            // 1: network.v1alpha1.RouteResponse.Result
-	(PlayerPresenceEvent_Kind)(0),        // 2: network.v1alpha1.PlayerPresenceEvent.Kind
-	(*PlayerContext)(nil),                // 3: network.v1alpha1.PlayerContext
-	(*ProxyHello)(nil),                   // 4: network.v1alpha1.ProxyHello
-	(*PresenceEntry)(nil),                // 5: network.v1alpha1.PresenceEntry
-	(*PresenceSnapshot)(nil),             // 6: network.v1alpha1.PresenceSnapshot
-	(*RouteRequest)(nil),                 // 7: network.v1alpha1.RouteRequest
-	(*RouteResponse)(nil),                // 8: network.v1alpha1.RouteResponse
-	(*PlayerPresenceEvent)(nil),          // 9: network.v1alpha1.PlayerPresenceEvent
-	(*ServerPlayerCounts)(nil),           // 10: network.v1alpha1.ServerPlayerCounts
-	(*ProxyStatus)(nil),                  // 11: network.v1alpha1.ProxyStatus
-	(*PlayerCountSync)(nil),              // 12: network.v1alpha1.PlayerCountSync
-	(*ServerSync)(nil),                   // 13: network.v1alpha1.ServerSync
-	(*MoveCommand)(nil),                  // 14: network.v1alpha1.MoveCommand
-	(*MoveResult)(nil),                   // 15: network.v1alpha1.MoveResult
-	(*ProxyMessage)(nil),                 // 16: network.v1alpha1.ProxyMessage
-	(*ControllerMessage)(nil),            // 17: network.v1alpha1.ControllerMessage
-	(*PlayerConnection)(nil),             // 18: network.v1alpha1.PlayerConnection
-	(*GetConnectionRequest)(nil),         // 19: network.v1alpha1.GetConnectionRequest
-	(*GetConnectionResponse)(nil),        // 20: network.v1alpha1.GetConnectionResponse
-	(*GetPlayersForServerRequest)(nil),   // 21: network.v1alpha1.GetPlayersForServerRequest
-	(*GetPlayersForServerResponse)(nil),  // 22: network.v1alpha1.GetPlayersForServerResponse
-	(*GetPlayersForServiceRequest)(nil),  // 23: network.v1alpha1.GetPlayersForServiceRequest
-	(*GetPlayersForServiceResponse)(nil), // 24: network.v1alpha1.GetPlayersForServiceResponse
-	nil,                                  // 25: network.v1alpha1.PlayerContext.PermissionsEntry
-	nil,                                  // 26: network.v1alpha1.ServerPlayerCounts.CountsByServerEntry
-	(*ManagedServer)(nil),                // 27: network.v1alpha1.ManagedServer
+	(MovePolicy)(0),                      // 1: network.v1alpha1.MovePolicy
+	(RouteResponse_Result)(0),            // 2: network.v1alpha1.RouteResponse.Result
+	(PlayerPresenceEvent_Kind)(0),        // 3: network.v1alpha1.PlayerPresenceEvent.Kind
+	(*PlayerContext)(nil),                // 4: network.v1alpha1.PlayerContext
+	(*ProxyHello)(nil),                   // 5: network.v1alpha1.ProxyHello
+	(*PresenceEntry)(nil),                // 6: network.v1alpha1.PresenceEntry
+	(*PresenceSnapshot)(nil),             // 7: network.v1alpha1.PresenceSnapshot
+	(*RouteRequest)(nil),                 // 8: network.v1alpha1.RouteRequest
+	(*RouteResponse)(nil),                // 9: network.v1alpha1.RouteResponse
+	(*PlayerPresenceEvent)(nil),          // 10: network.v1alpha1.PlayerPresenceEvent
+	(*ServerPlayerCounts)(nil),           // 11: network.v1alpha1.ServerPlayerCounts
+	(*ProxyStatus)(nil),                  // 12: network.v1alpha1.ProxyStatus
+	(*PlayerCountSync)(nil),              // 13: network.v1alpha1.PlayerCountSync
+	(*ServerSync)(nil),                   // 14: network.v1alpha1.ServerSync
+	(*MoveCommand)(nil),                  // 15: network.v1alpha1.MoveCommand
+	(*MoveResult)(nil),                   // 16: network.v1alpha1.MoveResult
+	(*ProxyMessage)(nil),                 // 17: network.v1alpha1.ProxyMessage
+	(*ControllerMessage)(nil),            // 18: network.v1alpha1.ControllerMessage
+	(*PlayerConnection)(nil),             // 19: network.v1alpha1.PlayerConnection
+	(*GetConnectionRequest)(nil),         // 20: network.v1alpha1.GetConnectionRequest
+	(*GetConnectionResponse)(nil),        // 21: network.v1alpha1.GetConnectionResponse
+	(*GetPlayersForServerRequest)(nil),   // 22: network.v1alpha1.GetPlayersForServerRequest
+	(*GetPlayersForServerResponse)(nil),  // 23: network.v1alpha1.GetPlayersForServerResponse
+	(*GetPlayersForServiceRequest)(nil),  // 24: network.v1alpha1.GetPlayersForServiceRequest
+	(*GetPlayersForServiceResponse)(nil), // 25: network.v1alpha1.GetPlayersForServiceResponse
+	(*LabelSelectorRequirement)(nil),     // 26: network.v1alpha1.LabelSelectorRequirement
+	(*LabelSelector)(nil),                // 27: network.v1alpha1.LabelSelector
+	(*MovePlayersRequest)(nil),           // 28: network.v1alpha1.MovePlayersRequest
+	(*PlayerMoveResult)(nil),             // 29: network.v1alpha1.PlayerMoveResult
+	(*MovePlayersResponse)(nil),          // 30: network.v1alpha1.MovePlayersResponse
+	nil,                                  // 31: network.v1alpha1.PlayerContext.PermissionsEntry
+	nil,                                  // 32: network.v1alpha1.ServerPlayerCounts.CountsByServerEntry
+	nil,                                  // 33: network.v1alpha1.LabelSelector.MatchLabelsEntry
+	(*ManagedServer)(nil),                // 34: network.v1alpha1.ManagedServer
 }
 var file_network_v1alpha1_api_proto_depIdxs = []int32{
-	25, // 0: network.v1alpha1.PlayerContext.permissions:type_name -> network.v1alpha1.PlayerContext.PermissionsEntry
-	3,  // 1: network.v1alpha1.PresenceEntry.context:type_name -> network.v1alpha1.PlayerContext
-	5,  // 2: network.v1alpha1.PresenceSnapshot.players:type_name -> network.v1alpha1.PresenceEntry
+	31, // 0: network.v1alpha1.PlayerContext.permissions:type_name -> network.v1alpha1.PlayerContext.PermissionsEntry
+	4,  // 1: network.v1alpha1.PresenceEntry.context:type_name -> network.v1alpha1.PlayerContext
+	6,  // 2: network.v1alpha1.PresenceSnapshot.players:type_name -> network.v1alpha1.PresenceEntry
 	0,  // 3: network.v1alpha1.RouteRequest.kind:type_name -> network.v1alpha1.RouteKind
-	3,  // 4: network.v1alpha1.RouteRequest.context:type_name -> network.v1alpha1.PlayerContext
-	1,  // 5: network.v1alpha1.RouteResponse.result:type_name -> network.v1alpha1.RouteResponse.Result
-	2,  // 6: network.v1alpha1.PlayerPresenceEvent.kind:type_name -> network.v1alpha1.PlayerPresenceEvent.Kind
-	3,  // 7: network.v1alpha1.PlayerPresenceEvent.context:type_name -> network.v1alpha1.PlayerContext
-	26, // 8: network.v1alpha1.ServerPlayerCounts.counts_by_server:type_name -> network.v1alpha1.ServerPlayerCounts.CountsByServerEntry
-	27, // 9: network.v1alpha1.ServerSync.servers:type_name -> network.v1alpha1.ManagedServer
-	4,  // 10: network.v1alpha1.ProxyMessage.hello:type_name -> network.v1alpha1.ProxyHello
-	6,  // 11: network.v1alpha1.ProxyMessage.presence_snapshot:type_name -> network.v1alpha1.PresenceSnapshot
-	7,  // 12: network.v1alpha1.ProxyMessage.route_request:type_name -> network.v1alpha1.RouteRequest
-	9,  // 13: network.v1alpha1.ProxyMessage.presence_event:type_name -> network.v1alpha1.PlayerPresenceEvent
-	10, // 14: network.v1alpha1.ProxyMessage.player_counts:type_name -> network.v1alpha1.ServerPlayerCounts
-	15, // 15: network.v1alpha1.ProxyMessage.move_result:type_name -> network.v1alpha1.MoveResult
-	11, // 16: network.v1alpha1.ProxyMessage.status:type_name -> network.v1alpha1.ProxyStatus
-	13, // 17: network.v1alpha1.ControllerMessage.server_sync:type_name -> network.v1alpha1.ServerSync
-	8,  // 18: network.v1alpha1.ControllerMessage.route_response:type_name -> network.v1alpha1.RouteResponse
-	14, // 19: network.v1alpha1.ControllerMessage.move:type_name -> network.v1alpha1.MoveCommand
-	12, // 20: network.v1alpha1.ControllerMessage.player_count:type_name -> network.v1alpha1.PlayerCountSync
-	18, // 21: network.v1alpha1.GetConnectionResponse.connection:type_name -> network.v1alpha1.PlayerConnection
-	18, // 22: network.v1alpha1.GetPlayersForServerResponse.connections:type_name -> network.v1alpha1.PlayerConnection
-	18, // 23: network.v1alpha1.GetPlayersForServiceResponse.connections:type_name -> network.v1alpha1.PlayerConnection
-	16, // 24: network.v1alpha1.NetworkXDS.Connect:input_type -> network.v1alpha1.ProxyMessage
-	19, // 25: network.v1alpha1.NetworkGateway.GetConnection:input_type -> network.v1alpha1.GetConnectionRequest
-	21, // 26: network.v1alpha1.NetworkGateway.GetPlayersForServer:input_type -> network.v1alpha1.GetPlayersForServerRequest
-	23, // 27: network.v1alpha1.NetworkGateway.GetPlayersForService:input_type -> network.v1alpha1.GetPlayersForServiceRequest
-	17, // 28: network.v1alpha1.NetworkXDS.Connect:output_type -> network.v1alpha1.ControllerMessage
-	20, // 29: network.v1alpha1.NetworkGateway.GetConnection:output_type -> network.v1alpha1.GetConnectionResponse
-	22, // 30: network.v1alpha1.NetworkGateway.GetPlayersForServer:output_type -> network.v1alpha1.GetPlayersForServerResponse
-	24, // 31: network.v1alpha1.NetworkGateway.GetPlayersForService:output_type -> network.v1alpha1.GetPlayersForServiceResponse
-	28, // [28:32] is the sub-list for method output_type
-	24, // [24:28] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	4,  // 4: network.v1alpha1.RouteRequest.context:type_name -> network.v1alpha1.PlayerContext
+	2,  // 5: network.v1alpha1.RouteResponse.result:type_name -> network.v1alpha1.RouteResponse.Result
+	3,  // 6: network.v1alpha1.PlayerPresenceEvent.kind:type_name -> network.v1alpha1.PlayerPresenceEvent.Kind
+	4,  // 7: network.v1alpha1.PlayerPresenceEvent.context:type_name -> network.v1alpha1.PlayerContext
+	32, // 8: network.v1alpha1.ServerPlayerCounts.counts_by_server:type_name -> network.v1alpha1.ServerPlayerCounts.CountsByServerEntry
+	34, // 9: network.v1alpha1.ServerSync.servers:type_name -> network.v1alpha1.ManagedServer
+	5,  // 10: network.v1alpha1.ProxyMessage.hello:type_name -> network.v1alpha1.ProxyHello
+	7,  // 11: network.v1alpha1.ProxyMessage.presence_snapshot:type_name -> network.v1alpha1.PresenceSnapshot
+	8,  // 12: network.v1alpha1.ProxyMessage.route_request:type_name -> network.v1alpha1.RouteRequest
+	10, // 13: network.v1alpha1.ProxyMessage.presence_event:type_name -> network.v1alpha1.PlayerPresenceEvent
+	11, // 14: network.v1alpha1.ProxyMessage.player_counts:type_name -> network.v1alpha1.ServerPlayerCounts
+	16, // 15: network.v1alpha1.ProxyMessage.move_result:type_name -> network.v1alpha1.MoveResult
+	12, // 16: network.v1alpha1.ProxyMessage.status:type_name -> network.v1alpha1.ProxyStatus
+	14, // 17: network.v1alpha1.ControllerMessage.server_sync:type_name -> network.v1alpha1.ServerSync
+	9,  // 18: network.v1alpha1.ControllerMessage.route_response:type_name -> network.v1alpha1.RouteResponse
+	15, // 19: network.v1alpha1.ControllerMessage.move:type_name -> network.v1alpha1.MoveCommand
+	13, // 20: network.v1alpha1.ControllerMessage.player_count:type_name -> network.v1alpha1.PlayerCountSync
+	19, // 21: network.v1alpha1.GetConnectionResponse.connection:type_name -> network.v1alpha1.PlayerConnection
+	19, // 22: network.v1alpha1.GetPlayersForServerResponse.connections:type_name -> network.v1alpha1.PlayerConnection
+	19, // 23: network.v1alpha1.GetPlayersForServiceResponse.connections:type_name -> network.v1alpha1.PlayerConnection
+	33, // 24: network.v1alpha1.LabelSelector.match_labels:type_name -> network.v1alpha1.LabelSelector.MatchLabelsEntry
+	26, // 25: network.v1alpha1.LabelSelector.match_expressions:type_name -> network.v1alpha1.LabelSelectorRequirement
+	0,  // 26: network.v1alpha1.MovePlayersRequest.route_mode:type_name -> network.v1alpha1.RouteKind
+	27, // 27: network.v1alpha1.MovePlayersRequest.label_selector:type_name -> network.v1alpha1.LabelSelector
+	1,  // 28: network.v1alpha1.MovePlayersRequest.policy:type_name -> network.v1alpha1.MovePolicy
+	29, // 29: network.v1alpha1.MovePlayersResponse.results:type_name -> network.v1alpha1.PlayerMoveResult
+	17, // 30: network.v1alpha1.NetworkXDS.Connect:input_type -> network.v1alpha1.ProxyMessage
+	20, // 31: network.v1alpha1.NetworkGateway.GetConnection:input_type -> network.v1alpha1.GetConnectionRequest
+	22, // 32: network.v1alpha1.NetworkGateway.GetPlayersForServer:input_type -> network.v1alpha1.GetPlayersForServerRequest
+	24, // 33: network.v1alpha1.NetworkGateway.GetPlayersForService:input_type -> network.v1alpha1.GetPlayersForServiceRequest
+	28, // 34: network.v1alpha1.NetworkGateway.MovePlayers:input_type -> network.v1alpha1.MovePlayersRequest
+	18, // 35: network.v1alpha1.NetworkXDS.Connect:output_type -> network.v1alpha1.ControllerMessage
+	21, // 36: network.v1alpha1.NetworkGateway.GetConnection:output_type -> network.v1alpha1.GetConnectionResponse
+	23, // 37: network.v1alpha1.NetworkGateway.GetPlayersForServer:output_type -> network.v1alpha1.GetPlayersForServerResponse
+	25, // 38: network.v1alpha1.NetworkGateway.GetPlayersForService:output_type -> network.v1alpha1.GetPlayersForServiceResponse
+	30, // 39: network.v1alpha1.NetworkGateway.MovePlayers:output_type -> network.v1alpha1.MovePlayersResponse
+	35, // [35:40] is the sub-list for method output_type
+	30, // [30:35] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_network_v1alpha1_api_proto_init() }
@@ -1828,13 +2321,18 @@ func file_network_v1alpha1_api_proto_init() {
 		(*ControllerMessage_PlayerCount)(nil),
 	}
 	file_network_v1alpha1_api_proto_msgTypes[17].OneofWrappers = []any{}
+	file_network_v1alpha1_api_proto_msgTypes[24].OneofWrappers = []any{
+		(*MovePlayersRequest_RouteMode)(nil),
+		(*MovePlayersRequest_LabelSelector)(nil),
+		(*MovePlayersRequest_ServerName)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_network_v1alpha1_api_proto_rawDesc), len(file_network_v1alpha1_api_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   24,
+			NumEnums:      4,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

@@ -124,6 +124,7 @@ const (
 	NetworkGateway_GetConnection_FullMethodName        = "/network.v1alpha1.NetworkGateway/GetConnection"
 	NetworkGateway_GetPlayersForServer_FullMethodName  = "/network.v1alpha1.NetworkGateway/GetPlayersForServer"
 	NetworkGateway_GetPlayersForService_FullMethodName = "/network.v1alpha1.NetworkGateway/GetPlayersForService"
+	NetworkGateway_MovePlayers_FullMethodName          = "/network.v1alpha1.NetworkGateway/MovePlayers"
 )
 
 // NetworkGatewayClient is the client API for NetworkGateway service.
@@ -131,12 +132,16 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // NetworkGateway lets external components (queues, matchmakers, gameserver
-// orchestrators) query where players currently are, without maintaining a
-// stream connection of their own.
+// orchestrators) query where players currently are and move them, without
+// maintaining a stream connection of their own.
 type NetworkGatewayClient interface {
 	GetConnection(ctx context.Context, in *GetConnectionRequest, opts ...grpc.CallOption) (*GetConnectionResponse, error)
 	GetPlayersForServer(ctx context.Context, in *GetPlayersForServerRequest, opts ...grpc.CallOption) (*GetPlayersForServerResponse, error)
 	GetPlayersForService(ctx context.Context, in *GetPlayersForServiceRequest, opts ...grpc.CallOption) (*GetPlayersForServiceResponse, error)
+	// MovePlayers connects players to a server and blocks until the proxies
+	// report the outcome. Moves already handed to a proxy are carried out even if
+	// the call is cut short by its deadline.
+	MovePlayers(ctx context.Context, in *MovePlayersRequest, opts ...grpc.CallOption) (*MovePlayersResponse, error)
 }
 
 type networkGatewayClient struct {
@@ -177,17 +182,31 @@ func (c *networkGatewayClient) GetPlayersForService(ctx context.Context, in *Get
 	return out, nil
 }
 
+func (c *networkGatewayClient) MovePlayers(ctx context.Context, in *MovePlayersRequest, opts ...grpc.CallOption) (*MovePlayersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MovePlayersResponse)
+	err := c.cc.Invoke(ctx, NetworkGateway_MovePlayers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NetworkGatewayServer is the server API for NetworkGateway service.
 // All implementations must embed UnimplementedNetworkGatewayServer
 // for forward compatibility.
 //
 // NetworkGateway lets external components (queues, matchmakers, gameserver
-// orchestrators) query where players currently are, without maintaining a
-// stream connection of their own.
+// orchestrators) query where players currently are and move them, without
+// maintaining a stream connection of their own.
 type NetworkGatewayServer interface {
 	GetConnection(context.Context, *GetConnectionRequest) (*GetConnectionResponse, error)
 	GetPlayersForServer(context.Context, *GetPlayersForServerRequest) (*GetPlayersForServerResponse, error)
 	GetPlayersForService(context.Context, *GetPlayersForServiceRequest) (*GetPlayersForServiceResponse, error)
+	// MovePlayers connects players to a server and blocks until the proxies
+	// report the outcome. Moves already handed to a proxy are carried out even if
+	// the call is cut short by its deadline.
+	MovePlayers(context.Context, *MovePlayersRequest) (*MovePlayersResponse, error)
 	mustEmbedUnimplementedNetworkGatewayServer()
 }
 
@@ -206,6 +225,9 @@ func (UnimplementedNetworkGatewayServer) GetPlayersForServer(context.Context, *G
 }
 func (UnimplementedNetworkGatewayServer) GetPlayersForService(context.Context, *GetPlayersForServiceRequest) (*GetPlayersForServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPlayersForService not implemented")
+}
+func (UnimplementedNetworkGatewayServer) MovePlayers(context.Context, *MovePlayersRequest) (*MovePlayersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MovePlayers not implemented")
 }
 func (UnimplementedNetworkGatewayServer) mustEmbedUnimplementedNetworkGatewayServer() {}
 func (UnimplementedNetworkGatewayServer) testEmbeddedByValue()                        {}
@@ -282,6 +304,24 @@ func _NetworkGateway_GetPlayersForService_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetworkGateway_MovePlayers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MovePlayersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkGatewayServer).MovePlayers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkGateway_MovePlayers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkGatewayServer).MovePlayers(ctx, req.(*MovePlayersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NetworkGateway_ServiceDesc is the grpc.ServiceDesc for NetworkGateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -300,6 +340,10 @@ var NetworkGateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPlayersForService",
 			Handler:    _NetworkGateway_GetPlayersForService_Handler,
+		},
+		{
+			MethodName: "MovePlayers",
+			Handler:    _NetworkGateway_MovePlayers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
 	mcgatewayv1alpha1 "minefleet.dev/minecraft-gateway/api/controller/v1alpha1"
 	"minefleet.dev/minecraft-gateway/internal/topology"
 )
@@ -32,6 +33,9 @@ type Config struct {
 	// Streams carries the proxy stream state. It is shared with the
 	// PlayerTransfer reconciler so transfers can be pushed to proxies.
 	Streams *StreamManager
+	// Events records failed player moves against the Gateway they addressed.
+	// Optional: without it, failures are only logged and counted.
+	Events record.EventRecorder
 }
 
 // Snapshot is the aggregate of all listener snapshots.

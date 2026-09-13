@@ -69,15 +69,16 @@ The controller pushes configuration to the edge proxy via an xDS gRPC server on 
 
 ### Player query API
 
-External components — queue systems, matchmakers such as OpenMatch, or gameserver orchestrators such as Agones — can ask the controller where players are, over the `NetworkGateway` gRPC service on port 19000:
+External components — queue systems, matchmakers such as OpenMatch, or gameserver orchestrators such as Agones — can ask the controller where players are and move them, over the `NetworkGateway` gRPC service on port 19000:
 
-| Method | Answers |
+| Method | Does |
 |---|---|
-| `GetConnection` | Which proxy and server one player is on. |
-| `GetPlayersForServer` | Every player on a backend server. |
-| `GetPlayersForService` | Every player across the servers of a Service. |
+| `GetConnection` | Reports which proxy and server one player is on. |
+| `GetPlayersForServer` | Lists every player on a backend server. |
+| `GetPlayersForService` | Lists every player across the servers of a Service. |
+| `MovePlayers` | Connects players to a server and reports how each one fared. |
 
-To move players rather than just locate them, create a [PlayerTransfer](/reference/player-transfer). It needs no stream connection of its own.
+`MovePlayers` is the imperative counterpart of a [PlayerTransfer](/reference/player-transfer): the same targets and policies, but nothing is written to the cluster and the outcome comes back on the call. Reach for the resource when a transfer should be declarative, pre-staged and auditable; reach for the RPC when a caller needs to move players now and act on the answer. Both resolve destinations through the same routing rules. See the [moving players guide](/guides/moving-players).
 
 Only the elected leader serves port 19000. Proxies retry through the Service until the leader is reachable, so a failover is a brief reconnect rather than a reconfiguration.
 

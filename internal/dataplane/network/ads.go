@@ -38,7 +38,7 @@ func StartADS(ctx context.Context, snapshots <-chan Snapshot, cfg Config, _ clie
 	if mgr == nil {
 		mgr = NewStreamManager()
 	}
-	srv := newStreamServer(mgr)
+	srv := newStreamServer(mgr, cfg.Events)
 
 	go func() {
 		if err := serve(ctx, srv, cfg.XDSPort); err != nil && ctx.Err() == nil {

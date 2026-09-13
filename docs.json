@@ -24,6 +24,7 @@
               "guides/fallback-routing",
               "guides/server-capacity",
               "guides/customizing-network-proxy",
+              "guides/moving-players",
               "guides/network-integration"
             ]
           },

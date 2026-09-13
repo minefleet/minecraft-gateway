@@ -143,6 +143,145 @@ public final class Api extends com.google.protobuf.GeneratedFile {
     // @@protoc_insertion_point(enum_scope:network.v1alpha1.RouteKind)
   }
 
+  /**
+   * <pre>
+   * MovePolicy controls how players who are not connected are handled.
+   * </pre>
+   *
+   * Protobuf enum {@code network.v1alpha1.MovePolicy}
+   */
+  public enum MovePolicy
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <pre>
+     * MOVE_POLICY_ALL_OR_NOTHING moves nobody until every player is present.
+     * </pre>
+     *
+     * <code>MOVE_POLICY_ALL_OR_NOTHING = 0;</code>
+     */
+    MOVE_POLICY_ALL_OR_NOTHING(0),
+    /**
+     * <pre>
+     * MOVE_POLICY_BEST_EFFORT moves each player as they become present and fails
+     * the rest individually.
+     * </pre>
+     *
+     * <code>MOVE_POLICY_BEST_EFFORT = 1;</code>
+     */
+    MOVE_POLICY_BEST_EFFORT(1),
+    UNRECOGNIZED(-1),
+    ;
+
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "MovePolicy");
+    }
+    /**
+     * <pre>
+     * MOVE_POLICY_ALL_OR_NOTHING moves nobody until every player is present.
+     * </pre>
+     *
+     * <code>MOVE_POLICY_ALL_OR_NOTHING = 0;</code>
+     */
+    public static final int MOVE_POLICY_ALL_OR_NOTHING_VALUE = 0;
+    /**
+     * <pre>
+     * MOVE_POLICY_BEST_EFFORT moves each player as they become present and fails
+     * the rest individually.
+     * </pre>
+     *
+     * <code>MOVE_POLICY_BEST_EFFORT = 1;</code>
+     */
+    public static final int MOVE_POLICY_BEST_EFFORT_VALUE = 1;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static MovePolicy valueOf(int value) {
+      return forNumber(value);
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     */
+    public static MovePolicy forNumber(int value) {
+      switch (value) {
+        case 0: return MOVE_POLICY_ALL_OR_NOTHING;
+        case 1: return MOVE_POLICY_BEST_EFFORT;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<MovePolicy>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        MovePolicy> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<MovePolicy>() {
+            public MovePolicy findValueByNumber(int number) {
+              return MovePolicy.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalStateException(
+            "Can't get the descriptor of an unrecognized enum value.");
+      }
+      return getDescriptor().getValue(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.getDescriptor().getEnumType(1);
+    }
+
+    private static final MovePolicy[] VALUES = values();
+
+    public static MovePolicy valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private MovePolicy(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:network.v1alpha1.MovePolicy)
+  }
+
   public interface PlayerContextOrBuilder extends
       // @@protoc_insertion_point(interface_extends:network.v1alpha1.PlayerContext)
       com.google.protobuf.MessageOrBuilder {
@@ -19444,6 +19583,5764 @@ public final class Api extends com.google.protobuf.GeneratedFile {
 
   }
 
+  public interface LabelSelectorRequirementOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.LabelSelectorRequirement)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string key = 1 [json_name = "key"];</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1 [json_name = "key"];</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <pre>
+     * operator is one of In, NotIn, Exists, DoesNotExist.
+     * </pre>
+     *
+     * <code>string operator = 2 [json_name = "operator"];</code>
+     * @return The operator.
+     */
+    java.lang.String getOperator();
+    /**
+     * <pre>
+     * operator is one of In, NotIn, Exists, DoesNotExist.
+     * </pre>
+     *
+     * <code>string operator = 2 [json_name = "operator"];</code>
+     * @return The bytes for operator.
+     */
+    com.google.protobuf.ByteString
+        getOperatorBytes();
+
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @return A list containing the values.
+     */
+    java.util.List<java.lang.String>
+        getValuesList();
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @return The count of values.
+     */
+    int getValuesCount();
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @param index The index of the element to return.
+     * @return The values at the given index.
+     */
+    java.lang.String getValues(int index);
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the values at the given index.
+     */
+    com.google.protobuf.ByteString
+        getValuesBytes(int index);
+  }
+  /**
+   * <pre>
+   * LabelSelectorRequirement mirrors the Kubernetes type of the same name, so a
+   * MovePlayers selector can express everything a PlayerTransfer can.
+   * </pre>
+   *
+   * Protobuf type {@code network.v1alpha1.LabelSelectorRequirement}
+   */
+  public static final class LabelSelectorRequirement extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.LabelSelectorRequirement)
+      LabelSelectorRequirementOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "LabelSelectorRequirement");
+    }
+    // Use LabelSelectorRequirement.newBuilder() to construct.
+    private LabelSelectorRequirement(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private LabelSelectorRequirement() {
+      key_ = "";
+      operator_ = "";
+      values_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelectorRequirement_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder.class);
+    }
+
+    public static final int KEY_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object key_ = "";
+    /**
+     * <code>string key = 1 [json_name = "key"];</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1 [json_name = "key"];</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int OPERATOR_FIELD_NUMBER = 2;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object operator_ = "";
+    /**
+     * <pre>
+     * operator is one of In, NotIn, Exists, DoesNotExist.
+     * </pre>
+     *
+     * <code>string operator = 2 [json_name = "operator"];</code>
+     * @return The operator.
+     */
+    @java.lang.Override
+    public java.lang.String getOperator() {
+      java.lang.Object ref = operator_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        operator_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * operator is one of In, NotIn, Exists, DoesNotExist.
+     * </pre>
+     *
+     * <code>string operator = 2 [json_name = "operator"];</code>
+     * @return The bytes for operator.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getOperatorBytes() {
+      java.lang.Object ref = operator_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        operator_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VALUES_FIELD_NUMBER = 3;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.LazyStringArrayList values_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @return A list containing the values.
+     */
+    public com.google.protobuf.ProtocolStringList
+        getValuesList() {
+      return values_;
+    }
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @return The count of values.
+     */
+    public int getValuesCount() {
+      return values_.size();
+    }
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @param index The index of the element to return.
+     * @return The values at the given index.
+     */
+    public java.lang.String getValues(int index) {
+      return values_.get(index);
+    }
+    /**
+     * <code>repeated string values = 3 [json_name = "values"];</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the values at the given index.
+     */
+    public com.google.protobuf.ByteString
+        getValuesBytes(int index) {
+      return values_.getByteString(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(key_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, key_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(operator_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, operator_);
+      }
+      for (int i = 0; i < values_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, values_.getRaw(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(key_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, key_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(operator_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, operator_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < values_.size(); i++) {
+          dataSize += computeStringSizeNoTag(values_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getValuesList().size();
+      }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement) obj;
+
+      if (!getKey()
+          .equals(other.getKey())) return false;
+      if (!getOperator()
+          .equals(other.getOperator())) return false;
+      if (!getValuesList()
+          .equals(other.getValuesList())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
+      hash = (37 * hash) + OPERATOR_FIELD_NUMBER;
+      hash = (53 * hash) + getOperator().hashCode();
+      if (getValuesCount() > 0) {
+        hash = (37 * hash) + VALUES_FIELD_NUMBER;
+        hash = (53 * hash) + getValuesList().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * LabelSelectorRequirement mirrors the Kubernetes type of the same name, so a
+     * MovePlayers selector can express everything a PlayerTransfer can.
+     * </pre>
+     *
+     * Protobuf type {@code network.v1alpha1.LabelSelectorRequirement}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.LabelSelectorRequirement)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelectorRequirement_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        key_ = "";
+        operator_ = "";
+        values_ =
+            com.google.protobuf.LazyStringArrayList.emptyList();
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.key_ = key_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.operator_ = operator_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          values_.makeImmutable();
+          result.values_ = values_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.getDefaultInstance()) return this;
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          bitField0_ |= 0x00000001;
+          onChanged();
+        }
+        if (!other.getOperator().isEmpty()) {
+          operator_ = other.operator_;
+          bitField0_ |= 0x00000002;
+          onChanged();
+        }
+        if (!other.values_.isEmpty()) {
+          if (values_.isEmpty()) {
+            values_ = other.values_;
+            bitField0_ |= 0x00000004;
+          } else {
+            ensureValuesIsMutable();
+            values_.addAll(other.values_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                key_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 18: {
+                operator_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+              case 26: {
+                ensureValuesIsMutable();
+                values_.add(input.readStringRequireUtf8());
+                break;
+              } // case 26
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 1 [json_name = "key"];</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 1 [json_name = "key"];</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1 [json_name = "key"];</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        key_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1 [json_name = "key"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        key_ = getDefaultInstance().getKey();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1 [json_name = "key"];</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        key_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object operator_ = "";
+      /**
+       * <pre>
+       * operator is one of In, NotIn, Exists, DoesNotExist.
+       * </pre>
+       *
+       * <code>string operator = 2 [json_name = "operator"];</code>
+       * @return The operator.
+       */
+      public java.lang.String getOperator() {
+        java.lang.Object ref = operator_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          operator_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * operator is one of In, NotIn, Exists, DoesNotExist.
+       * </pre>
+       *
+       * <code>string operator = 2 [json_name = "operator"];</code>
+       * @return The bytes for operator.
+       */
+      public com.google.protobuf.ByteString
+          getOperatorBytes() {
+        java.lang.Object ref = operator_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          operator_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * operator is one of In, NotIn, Exists, DoesNotExist.
+       * </pre>
+       *
+       * <code>string operator = 2 [json_name = "operator"];</code>
+       * @param value The operator to set.
+       * @return This builder for chaining.
+       */
+      public Builder setOperator(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        operator_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * operator is one of In, NotIn, Exists, DoesNotExist.
+       * </pre>
+       *
+       * <code>string operator = 2 [json_name = "operator"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearOperator() {
+        operator_ = getDefaultInstance().getOperator();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * operator is one of In, NotIn, Exists, DoesNotExist.
+       * </pre>
+       *
+       * <code>string operator = 2 [json_name = "operator"];</code>
+       * @param value The bytes for operator to set.
+       * @return This builder for chaining.
+       */
+      public Builder setOperatorBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        operator_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringArrayList values_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      private void ensureValuesIsMutable() {
+        if (!values_.isModifiable()) {
+          values_ = new com.google.protobuf.LazyStringArrayList(values_);
+        }
+        bitField0_ |= 0x00000004;
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @return A list containing the values.
+       */
+      public com.google.protobuf.ProtocolStringList
+          getValuesList() {
+        values_.makeImmutable();
+        return values_;
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @return The count of values.
+       */
+      public int getValuesCount() {
+        return values_.size();
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @param index The index of the element to return.
+       * @return The values at the given index.
+       */
+      public java.lang.String getValues(int index) {
+        return values_.get(index);
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the values at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getValuesBytes(int index) {
+        return values_.getByteString(index);
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @param index The index to set the value at.
+       * @param value The values to set.
+       * @return This builder for chaining.
+       */
+      public Builder setValues(
+          int index, java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        ensureValuesIsMutable();
+        values_.set(index, value);
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @param value The values to add.
+       * @return This builder for chaining.
+       */
+      public Builder addValues(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        ensureValuesIsMutable();
+        values_.add(value);
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @param values The values to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllValues(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureValuesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, values_);
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearValues() {
+        values_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string values = 3 [json_name = "values"];</code>
+       * @param value The bytes of the values to add.
+       * @return This builder for chaining.
+       */
+      public Builder addValuesBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        ensureValuesIsMutable();
+        values_.add(value);
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.LabelSelectorRequirement)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.LabelSelectorRequirement)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<LabelSelectorRequirement>
+        PARSER = new com.google.protobuf.AbstractParser<LabelSelectorRequirement>() {
+      @java.lang.Override
+      public LabelSelectorRequirement parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<LabelSelectorRequirement> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<LabelSelectorRequirement> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface LabelSelectorOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.LabelSelector)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    int getMatchLabelsCount();
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    boolean containsMatchLabels(
+        java.lang.String key);
+    /**
+     * Use {@link #getMatchLabelsMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.String>
+    getMatchLabels();
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getMatchLabelsMap();
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    /* nullable */
+java.lang.String getMatchLabelsOrDefault(
+        java.lang.String key,
+        /* nullable */
+java.lang.String defaultValue);
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    java.lang.String getMatchLabelsOrThrow(
+        java.lang.String key);
+
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement> 
+        getMatchExpressionsList();
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement getMatchExpressions(int index);
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    int getMatchExpressionsCount();
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder> 
+        getMatchExpressionsOrBuilderList();
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder getMatchExpressionsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code network.v1alpha1.LabelSelector}
+   */
+  public static final class LabelSelector extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.LabelSelector)
+      LabelSelectorOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "LabelSelector");
+    }
+    // Use LabelSelector.newBuilder() to construct.
+    private LabelSelector(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private LabelSelector() {
+      matchExpressions_ = java.util.Collections.emptyList();
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    @java.lang.Override
+    protected com.google.protobuf.MapFieldReflectionAccessor internalGetMapFieldReflection(
+        int number) {
+      switch (number) {
+        case 1:
+          return internalGetMatchLabels();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder.class);
+    }
+
+    public static final int MATCH_LABELS_FIELD_NUMBER = 1;
+    private static final class MatchLabelsDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_MatchLabelsEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    @SuppressWarnings("serial")
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> matchLabels_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetMatchLabels() {
+      if (matchLabels_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            MatchLabelsDefaultEntryHolder.defaultEntry);
+      }
+      return matchLabels_;
+    }
+    public int getMatchLabelsCount() {
+      return internalGetMatchLabels().getMap().size();
+    }
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    @java.lang.Override
+    public boolean containsMatchLabels(
+        java.lang.String key) {
+      java.util.Objects.requireNonNull(key, "map key");
+      return internalGetMatchLabels().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getMatchLabelsMap()} instead.
+     */
+    @java.lang.Override
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getMatchLabels() {
+      return getMatchLabelsMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    @java.lang.Override
+    public java.util.Map<java.lang.String, java.lang.String> getMatchLabelsMap() {
+      return internalGetMatchLabels().getMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    @java.lang.Override
+    public /* nullable */
+java.lang.String getMatchLabelsOrDefault(
+        java.lang.String key,
+        /* nullable */
+java.lang.String defaultValue) {
+      java.util.Objects.requireNonNull(key, "map key");
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetMatchLabels().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+     */
+    @java.lang.Override
+    public java.lang.String getMatchLabelsOrThrow(
+        java.lang.String key) {
+      java.util.Objects.requireNonNull(key, "map key");
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetMatchLabels().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
+    public static final int MATCH_EXPRESSIONS_FIELD_NUMBER = 2;
+    @SuppressWarnings("serial")
+    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement> matchExpressions_;
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement> getMatchExpressionsList() {
+      return matchExpressions_;
+    }
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder> 
+        getMatchExpressionsOrBuilderList() {
+      return matchExpressions_;
+    }
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    @java.lang.Override
+    public int getMatchExpressionsCount() {
+      return matchExpressions_.size();
+    }
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement getMatchExpressions(int index) {
+      return matchExpressions_.get(index);
+    }
+    /**
+     * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder getMatchExpressionsOrBuilder(
+        int index) {
+      return matchExpressions_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      com.google.protobuf.GeneratedMessage
+        .serializeStringMapTo(
+          output,
+          internalGetMatchLabels(),
+          MatchLabelsDefaultEntryHolder.defaultEntry,
+          1);
+      for (int i = 0; i < matchExpressions_.size(); i++) {
+        output.writeMessage(2, matchExpressions_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetMatchLabels().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        matchLabels__ = MatchLabelsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .buildPartial();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, matchLabels__);
+      }
+
+          {
+            final int count = matchExpressions_.size();
+            for (int i = 0; i < count; i++) {
+              size += com.google.protobuf.CodedOutputStream
+                .computeMessageSizeNoTag(matchExpressions_.get(i));
+            }
+            size += 1 * count;
+          }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) obj;
+
+      if (!internalGetMatchLabels().equals(
+          other.internalGetMatchLabels())) return false;
+      if (!getMatchExpressionsList()
+          .equals(other.getMatchExpressionsList())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (!internalGetMatchLabels().getMap().isEmpty()) {
+        hash = (37 * hash) + MATCH_LABELS_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetMatchLabels().hashCode();
+      }
+      if (getMatchExpressionsCount() > 0) {
+        hash = (37 * hash) + MATCH_EXPRESSIONS_FIELD_NUMBER;
+        hash = (53 * hash) + getMatchExpressionsList().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code network.v1alpha1.LabelSelector}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.LabelSelector)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapFieldReflectionAccessor internalGetMapFieldReflection(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMatchLabels();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapFieldReflectionAccessor internalGetMutableMapFieldReflection(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMutableMatchLabels();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        internalGetMutableMatchLabels().clear();
+        if (matchExpressionsBuilder_ == null) {
+          matchExpressions_ = java.util.Collections.emptyList();
+        } else {
+          matchExpressions_ = null;
+          matchExpressionsBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_LabelSelector_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector(this);
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector result) {
+        if (matchExpressionsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) != 0)) {
+            matchExpressions_ = java.util.Collections.unmodifiableList(matchExpressions_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.matchExpressions_ = matchExpressions_;
+        } else {
+          result.matchExpressions_ = matchExpressionsBuilder_.build();
+        }
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.matchLabels_ = internalGetMatchLabels();
+          result.matchLabels_.makeImmutable();
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance()) return this;
+        internalGetMutableMatchLabels().mergeFrom(
+            other.internalGetMatchLabels());
+        bitField0_ |= 0x00000001;
+        if (matchExpressionsBuilder_ == null) {
+          if (!other.matchExpressions_.isEmpty()) {
+            if (matchExpressions_.isEmpty()) {
+              matchExpressions_ = other.matchExpressions_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureMatchExpressionsIsMutable();
+              matchExpressions_.addAll(other.matchExpressions_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.matchExpressions_.isEmpty()) {
+            if (matchExpressionsBuilder_.isEmpty()) {
+              matchExpressionsBuilder_.dispose();
+              matchExpressionsBuilder_ = null;
+              matchExpressions_ = other.matchExpressions_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              matchExpressionsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   internalGetMatchExpressionsFieldBuilder() : null;
+            } else {
+              matchExpressionsBuilder_.addAllMessages(other.matchExpressions_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+                matchLabels__ = input.readMessage(
+                    MatchLabelsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+                internalGetMutableMatchLabels().getMutableMap().put(
+                    matchLabels__.getKey(), matchLabels__.getValue());
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 18: {
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement m =
+                    input.readMessage(
+                        dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.parser(),
+                        extensionRegistry);
+                if (matchExpressionsBuilder_ == null) {
+                  ensureMatchExpressionsIsMutable();
+                  matchExpressions_.add(m);
+                } else {
+                  matchExpressionsBuilder_.addMessage(m);
+                }
+                break;
+              } // case 18
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> matchLabels_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+          internalGetMatchLabels() {
+        if (matchLabels_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              MatchLabelsDefaultEntryHolder.defaultEntry);
+        }
+        return matchLabels_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+          internalGetMutableMatchLabels() {
+        if (matchLabels_ == null) {
+          matchLabels_ = com.google.protobuf.MapField.newMapField(
+              MatchLabelsDefaultEntryHolder.defaultEntry);
+        }
+        if (!matchLabels_.isMutable()) {
+          matchLabels_ = matchLabels_.copy();
+        }
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return matchLabels_;
+      }
+      public int getMatchLabelsCount() {
+        return internalGetMatchLabels().getMap().size();
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      @java.lang.Override
+      public boolean containsMatchLabels(
+          java.lang.String key) {
+        java.util.Objects.requireNonNull(key, "map key");
+        return internalGetMatchLabels().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getMatchLabelsMap()} instead.
+       */
+      @java.lang.Override
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String> getMatchLabels() {
+        return getMatchLabelsMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      @java.lang.Override
+      public java.util.Map<java.lang.String, java.lang.String> getMatchLabelsMap() {
+        return internalGetMatchLabels().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      @java.lang.Override
+      public /* nullable */
+java.lang.String getMatchLabelsOrDefault(
+          java.lang.String key,
+          /* nullable */
+java.lang.String defaultValue) {
+        java.util.Objects.requireNonNull(key, "map key");
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetMatchLabels().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      @java.lang.Override
+      public java.lang.String getMatchLabelsOrThrow(
+          java.lang.String key) {
+        java.util.Objects.requireNonNull(key, "map key");
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetMatchLabels().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+      public Builder clearMatchLabels() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        internalGetMutableMatchLabels().getMutableMap()
+            .clear();
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      public Builder removeMatchLabels(
+          java.lang.String key) {
+        java.util.Objects.requireNonNull(key, "map key");
+        internalGetMutableMatchLabels().getMutableMap()
+            .remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String>
+          getMutableMatchLabels() {
+        bitField0_ |= 0x00000001;
+        return internalGetMutableMatchLabels().getMutableMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      public Builder putMatchLabels(
+          java.lang.String key,
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(key, "map key");
+        java.util.Objects.requireNonNull(value, "map value");
+        internalGetMutableMatchLabels().getMutableMap()
+            .put(key, value);
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; match_labels = 1 [json_name = "matchLabels"];</code>
+       */
+      public Builder putAllMatchLabels(
+          java.util.Map<java.lang.String, java.lang.String> values) {
+        internalGetMutableMatchLabels().getMutableMap()
+            .putAll(values);
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+
+      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement> matchExpressions_ =
+        java.util.Collections.emptyList();
+      private void ensureMatchExpressionsIsMutable() {
+        if (!((bitField0_ & 0x00000002) != 0)) {
+          matchExpressions_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement>(matchExpressions_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder> matchExpressionsBuilder_;
+
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement> getMatchExpressionsList() {
+        if (matchExpressionsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(matchExpressions_);
+        } else {
+          return matchExpressionsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public int getMatchExpressionsCount() {
+        if (matchExpressionsBuilder_ == null) {
+          return matchExpressions_.size();
+        } else {
+          return matchExpressionsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement getMatchExpressions(int index) {
+        if (matchExpressionsBuilder_ == null) {
+          return matchExpressions_.get(index);
+        } else {
+          return matchExpressionsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder setMatchExpressions(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement value) {
+        if (matchExpressionsBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.set(index, value);
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder setMatchExpressions(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder builderForValue) {
+        if (matchExpressionsBuilder_ == null) {
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder addMatchExpressions(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement value) {
+        if (matchExpressionsBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.add(value);
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder addMatchExpressions(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement value) {
+        if (matchExpressionsBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.add(index, value);
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder addMatchExpressions(
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder builderForValue) {
+        if (matchExpressionsBuilder_ == null) {
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.add(builderForValue.build());
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder addMatchExpressions(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder builderForValue) {
+        if (matchExpressionsBuilder_ == null) {
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder addAllMatchExpressions(
+          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement> values) {
+        if (matchExpressionsBuilder_ == null) {
+          ensureMatchExpressionsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, matchExpressions_);
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder clearMatchExpressions() {
+        if (matchExpressionsBuilder_ == null) {
+          matchExpressions_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public Builder removeMatchExpressions(int index) {
+        if (matchExpressionsBuilder_ == null) {
+          ensureMatchExpressionsIsMutable();
+          matchExpressions_.remove(index);
+          onChanged();
+        } else {
+          matchExpressionsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder getMatchExpressionsBuilder(
+          int index) {
+        return internalGetMatchExpressionsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder getMatchExpressionsOrBuilder(
+          int index) {
+        if (matchExpressionsBuilder_ == null) {
+          return matchExpressions_.get(index);  } else {
+          return matchExpressionsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder> 
+           getMatchExpressionsOrBuilderList() {
+        if (matchExpressionsBuilder_ != null) {
+          return matchExpressionsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(matchExpressions_);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder addMatchExpressionsBuilder() {
+        return internalGetMatchExpressionsFieldBuilder().addBuilder(
+            dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder addMatchExpressionsBuilder(
+          int index) {
+        return internalGetMatchExpressionsFieldBuilder().addBuilder(
+            index, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .network.v1alpha1.LabelSelectorRequirement match_expressions = 2 [json_name = "matchExpressions"];</code>
+       */
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder> 
+           getMatchExpressionsBuilderList() {
+        return internalGetMatchExpressionsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder> 
+          internalGetMatchExpressionsFieldBuilder() {
+        if (matchExpressionsBuilder_ == null) {
+          matchExpressionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirement.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorRequirementOrBuilder>(
+                  matchExpressions_,
+                  ((bitField0_ & 0x00000002) != 0),
+                  getParentForChildren(),
+                  isClean());
+          matchExpressions_ = null;
+        }
+        return matchExpressionsBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.LabelSelector)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.LabelSelector)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<LabelSelector>
+        PARSER = new com.google.protobuf.AbstractParser<LabelSelector>() {
+      @java.lang.Override
+      public LabelSelector parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<LabelSelector> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<LabelSelector> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface MovePlayersRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.MovePlayersRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The gatewayNamespace.
+     */
+    java.lang.String getGatewayNamespace();
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The bytes for gatewayNamespace.
+     */
+    com.google.protobuf.ByteString
+        getGatewayNamespaceBytes();
+
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The gatewayName.
+     */
+    java.lang.String getGatewayName();
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The bytes for gatewayName.
+     */
+    com.google.protobuf.ByteString
+        getGatewayNameBytes();
+
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The listenerName.
+     */
+    java.lang.String getListenerName();
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The bytes for listenerName.
+     */
+    com.google.protobuf.ByteString
+        getListenerNameBytes();
+
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @return A list containing the players.
+     */
+    java.util.List<java.lang.String>
+        getPlayersList();
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @return The count of players.
+     */
+    int getPlayersCount();
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @param index The index of the element to return.
+     * @return The players at the given index.
+     */
+    java.lang.String getPlayers(int index);
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the players at the given index.
+     */
+    com.google.protobuf.ByteString
+        getPlayersBytes(int index);
+
+    /**
+     * <pre>
+     * route_mode evaluates the gateway's join or fallback routes per player, so
+     * players may land on different servers.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+     * @return Whether the routeMode field is set.
+     */
+    boolean hasRouteMode();
+    /**
+     * <pre>
+     * route_mode evaluates the gateway's join or fallback routes per player, so
+     * players may land on different servers.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+     * @return The enum numeric value on the wire for routeMode.
+     */
+    int getRouteModeValue();
+    /**
+     * <pre>
+     * route_mode evaluates the gateway's join or fallback routes per player, so
+     * players may land on different servers.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+     * @return The routeMode.
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind getRouteMode();
+
+    /**
+     * <pre>
+     * label_selector picks one server from the services matching the selector,
+     * using their distribution strategy. Every player goes to that one server.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+     * @return Whether the labelSelector field is set.
+     */
+    boolean hasLabelSelector();
+    /**
+     * <pre>
+     * label_selector picks one server from the services matching the selector,
+     * using their distribution strategy. Every player goes to that one server.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+     * @return The labelSelector.
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector getLabelSelector();
+    /**
+     * <pre>
+     * label_selector picks one server from the services matching the selector,
+     * using their distribution strategy. Every player goes to that one server.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder getLabelSelectorOrBuilder();
+
+    /**
+     * <pre>
+     * server_name names an already registered server explicitly.
+     * </pre>
+     *
+     * <code>string server_name = 7 [json_name = "serverName"];</code>
+     * @return Whether the serverName field is set.
+     */
+    boolean hasServerName();
+    /**
+     * <pre>
+     * server_name names an already registered server explicitly.
+     * </pre>
+     *
+     * <code>string server_name = 7 [json_name = "serverName"];</code>
+     * @return The serverName.
+     */
+    java.lang.String getServerName();
+    /**
+     * <pre>
+     * server_name names an already registered server explicitly.
+     * </pre>
+     *
+     * <code>string server_name = 7 [json_name = "serverName"];</code>
+     * @return The bytes for serverName.
+     */
+    com.google.protobuf.ByteString
+        getServerNameBytes();
+
+    /**
+     * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+     * @return The enum numeric value on the wire for policy.
+     */
+    int getPolicyValue();
+    /**
+     * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+     * @return The policy.
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy getPolicy();
+
+    /**
+     * <pre>
+     * wait_seconds bounds how long the call waits for players who are not
+     * connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+     * absent players immediately; the moves of players who are present are still
+     * awaited. The call never outlives the client's gRPC deadline.
+     * </pre>
+     *
+     * <code>uint32 wait_seconds = 9 [json_name = "waitSeconds"];</code>
+     * @return The waitSeconds.
+     */
+    int getWaitSeconds();
+
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.TargetCase getTargetCase();
+  }
+  /**
+   * <pre>
+   * MovePlayersRequest asks the controller to connect players to a server. It is
+   * the imperative counterpart of the PlayerTransfer resource and takes the same
+   * targets and policies.
+   * </pre>
+   *
+   * Protobuf type {@code network.v1alpha1.MovePlayersRequest}
+   */
+  public static final class MovePlayersRequest extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.MovePlayersRequest)
+      MovePlayersRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "MovePlayersRequest");
+    }
+    // Use MovePlayersRequest.newBuilder() to construct.
+    private MovePlayersRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private MovePlayersRequest() {
+      gatewayNamespace_ = "";
+      gatewayName_ = "";
+      listenerName_ = "";
+      players_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      policy_ = 0;
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersRequest_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.Builder.class);
+    }
+
+    private int targetCase_ = 0;
+    @SuppressWarnings("serial")
+    private java.lang.Object target_;
+    public enum TargetCase
+        implements com.google.protobuf.Internal.EnumLite,
+            com.google.protobuf.AbstractMessage.InternalOneOfEnum {
+      ROUTE_MODE(5),
+      LABEL_SELECTOR(6),
+      SERVER_NAME(7),
+      TARGET_NOT_SET(0);
+      private final int value;
+      private TargetCase(int value) {
+        this.value = value;
+      }
+      /**
+       * @param value The number of the enum to look for.
+       * @return The enum associated with the given number.
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static TargetCase valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static TargetCase forNumber(int value) {
+        switch (value) {
+          case 5: return ROUTE_MODE;
+          case 6: return LABEL_SELECTOR;
+          case 7: return SERVER_NAME;
+          case 0: return TARGET_NOT_SET;
+          default: return null;
+        }
+      }
+      public int getNumber() {
+        return this.value;
+      }
+    };
+
+    public TargetCase
+    getTargetCase() {
+      return TargetCase.forNumber(
+          targetCase_);
+    }
+
+    public static final int GATEWAY_NAMESPACE_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object gatewayNamespace_ = "";
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The gatewayNamespace.
+     */
+    @java.lang.Override
+    public java.lang.String getGatewayNamespace() {
+      java.lang.Object ref = gatewayNamespace_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gatewayNamespace_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+     * @return The bytes for gatewayNamespace.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGatewayNamespaceBytes() {
+      java.lang.Object ref = gatewayNamespace_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gatewayNamespace_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int GATEWAY_NAME_FIELD_NUMBER = 2;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object gatewayName_ = "";
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The gatewayName.
+     */
+    @java.lang.Override
+    public java.lang.String getGatewayName() {
+      java.lang.Object ref = gatewayName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gatewayName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+     * @return The bytes for gatewayName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGatewayNameBytes() {
+      java.lang.Object ref = gatewayName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gatewayName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int LISTENER_NAME_FIELD_NUMBER = 3;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object listenerName_ = "";
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The listenerName.
+     */
+    @java.lang.Override
+    public java.lang.String getListenerName() {
+      java.lang.Object ref = listenerName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        listenerName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+     * @return The bytes for listenerName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getListenerNameBytes() {
+      java.lang.Object ref = listenerName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        listenerName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PLAYERS_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.LazyStringArrayList players_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @return A list containing the players.
+     */
+    public com.google.protobuf.ProtocolStringList
+        getPlayersList() {
+      return players_;
+    }
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @return The count of players.
+     */
+    public int getPlayersCount() {
+      return players_.size();
+    }
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @param index The index of the element to return.
+     * @return The players at the given index.
+     */
+    public java.lang.String getPlayers(int index) {
+      return players_.get(index);
+    }
+    /**
+     * <code>repeated string players = 4 [json_name = "players"];</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the players at the given index.
+     */
+    public com.google.protobuf.ByteString
+        getPlayersBytes(int index) {
+      return players_.getByteString(index);
+    }
+
+    public static final int ROUTE_MODE_FIELD_NUMBER = 5;
+    /**
+     * <pre>
+     * route_mode evaluates the gateway's join or fallback routes per player, so
+     * players may land on different servers.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+     * @return Whether the routeMode field is set.
+     */
+    public boolean hasRouteMode() {
+      return targetCase_ == 5;
+    }
+    /**
+     * <pre>
+     * route_mode evaluates the gateway's join or fallback routes per player, so
+     * players may land on different servers.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+     * @return The enum numeric value on the wire for routeMode.
+     */
+    public int getRouteModeValue() {
+      if (targetCase_ == 5) {
+        return (java.lang.Integer) target_;
+      }
+      return 0;
+    }
+    /**
+     * <pre>
+     * route_mode evaluates the gateway's join or fallback routes per player, so
+     * players may land on different servers.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+     * @return The routeMode.
+     */
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind getRouteMode() {
+      if (targetCase_ == 5) {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind result = dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind.forNumber(
+            (java.lang.Integer) target_);
+        return result == null ? dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind.UNRECOGNIZED : result;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind.ROUTE_KIND_JOIN;
+    }
+
+    public static final int LABEL_SELECTOR_FIELD_NUMBER = 6;
+    /**
+     * <pre>
+     * label_selector picks one server from the services matching the selector,
+     * using their distribution strategy. Every player goes to that one server.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+     * @return Whether the labelSelector field is set.
+     */
+    @java.lang.Override
+    public boolean hasLabelSelector() {
+      return targetCase_ == 6;
+    }
+    /**
+     * <pre>
+     * label_selector picks one server from the services matching the selector,
+     * using their distribution strategy. Every player goes to that one server.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+     * @return The labelSelector.
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector getLabelSelector() {
+      if (targetCase_ == 6) {
+         return (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+    }
+    /**
+     * <pre>
+     * label_selector picks one server from the services matching the selector,
+     * using their distribution strategy. Every player goes to that one server.
+     * </pre>
+     *
+     * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder getLabelSelectorOrBuilder() {
+      if (targetCase_ == 6) {
+         return (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_;
+      }
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+    }
+
+    public static final int SERVER_NAME_FIELD_NUMBER = 7;
+    /**
+     * <pre>
+     * server_name names an already registered server explicitly.
+     * </pre>
+     *
+     * <code>string server_name = 7 [json_name = "serverName"];</code>
+     * @return Whether the serverName field is set.
+     */
+    public boolean hasServerName() {
+      return targetCase_ == 7;
+    }
+    /**
+     * <pre>
+     * server_name names an already registered server explicitly.
+     * </pre>
+     *
+     * <code>string server_name = 7 [json_name = "serverName"];</code>
+     * @return The serverName.
+     */
+    public java.lang.String getServerName() {
+      if (targetCase_ != 7) {
+        return "";
+      }
+      java.lang.Object ref = target_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        target_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * server_name names an already registered server explicitly.
+     * </pre>
+     *
+     * <code>string server_name = 7 [json_name = "serverName"];</code>
+     * @return The bytes for serverName.
+     */
+    public com.google.protobuf.ByteString
+        getServerNameBytes() {
+      if (targetCase_ != 7) {
+        return com.google.protobuf.ByteString.copyFromUtf8("");
+      }
+      java.lang.Object ref = target_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        target_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int POLICY_FIELD_NUMBER = 8;
+    private int policy_ = 0;
+    /**
+     * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+     * @return The enum numeric value on the wire for policy.
+     */
+    @java.lang.Override public int getPolicyValue() {
+      return policy_;
+    }
+    /**
+     * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+     * @return The policy.
+     */
+    @java.lang.Override public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy getPolicy() {
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy result = dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy.forNumber(policy_);
+      return result == null ? dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy.UNRECOGNIZED : result;
+    }
+
+    public static final int WAIT_SECONDS_FIELD_NUMBER = 9;
+    private int waitSeconds_ = 0;
+    /**
+     * <pre>
+     * wait_seconds bounds how long the call waits for players who are not
+     * connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+     * absent players immediately; the moves of players who are present are still
+     * awaited. The call never outlives the client's gRPC deadline.
+     * </pre>
+     *
+     * <code>uint32 wait_seconds = 9 [json_name = "waitSeconds"];</code>
+     * @return The waitSeconds.
+     */
+    @java.lang.Override
+    public int getWaitSeconds() {
+      return waitSeconds_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayNamespace_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, gatewayNamespace_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, gatewayName_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(listenerName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, listenerName_);
+      }
+      for (int i = 0; i < players_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, players_.getRaw(i));
+      }
+      if (targetCase_ == 5) {
+        output.writeEnum(5, ((java.lang.Integer) target_));
+      }
+      if (targetCase_ == 6) {
+        output.writeMessage(6, (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_);
+      }
+      if (targetCase_ == 7) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 7, target_);
+      }
+      if (policy_ != dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy.MOVE_POLICY_ALL_OR_NOTHING.getNumber()) {
+        output.writeEnum(8, policy_);
+      }
+      if (waitSeconds_ != 0) {
+        output.writeUInt32(9, waitSeconds_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayNamespace_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, gatewayNamespace_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(gatewayName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, gatewayName_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(listenerName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, listenerName_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < players_.size(); i++) {
+          dataSize += computeStringSizeNoTag(players_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getPlayersList().size();
+      }
+      if (targetCase_ == 5) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(5, ((java.lang.Integer) target_));
+      }
+      if (targetCase_ == 6) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_);
+      }
+      if (targetCase_ == 7) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(7, target_);
+      }
+      if (policy_ != dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy.MOVE_POLICY_ALL_OR_NOTHING.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(8, policy_);
+      }
+      if (waitSeconds_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(9, waitSeconds_);
+      }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest) obj;
+
+      if (!getGatewayNamespace()
+          .equals(other.getGatewayNamespace())) return false;
+      if (!getGatewayName()
+          .equals(other.getGatewayName())) return false;
+      if (!getListenerName()
+          .equals(other.getListenerName())) return false;
+      if (!getPlayersList()
+          .equals(other.getPlayersList())) return false;
+      if (policy_ != other.policy_) return false;
+      if (getWaitSeconds()
+          != other.getWaitSeconds()) return false;
+      if (!getTargetCase().equals(other.getTargetCase())) return false;
+      switch (targetCase_) {
+        case 5:
+          if (getRouteModeValue()
+              != other.getRouteModeValue()) return false;
+          break;
+        case 6:
+          if (!getLabelSelector()
+              .equals(other.getLabelSelector())) return false;
+          break;
+        case 7:
+          if (!getServerName()
+              .equals(other.getServerName())) return false;
+          break;
+        case 0:
+        default:
+      }
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + GATEWAY_NAMESPACE_FIELD_NUMBER;
+      hash = (53 * hash) + getGatewayNamespace().hashCode();
+      hash = (37 * hash) + GATEWAY_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getGatewayName().hashCode();
+      hash = (37 * hash) + LISTENER_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getListenerName().hashCode();
+      if (getPlayersCount() > 0) {
+        hash = (37 * hash) + PLAYERS_FIELD_NUMBER;
+        hash = (53 * hash) + getPlayersList().hashCode();
+      }
+      hash = (37 * hash) + POLICY_FIELD_NUMBER;
+      hash = (53 * hash) + policy_;
+      hash = (37 * hash) + WAIT_SECONDS_FIELD_NUMBER;
+      hash = (53 * hash) + getWaitSeconds();
+      switch (targetCase_) {
+        case 5:
+          hash = (37 * hash) + ROUTE_MODE_FIELD_NUMBER;
+          hash = (53 * hash) + getRouteModeValue();
+          break;
+        case 6:
+          hash = (37 * hash) + LABEL_SELECTOR_FIELD_NUMBER;
+          hash = (53 * hash) + getLabelSelector().hashCode();
+          break;
+        case 7:
+          hash = (37 * hash) + SERVER_NAME_FIELD_NUMBER;
+          hash = (53 * hash) + getServerName().hashCode();
+          break;
+        case 0:
+        default:
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * MovePlayersRequest asks the controller to connect players to a server. It is
+     * the imperative counterpart of the PlayerTransfer resource and takes the same
+     * targets and policies.
+     * </pre>
+     *
+     * Protobuf type {@code network.v1alpha1.MovePlayersRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.MovePlayersRequest)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        gatewayNamespace_ = "";
+        gatewayName_ = "";
+        listenerName_ = "";
+        players_ =
+            com.google.protobuf.LazyStringArrayList.emptyList();
+        if (labelSelectorBuilder_ != null) {
+          labelSelectorBuilder_.clear();
+        }
+        policy_ = 0;
+        waitSeconds_ = 0;
+        targetCase_ = 0;
+        target_ = null;
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        buildPartialOneofs(result);
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.gatewayNamespace_ = gatewayNamespace_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.gatewayName_ = gatewayName_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.listenerName_ = listenerName_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          players_.makeImmutable();
+          result.players_ = players_;
+        }
+        if (((from_bitField0_ & 0x00000080) != 0)) {
+          result.policy_ = policy_;
+        }
+        if (((from_bitField0_ & 0x00000100) != 0)) {
+          result.waitSeconds_ = waitSeconds_;
+        }
+      }
+
+      private void buildPartialOneofs(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest result) {
+        result.targetCase_ = targetCase_;
+        result.target_ = this.target_;
+        if (targetCase_ == 6 &&
+            labelSelectorBuilder_ != null) {
+          result.target_ = labelSelectorBuilder_.build();
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.getDefaultInstance()) return this;
+        if (!other.getGatewayNamespace().isEmpty()) {
+          gatewayNamespace_ = other.gatewayNamespace_;
+          bitField0_ |= 0x00000001;
+          onChanged();
+        }
+        if (!other.getGatewayName().isEmpty()) {
+          gatewayName_ = other.gatewayName_;
+          bitField0_ |= 0x00000002;
+          onChanged();
+        }
+        if (!other.getListenerName().isEmpty()) {
+          listenerName_ = other.listenerName_;
+          bitField0_ |= 0x00000004;
+          onChanged();
+        }
+        if (!other.players_.isEmpty()) {
+          if (players_.isEmpty()) {
+            players_ = other.players_;
+            bitField0_ |= 0x00000008;
+          } else {
+            ensurePlayersIsMutable();
+            players_.addAll(other.players_);
+          }
+          onChanged();
+        }
+        if (other.policy_ != 0) {
+          setPolicyValue(other.getPolicyValue());
+        }
+        if (other.getWaitSeconds() != 0) {
+          setWaitSeconds(other.getWaitSeconds());
+        }
+        switch (other.getTargetCase()) {
+          case ROUTE_MODE: {
+            setRouteModeValue(other.getRouteModeValue());
+            break;
+          }
+          case LABEL_SELECTOR: {
+            mergeLabelSelector(other.getLabelSelector());
+            break;
+          }
+          case SERVER_NAME: {
+            targetCase_ = 7;
+            target_ = other.target_;
+            onChanged();
+            break;
+          }
+          case TARGET_NOT_SET: {
+            break;
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                gatewayNamespace_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 18: {
+                gatewayName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+              case 26: {
+                listenerName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+              case 34: {
+                ensurePlayersIsMutable();
+                players_.add(input.readStringRequireUtf8());
+                break;
+              } // case 34
+              case 40: {
+                int rawValue = input.readEnum();
+                targetCase_ = 5;
+                target_ = rawValue;
+                break;
+              } // case 40
+              case 50: {
+                input.readMessage(
+                    internalGetLabelSelectorFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                targetCase_ = 6;
+                break;
+              } // case 50
+              case 58: {
+                targetCase_ = 7;
+                target_ = input.readStringRequireUtf8();
+                break;
+              } // case 58
+              case 64: {
+                policy_ = input.readEnum();
+                bitField0_ |= 0x00000080;
+                break;
+              } // case 64
+              case 72: {
+                waitSeconds_ = input.readUInt32();
+                bitField0_ |= 0x00000100;
+                break;
+              } // case 72
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int targetCase_ = 0;
+      private java.lang.Object target_;
+      public TargetCase
+          getTargetCase() {
+        return TargetCase.forNumber(
+            targetCase_);
+      }
+
+      public Builder clearTarget() {
+        targetCase_ = 0;
+        target_ = null;
+        onChanged();
+        return this;
+      }
+
+      private int bitField0_;
+
+      private java.lang.Object gatewayNamespace_ = "";
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @return The gatewayNamespace.
+       */
+      public java.lang.String getGatewayNamespace() {
+        java.lang.Object ref = gatewayNamespace_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gatewayNamespace_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @return The bytes for gatewayNamespace.
+       */
+      public com.google.protobuf.ByteString
+          getGatewayNamespaceBytes() {
+        java.lang.Object ref = gatewayNamespace_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gatewayNamespace_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @param value The gatewayNamespace to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayNamespace(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        gatewayNamespace_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearGatewayNamespace() {
+        gatewayNamespace_ = getDefaultInstance().getGatewayNamespace();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_namespace = 1 [json_name = "gatewayNamespace"];</code>
+       * @param value The bytes for gatewayNamespace to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayNamespaceBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        gatewayNamespace_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object gatewayName_ = "";
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @return The gatewayName.
+       */
+      public java.lang.String getGatewayName() {
+        java.lang.Object ref = gatewayName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gatewayName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @return The bytes for gatewayName.
+       */
+      public com.google.protobuf.ByteString
+          getGatewayNameBytes() {
+        java.lang.Object ref = gatewayName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gatewayName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @param value The gatewayName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayName(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        gatewayName_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearGatewayName() {
+        gatewayName_ = getDefaultInstance().getGatewayName();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gateway_name = 2 [json_name = "gatewayName"];</code>
+       * @param value The bytes for gatewayName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGatewayNameBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        gatewayName_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object listenerName_ = "";
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @return The listenerName.
+       */
+      public java.lang.String getListenerName() {
+        java.lang.Object ref = listenerName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          listenerName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @return The bytes for listenerName.
+       */
+      public com.google.protobuf.ByteString
+          getListenerNameBytes() {
+        java.lang.Object ref = listenerName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          listenerName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @param value The listenerName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setListenerName(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        listenerName_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearListenerName() {
+        listenerName_ = getDefaultInstance().getListenerName();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string listener_name = 3 [json_name = "listenerName"];</code>
+       * @param value The bytes for listenerName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setListenerNameBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        listenerName_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringArrayList players_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      private void ensurePlayersIsMutable() {
+        if (!players_.isModifiable()) {
+          players_ = new com.google.protobuf.LazyStringArrayList(players_);
+        }
+        bitField0_ |= 0x00000008;
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @return A list containing the players.
+       */
+      public com.google.protobuf.ProtocolStringList
+          getPlayersList() {
+        players_.makeImmutable();
+        return players_;
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @return The count of players.
+       */
+      public int getPlayersCount() {
+        return players_.size();
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @param index The index of the element to return.
+       * @return The players at the given index.
+       */
+      public java.lang.String getPlayers(int index) {
+        return players_.get(index);
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the players at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getPlayersBytes(int index) {
+        return players_.getByteString(index);
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @param index The index to set the value at.
+       * @param value The players to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPlayers(
+          int index, java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        ensurePlayersIsMutable();
+        players_.set(index, value);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @param value The players to add.
+       * @return This builder for chaining.
+       */
+      public Builder addPlayers(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        ensurePlayersIsMutable();
+        players_.add(value);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @param values The players to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllPlayers(
+          java.lang.Iterable<java.lang.String> values) {
+        ensurePlayersIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, players_);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPlayers() {
+        players_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string players = 4 [json_name = "players"];</code>
+       * @param value The bytes of the players to add.
+       * @return This builder for chaining.
+       */
+      public Builder addPlayersBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        ensurePlayersIsMutable();
+        players_.add(value);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * route_mode evaluates the gateway's join or fallback routes per player, so
+       * players may land on different servers.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+       * @return Whether the routeMode field is set.
+       */
+      @java.lang.Override
+      public boolean hasRouteMode() {
+        return targetCase_ == 5;
+      }
+      /**
+       * <pre>
+       * route_mode evaluates the gateway's join or fallback routes per player, so
+       * players may land on different servers.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+       * @return The enum numeric value on the wire for routeMode.
+       */
+      @java.lang.Override
+      public int getRouteModeValue() {
+        if (targetCase_ == 5) {
+          return ((java.lang.Integer) target_).intValue();
+        }
+        return 0;
+      }
+      /**
+       * <pre>
+       * route_mode evaluates the gateway's join or fallback routes per player, so
+       * players may land on different servers.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+       * @param value The enum numeric value on the wire for routeMode to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRouteModeValue(int value) {
+        targetCase_ = 5;
+        target_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * route_mode evaluates the gateway's join or fallback routes per player, so
+       * players may land on different servers.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+       * @return The routeMode.
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind getRouteMode() {
+        if (targetCase_ == 5) {
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind result = dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind.forNumber(
+              (java.lang.Integer) target_);
+          return result == null ? dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind.UNRECOGNIZED : result;
+        }
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind.ROUTE_KIND_JOIN;
+      }
+      /**
+       * <pre>
+       * route_mode evaluates the gateway's join or fallback routes per player, so
+       * players may land on different servers.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+       * @param value The routeMode to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setRouteMode(dev.minefleet.api.gateway.networking.v1alpha1.Api.RouteKind value) {
+        java.util.Objects.requireNonNull(value);
+        targetCase_ = 5;
+        target_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * route_mode evaluates the gateway's join or fallback routes per player, so
+       * players may land on different servers.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.RouteKind route_mode = 5 [json_name = "routeMode"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRouteMode() {
+        if (targetCase_ == 5) {
+          targetCase_ = 0;
+          target_ = null;
+          onChanged();
+        }
+        return this;
+      }
+
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder> labelSelectorBuilder_;
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       * @return Whether the labelSelector field is set.
+       */
+      @java.lang.Override
+      public boolean hasLabelSelector() {
+        return targetCase_ == 6;
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       * @return The labelSelector.
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector getLabelSelector() {
+        if (labelSelectorBuilder_ == null) {
+          if (targetCase_ == 6) {
+            return (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_;
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+        } else {
+          if (targetCase_ == 6) {
+            return labelSelectorBuilder_.getMessage();
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+        }
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      public Builder setLabelSelector(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector value) {
+        if (labelSelectorBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          target_ = value;
+          onChanged();
+        } else {
+          labelSelectorBuilder_.setMessage(value);
+        }
+        targetCase_ = 6;
+        return this;
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      public Builder setLabelSelector(
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder builderForValue) {
+        if (labelSelectorBuilder_ == null) {
+          target_ = builderForValue.build();
+          onChanged();
+        } else {
+          labelSelectorBuilder_.setMessage(builderForValue.build());
+        }
+        targetCase_ = 6;
+        return this;
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      public Builder mergeLabelSelector(dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector value) {
+        if (labelSelectorBuilder_ == null) {
+          if (targetCase_ == 6 &&
+              target_ != dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance()) {
+            target_ = dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.newBuilder((dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            target_ = value;
+          }
+          onChanged();
+        } else {
+          if (targetCase_ == 6) {
+            labelSelectorBuilder_.mergeFrom(value);
+          } else {
+            labelSelectorBuilder_.setMessage(value);
+          }
+        }
+        targetCase_ = 6;
+        return this;
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      public Builder clearLabelSelector() {
+        if (labelSelectorBuilder_ == null) {
+          if (targetCase_ == 6) {
+            targetCase_ = 0;
+            target_ = null;
+            onChanged();
+          }
+        } else {
+          if (targetCase_ == 6) {
+            targetCase_ = 0;
+            target_ = null;
+          }
+          labelSelectorBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder getLabelSelectorBuilder() {
+        return internalGetLabelSelectorFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder getLabelSelectorOrBuilder() {
+        if ((targetCase_ == 6) && (labelSelectorBuilder_ != null)) {
+          return labelSelectorBuilder_.getMessageOrBuilder();
+        } else {
+          if (targetCase_ == 6) {
+            return (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_;
+          }
+          return dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+        }
+      }
+      /**
+       * <pre>
+       * label_selector picks one server from the services matching the selector,
+       * using their distribution strategy. Every player goes to that one server.
+       * </pre>
+       *
+       * <code>.network.v1alpha1.LabelSelector label_selector = 6 [json_name = "labelSelector"];</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder> 
+          internalGetLabelSelectorFieldBuilder() {
+        if (labelSelectorBuilder_ == null) {
+          if (!(targetCase_ == 6)) {
+            target_ = dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.getDefaultInstance();
+          }
+          labelSelectorBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelectorOrBuilder>(
+                  (dev.minefleet.api.gateway.networking.v1alpha1.Api.LabelSelector) target_,
+                  getParentForChildren(),
+                  isClean());
+          target_ = null;
+        }
+        targetCase_ = 6;
+        onChanged();
+        return labelSelectorBuilder_;
+      }
+
+      /**
+       * <pre>
+       * server_name names an already registered server explicitly.
+       * </pre>
+       *
+       * <code>string server_name = 7 [json_name = "serverName"];</code>
+       * @return Whether the serverName field is set.
+       */
+      @java.lang.Override
+      public boolean hasServerName() {
+        return targetCase_ == 7;
+      }
+      /**
+       * <pre>
+       * server_name names an already registered server explicitly.
+       * </pre>
+       *
+       * <code>string server_name = 7 [json_name = "serverName"];</code>
+       * @return The serverName.
+       */
+      @java.lang.Override
+      public java.lang.String getServerName() {
+        if (targetCase_ != 7) {
+          return "";
+        }
+        java.lang.Object ref = target_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+            target_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * server_name names an already registered server explicitly.
+       * </pre>
+       *
+       * <code>string server_name = 7 [json_name = "serverName"];</code>
+       * @return The bytes for serverName.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getServerNameBytes() {
+        if (targetCase_ != 7) {
+          return com.google.protobuf.ByteString.copyFromUtf8(        "");
+        }
+        java.lang.Object ref = target_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          target_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * server_name names an already registered server explicitly.
+       * </pre>
+       *
+       * <code>string server_name = 7 [json_name = "serverName"];</code>
+       * @param value The serverName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServerName(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        targetCase_ = 7;
+        target_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * server_name names an already registered server explicitly.
+       * </pre>
+       *
+       * <code>string server_name = 7 [json_name = "serverName"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearServerName() {
+        if (targetCase_ == 7) {
+          targetCase_ = 0;
+          target_ = null;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * server_name names an already registered server explicitly.
+       * </pre>
+       *
+       * <code>string server_name = 7 [json_name = "serverName"];</code>
+       * @param value The bytes for serverName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServerNameBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        targetCase_ = 7;
+        target_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int policy_ = 0;
+      /**
+       * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+       * @return The enum numeric value on the wire for policy.
+       */
+      @java.lang.Override public int getPolicyValue() {
+        return policy_;
+      }
+      /**
+       * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+       * @param value The enum numeric value on the wire for policy to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPolicyValue(int value) {
+        policy_ = value;
+        bitField0_ |= 0x00000080;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+       * @return The policy.
+       */
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy getPolicy() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy result = dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy.forNumber(policy_);
+        return result == null ? dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+       * @param value The policy to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setPolicy(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePolicy value) {
+        java.util.Objects.requireNonNull(value);
+        bitField0_ |= 0x00000080;
+        policy_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.network.v1alpha1.MovePolicy policy = 8 [json_name = "policy"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPolicy() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        policy_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int waitSeconds_ ;
+      /**
+       * <pre>
+       * wait_seconds bounds how long the call waits for players who are not
+       * connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+       * absent players immediately; the moves of players who are present are still
+       * awaited. The call never outlives the client's gRPC deadline.
+       * </pre>
+       *
+       * <code>uint32 wait_seconds = 9 [json_name = "waitSeconds"];</code>
+       * @return The waitSeconds.
+       */
+      @java.lang.Override
+      public int getWaitSeconds() {
+        return waitSeconds_;
+      }
+      /**
+       * <pre>
+       * wait_seconds bounds how long the call waits for players who are not
+       * connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+       * absent players immediately; the moves of players who are present are still
+       * awaited. The call never outlives the client's gRPC deadline.
+       * </pre>
+       *
+       * <code>uint32 wait_seconds = 9 [json_name = "waitSeconds"];</code>
+       * @param value The waitSeconds to set.
+       * @return This builder for chaining.
+       */
+      public Builder setWaitSeconds(int value) {
+
+        waitSeconds_ = value;
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * wait_seconds bounds how long the call waits for players who are not
+       * connected yet, mirroring a PlayerTransfer's ttl. Zero, the default, fails
+       * absent players immediately; the moves of players who are present are still
+       * awaited. The call never outlives the client's gRPC deadline.
+       * </pre>
+       *
+       * <code>uint32 wait_seconds = 9 [json_name = "waitSeconds"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearWaitSeconds() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        waitSeconds_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.MovePlayersRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.MovePlayersRequest)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<MovePlayersRequest>
+        PARSER = new com.google.protobuf.AbstractParser<MovePlayersRequest>() {
+      @java.lang.Override
+      public MovePlayersRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<MovePlayersRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MovePlayersRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface PlayerMoveResultOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.PlayerMoveResult)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+     * @return The playerUuid.
+     */
+    java.lang.String getPlayerUuid();
+    /**
+     * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+     * @return The bytes for playerUuid.
+     */
+    com.google.protobuf.ByteString
+        getPlayerUuidBytes();
+
+    /**
+     * <pre>
+     * server_name is where the player was sent, once a target was resolved.
+     * </pre>
+     *
+     * <code>string server_name = 2 [json_name = "serverName"];</code>
+     * @return The serverName.
+     */
+    java.lang.String getServerName();
+    /**
+     * <pre>
+     * server_name is where the player was sent, once a target was resolved.
+     * </pre>
+     *
+     * <code>string server_name = 2 [json_name = "serverName"];</code>
+     * @return The bytes for serverName.
+     */
+    com.google.protobuf.ByteString
+        getServerNameBytes();
+
+    /**
+     * <code>bool success = 3 [json_name = "success"];</code>
+     * @return The success.
+     */
+    boolean getSuccess();
+
+    /**
+     * <pre>
+     * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+     * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+     * </pre>
+     *
+     * <code>string reason = 4 [json_name = "reason"];</code>
+     * @return The reason.
+     */
+    java.lang.String getReason();
+    /**
+     * <pre>
+     * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+     * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+     * </pre>
+     *
+     * <code>string reason = 4 [json_name = "reason"];</code>
+     * @return The bytes for reason.
+     */
+    com.google.protobuf.ByteString
+        getReasonBytes();
+  }
+  /**
+   * <pre>
+   * PlayerMoveResult is the terminal outcome for one player.
+   * </pre>
+   *
+   * Protobuf type {@code network.v1alpha1.PlayerMoveResult}
+   */
+  public static final class PlayerMoveResult extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.PlayerMoveResult)
+      PlayerMoveResultOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "PlayerMoveResult");
+    }
+    // Use PlayerMoveResult.newBuilder() to construct.
+    private PlayerMoveResult(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private PlayerMoveResult() {
+      playerUuid_ = "";
+      serverName_ = "";
+      reason_ = "";
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerMoveResult_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerMoveResult_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerMoveResult_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder.class);
+    }
+
+    public static final int PLAYER_UUID_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object playerUuid_ = "";
+    /**
+     * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+     * @return The playerUuid.
+     */
+    @java.lang.Override
+    public java.lang.String getPlayerUuid() {
+      java.lang.Object ref = playerUuid_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        playerUuid_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+     * @return The bytes for playerUuid.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getPlayerUuidBytes() {
+      java.lang.Object ref = playerUuid_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        playerUuid_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SERVER_NAME_FIELD_NUMBER = 2;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object serverName_ = "";
+    /**
+     * <pre>
+     * server_name is where the player was sent, once a target was resolved.
+     * </pre>
+     *
+     * <code>string server_name = 2 [json_name = "serverName"];</code>
+     * @return The serverName.
+     */
+    @java.lang.Override
+    public java.lang.String getServerName() {
+      java.lang.Object ref = serverName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serverName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * server_name is where the player was sent, once a target was resolved.
+     * </pre>
+     *
+     * <code>string server_name = 2 [json_name = "serverName"];</code>
+     * @return The bytes for serverName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServerNameBytes() {
+      java.lang.Object ref = serverName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serverName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SUCCESS_FIELD_NUMBER = 3;
+    private boolean success_ = false;
+    /**
+     * <code>bool success = 3 [json_name = "success"];</code>
+     * @return The success.
+     */
+    @java.lang.Override
+    public boolean getSuccess() {
+      return success_;
+    }
+
+    public static final int REASON_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object reason_ = "";
+    /**
+     * <pre>
+     * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+     * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+     * </pre>
+     *
+     * <code>string reason = 4 [json_name = "reason"];</code>
+     * @return The reason.
+     */
+    @java.lang.Override
+    public java.lang.String getReason() {
+      java.lang.Object ref = reason_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        reason_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+     * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+     * </pre>
+     *
+     * <code>string reason = 4 [json_name = "reason"];</code>
+     * @return The bytes for reason.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getReasonBytes() {
+      java.lang.Object ref = reason_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        reason_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(playerUuid_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, playerUuid_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(serverName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, serverName_);
+      }
+      if (success_ != false) {
+        output.writeBool(3, success_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(reason_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, reason_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(playerUuid_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, playerUuid_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(serverName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, serverName_);
+      }
+      if (success_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, success_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(reason_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(4, reason_);
+      }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult) obj;
+
+      if (!getPlayerUuid()
+          .equals(other.getPlayerUuid())) return false;
+      if (!getServerName()
+          .equals(other.getServerName())) return false;
+      if (getSuccess()
+          != other.getSuccess()) return false;
+      if (!getReason()
+          .equals(other.getReason())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + PLAYER_UUID_FIELD_NUMBER;
+      hash = (53 * hash) + getPlayerUuid().hashCode();
+      hash = (37 * hash) + SERVER_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getServerName().hashCode();
+      hash = (37 * hash) + SUCCESS_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getSuccess());
+      hash = (37 * hash) + REASON_FIELD_NUMBER;
+      hash = (53 * hash) + getReason().hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * PlayerMoveResult is the terminal outcome for one player.
+     * </pre>
+     *
+     * Protobuf type {@code network.v1alpha1.PlayerMoveResult}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.PlayerMoveResult)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerMoveResult_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerMoveResult_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        playerUuid_ = "";
+        serverName_ = "";
+        success_ = false;
+        reason_ = "";
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_PlayerMoveResult_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.playerUuid_ = playerUuid_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.serverName_ = serverName_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.success_ = success_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.reason_ = reason_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.getDefaultInstance()) return this;
+        if (!other.getPlayerUuid().isEmpty()) {
+          playerUuid_ = other.playerUuid_;
+          bitField0_ |= 0x00000001;
+          onChanged();
+        }
+        if (!other.getServerName().isEmpty()) {
+          serverName_ = other.serverName_;
+          bitField0_ |= 0x00000002;
+          onChanged();
+        }
+        if (other.getSuccess() != false) {
+          setSuccess(other.getSuccess());
+        }
+        if (!other.getReason().isEmpty()) {
+          reason_ = other.reason_;
+          bitField0_ |= 0x00000008;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                playerUuid_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 18: {
+                serverName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+              case 24: {
+                success_ = input.readBool();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 24
+              case 34: {
+                reason_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 34
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object playerUuid_ = "";
+      /**
+       * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+       * @return The playerUuid.
+       */
+      public java.lang.String getPlayerUuid() {
+        java.lang.Object ref = playerUuid_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          playerUuid_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+       * @return The bytes for playerUuid.
+       */
+      public com.google.protobuf.ByteString
+          getPlayerUuidBytes() {
+        java.lang.Object ref = playerUuid_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          playerUuid_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+       * @param value The playerUuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPlayerUuid(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        playerUuid_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPlayerUuid() {
+        playerUuid_ = getDefaultInstance().getPlayerUuid();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string player_uuid = 1 [json_name = "playerUuid"];</code>
+       * @param value The bytes for playerUuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPlayerUuidBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        playerUuid_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object serverName_ = "";
+      /**
+       * <pre>
+       * server_name is where the player was sent, once a target was resolved.
+       * </pre>
+       *
+       * <code>string server_name = 2 [json_name = "serverName"];</code>
+       * @return The serverName.
+       */
+      public java.lang.String getServerName() {
+        java.lang.Object ref = serverName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serverName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * server_name is where the player was sent, once a target was resolved.
+       * </pre>
+       *
+       * <code>string server_name = 2 [json_name = "serverName"];</code>
+       * @return The bytes for serverName.
+       */
+      public com.google.protobuf.ByteString
+          getServerNameBytes() {
+        java.lang.Object ref = serverName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serverName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * server_name is where the player was sent, once a target was resolved.
+       * </pre>
+       *
+       * <code>string server_name = 2 [json_name = "serverName"];</code>
+       * @param value The serverName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServerName(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        serverName_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * server_name is where the player was sent, once a target was resolved.
+       * </pre>
+       *
+       * <code>string server_name = 2 [json_name = "serverName"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearServerName() {
+        serverName_ = getDefaultInstance().getServerName();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * server_name is where the player was sent, once a target was resolved.
+       * </pre>
+       *
+       * <code>string server_name = 2 [json_name = "serverName"];</code>
+       * @param value The bytes for serverName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServerNameBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        serverName_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+
+      private boolean success_ ;
+      /**
+       * <code>bool success = 3 [json_name = "success"];</code>
+       * @return The success.
+       */
+      @java.lang.Override
+      public boolean getSuccess() {
+        return success_;
+      }
+      /**
+       * <code>bool success = 3 [json_name = "success"];</code>
+       * @param value The success to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSuccess(boolean value) {
+
+        success_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool success = 3 [json_name = "success"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSuccess() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        success_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object reason_ = "";
+      /**
+       * <pre>
+       * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+       * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+       * </pre>
+       *
+       * <code>string reason = 4 [json_name = "reason"];</code>
+       * @return The reason.
+       */
+      public java.lang.String getReason() {
+        java.lang.Object ref = reason_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          reason_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+       * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+       * </pre>
+       *
+       * <code>string reason = 4 [json_name = "reason"];</code>
+       * @return The bytes for reason.
+       */
+      public com.google.protobuf.ByteString
+          getReasonBytes() {
+        java.lang.Object ref = reason_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          reason_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+       * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+       * </pre>
+       *
+       * <code>string reason = 4 [json_name = "reason"];</code>
+       * @param value The reason to set.
+       * @return This builder for chaining.
+       */
+      public Builder setReason(
+          java.lang.String value) {
+        java.util.Objects.requireNonNull(value);
+        reason_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+       * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+       * </pre>
+       *
+       * <code>string reason = 4 [json_name = "reason"];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearReason() {
+        reason_ = getDefaultInstance().getReason();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * reason explains a failure: PlayerNotConnected, NoMatchingRoute,
+       * NoMatchingServer, ProxyUnavailable, MoveFailed, or a proxy-supplied reason.
+       * </pre>
+       *
+       * <code>string reason = 4 [json_name = "reason"];</code>
+       * @param value The bytes for reason to set.
+       * @return This builder for chaining.
+       */
+      public Builder setReasonBytes(
+          com.google.protobuf.ByteString value) {
+        java.util.Objects.requireNonNull(value);
+        checkByteStringIsUtf8(value);
+        reason_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.PlayerMoveResult)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.PlayerMoveResult)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<PlayerMoveResult>
+        PARSER = new com.google.protobuf.AbstractParser<PlayerMoveResult>() {
+      @java.lang.Override
+      public PlayerMoveResult parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<PlayerMoveResult> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PlayerMoveResult> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface MovePlayersResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:network.v1alpha1.MovePlayersResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult> 
+        getResultsList();
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult getResults(int index);
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    int getResultsCount();
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder> 
+        getResultsOrBuilderList();
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder getResultsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code network.v1alpha1.MovePlayersResponse}
+   */
+  public static final class MovePlayersResponse extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:network.v1alpha1.MovePlayersResponse)
+      MovePlayersResponseOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 36,
+        /* patch= */ 1,
+        /* suffix= */ "",
+        "MovePlayersResponse");
+    }
+    // Use MovePlayersResponse.newBuilder() to construct.
+    private MovePlayersResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private MovePlayersResponse() {
+      results_ = java.util.Collections.emptyList();
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersResponse_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersResponse_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.Builder.class);
+    }
+
+    public static final int RESULTS_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult> results_;
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult> getResultsList() {
+      return results_;
+    }
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder> 
+        getResultsOrBuilderList() {
+      return results_;
+    }
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    @java.lang.Override
+    public int getResultsCount() {
+      return results_.size();
+    }
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult getResults(int index) {
+      return results_.get(index);
+    }
+    /**
+     * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+     */
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder getResultsOrBuilder(
+        int index) {
+      return results_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < results_.size(); i++) {
+        output.writeMessage(1, results_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+    private int computeSerializedSize_0() {
+      int size = 0;
+
+          {
+            final int count = results_.size();
+            for (int i = 0; i < count; i++) {
+              size += com.google.protobuf.CodedOutputStream
+                .computeMessageSizeNoTag(results_.get(i));
+            }
+            size += 1 * count;
+          }
+      return size;
+    }
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      size += computeSerializedSize_0();
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse)) {
+        return super.equals(obj);
+      }
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse other = (dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse) obj;
+
+      if (!getResultsList()
+          .equals(other.getResultsList())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (getResultsCount() > 0) {
+        hash = (37 * hash) + RESULTS_FIELD_NUMBER;
+        hash = (53 * hash) + getResultsList().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code network.v1alpha1.MovePlayersResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:network.v1alpha1.MovePlayersResponse)
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersResponse_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.class, dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.Builder.class);
+      }
+
+      // Construct using dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        if (resultsBuilder_ == null) {
+          results_ = java.util.Collections.emptyList();
+        } else {
+          results_ = null;
+          resultsBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.internal_static_network_v1alpha1_MovePlayersResponse_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse getDefaultInstanceForType() {
+        return dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse build() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse buildPartial() {
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse result = new dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse(this);
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse result) {
+        if (resultsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            results_ = java.util.Collections.unmodifiableList(results_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.results_ = results_;
+        } else {
+          result.results_ = resultsBuilder_.build();
+        }
+      }
+
+      private void buildPartial0(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse result) {
+        int from_bitField0_ = bitField0_;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse) {
+          return mergeFrom((dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse other) {
+        if (other == dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.getDefaultInstance()) return this;
+        if (resultsBuilder_ == null) {
+          if (!other.results_.isEmpty()) {
+            if (results_.isEmpty()) {
+              results_ = other.results_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureResultsIsMutable();
+              results_.addAll(other.results_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.results_.isEmpty()) {
+            if (resultsBuilder_.isEmpty()) {
+              resultsBuilder_.dispose();
+              resultsBuilder_ = null;
+              results_ = other.results_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              resultsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   internalGetResultsFieldBuilder() : null;
+            } else {
+              resultsBuilder_.addAllMessages(other.results_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        java.util.Objects.requireNonNull(extensionRegistry);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult m =
+                    input.readMessage(
+                        dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.parser(),
+                        extensionRegistry);
+                if (resultsBuilder_ == null) {
+                  ensureResultsIsMutable();
+                  results_.add(m);
+                } else {
+                  resultsBuilder_.addMessage(m);
+                }
+                break;
+              } // case 10
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult> results_ =
+        java.util.Collections.emptyList();
+      private void ensureResultsIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          results_ = new java.util.ArrayList<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult>(results_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder> resultsBuilder_;
+
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult> getResultsList() {
+        if (resultsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(results_);
+        } else {
+          return resultsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public int getResultsCount() {
+        if (resultsBuilder_ == null) {
+          return results_.size();
+        } else {
+          return resultsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult getResults(int index) {
+        if (resultsBuilder_ == null) {
+          return results_.get(index);
+        } else {
+          return resultsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder setResults(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult value) {
+        if (resultsBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          ensureResultsIsMutable();
+          results_.set(index, value);
+          onChanged();
+        } else {
+          resultsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder setResults(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder builderForValue) {
+        if (resultsBuilder_ == null) {
+          ensureResultsIsMutable();
+          results_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          resultsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder addResults(dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult value) {
+        if (resultsBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          ensureResultsIsMutable();
+          results_.add(value);
+          onChanged();
+        } else {
+          resultsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder addResults(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult value) {
+        if (resultsBuilder_ == null) {
+          java.util.Objects.requireNonNull(value);
+          ensureResultsIsMutable();
+          results_.add(index, value);
+          onChanged();
+        } else {
+          resultsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder addResults(
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder builderForValue) {
+        if (resultsBuilder_ == null) {
+          ensureResultsIsMutable();
+          results_.add(builderForValue.build());
+          onChanged();
+        } else {
+          resultsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder addResults(
+          int index, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder builderForValue) {
+        if (resultsBuilder_ == null) {
+          ensureResultsIsMutable();
+          results_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          resultsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder addAllResults(
+          java.lang.Iterable<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult> values) {
+        if (resultsBuilder_ == null) {
+          ensureResultsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, results_);
+          onChanged();
+        } else {
+          resultsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder clearResults() {
+        if (resultsBuilder_ == null) {
+          results_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          resultsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public Builder removeResults(int index) {
+        if (resultsBuilder_ == null) {
+          ensureResultsIsMutable();
+          results_.remove(index);
+          onChanged();
+        } else {
+          resultsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder getResultsBuilder(
+          int index) {
+        return internalGetResultsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder getResultsOrBuilder(
+          int index) {
+        if (resultsBuilder_ == null) {
+          return results_.get(index);  } else {
+          return resultsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public java.util.List<? extends dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder> 
+           getResultsOrBuilderList() {
+        if (resultsBuilder_ != null) {
+          return resultsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(results_);
+        }
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder addResultsBuilder() {
+        return internalGetResultsFieldBuilder().addBuilder(
+            dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder addResultsBuilder(
+          int index) {
+        return internalGetResultsFieldBuilder().addBuilder(
+            index, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .network.v1alpha1.PlayerMoveResult results = 1 [json_name = "results"];</code>
+       */
+      public java.util.List<dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder> 
+           getResultsBuilderList() {
+        return internalGetResultsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder> 
+          internalGetResultsFieldBuilder() {
+        if (resultsBuilder_ == null) {
+          resultsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResult.Builder, dev.minefleet.api.gateway.networking.v1alpha1.Api.PlayerMoveResultOrBuilder>(
+                  results_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          results_ = null;
+        }
+        return resultsBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:network.v1alpha1.MovePlayersResponse)
+    }
+
+    // @@protoc_insertion_point(class_scope:network.v1alpha1.MovePlayersResponse)
+    private static final dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse();
+    }
+
+    public static dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<MovePlayersResponse>
+        PARSER = new com.google.protobuf.AbstractParser<MovePlayersResponse>() {
+      @java.lang.Override
+      public MovePlayersResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<MovePlayersResponse> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MovePlayersResponse> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_network_v1alpha1_PlayerContext_descriptor;
   private static final 
@@ -19564,6 +25461,36 @@ public final class Api extends com.google.protobuf.GeneratedFile {
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_network_v1alpha1_GetPlayersForServiceResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_LabelSelectorRequirement_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_LabelSelector_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_LabelSelector_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_LabelSelector_MatchLabelsEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_LabelSelector_MatchLabelsEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_MovePlayersRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_MovePlayersRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_PlayerMoveResult_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_PlayerMoveResult_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_network_v1alpha1_MovePlayersResponse_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_network_v1alpha1_MovePlayersResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -19665,23 +25592,53 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       "uest\022\034\n\tnamespace\030\001 \001(\tR\tnamespace\022\022\n\004na" +
       "me\030\002 \001(\tR\004name\"d\n\034GetPlayersForServiceRe" +
       "sponse\022D\n\013connections\030\001 \003(\0132\".network.v1" +
-      "alpha1.PlayerConnectionR\013connections*9\n\t" +
-      "RouteKind\022\023\n\017ROUTE_KIND_JOIN\020\000\022\027\n\023ROUTE_" +
-      "KIND_FALLBACK\020\0012`\n\nNetworkXDS\022R\n\007Connect" +
-      "\022\036.network.v1alpha1.ProxyMessage\032#.netwo" +
-      "rk.v1alpha1.ControllerMessage(\0010\0012\335\002\n\016Ne" +
-      "tworkGateway\022`\n\rGetConnection\022&.network." +
-      "v1alpha1.GetConnectionRequest\032\'.network." +
-      "v1alpha1.GetConnectionResponse\022r\n\023GetPla" +
-      "yersForServer\022,.network.v1alpha1.GetPlay" +
-      "ersForServerRequest\032-.network.v1alpha1.G" +
-      "etPlayersForServerResponse\022u\n\024GetPlayers" +
-      "ForService\022-.network.v1alpha1.GetPlayers" +
-      "ForServiceRequest\032..network.v1alpha1.Get" +
-      "PlayersForServiceResponseBl\n-dev.minefle" +
-      "et.api.gateway.networking.v1alpha1Z;gith" +
-      "ub.com/minefleet/minecraft-gateway/api/n" +
-      "etwork/v1alpha1b\006proto3"
+      "alpha1.PlayerConnectionR\013connections\"`\n\030" +
+      "LabelSelectorRequirement\022\020\n\003key\030\001 \001(\tR\003k" +
+      "ey\022\032\n\010operator\030\002 \001(\tR\010operator\022\026\n\006values" +
+      "\030\003 \003(\tR\006values\"\375\001\n\rLabelSelector\022S\n\014matc" +
+      "h_labels\030\001 \003(\01320.network.v1alpha1.LabelS" +
+      "elector.MatchLabelsEntryR\013matchLabels\022W\n" +
+      "\021match_expressions\030\002 \003(\0132*.network.v1alp" +
+      "ha1.LabelSelectorRequirementR\020matchExpre" +
+      "ssions\032>\n\020MatchLabelsEntry\022\020\n\003key\030\001 \001(\tR" +
+      "\003key\022\024\n\005value\030\002 \001(\tR\005value:\0028\001\"\261\003\n\022MoveP" +
+      "layersRequest\022+\n\021gateway_namespace\030\001 \001(\t" +
+      "R\020gatewayNamespace\022!\n\014gateway_name\030\002 \001(\t" +
+      "R\013gatewayName\022#\n\rlistener_name\030\003 \001(\tR\014li" +
+      "stenerName\022\030\n\007players\030\004 \003(\tR\007players\022<\n\n" +
+      "route_mode\030\005 \001(\0162\033.network.v1alpha1.Rout" +
+      "eKindH\000R\trouteMode\022H\n\016label_selector\030\006 \001" +
+      "(\0132\037.network.v1alpha1.LabelSelectorH\000R\rl" +
+      "abelSelector\022!\n\013server_name\030\007 \001(\tH\000R\nser" +
+      "verName\0224\n\006policy\030\010 \001(\0162\034.network.v1alph" +
+      "a1.MovePolicyR\006policy\022!\n\014wait_seconds\030\t " +
+      "\001(\rR\013waitSecondsB\010\n\006target\"\206\001\n\020PlayerMov" +
+      "eResult\022\037\n\013player_uuid\030\001 \001(\tR\nplayerUuid" +
+      "\022\037\n\013server_name\030\002 \001(\tR\nserverName\022\030\n\007suc" +
+      "cess\030\003 \001(\010R\007success\022\026\n\006reason\030\004 \001(\tR\006rea" +
+      "son\"S\n\023MovePlayersResponse\022<\n\007results\030\001 " +
+      "\003(\0132\".network.v1alpha1.PlayerMoveResultR" +
+      "\007results*9\n\tRouteKind\022\023\n\017ROUTE_KIND_JOIN" +
+      "\020\000\022\027\n\023ROUTE_KIND_FALLBACK\020\001*I\n\nMovePolic" +
+      "y\022\036\n\032MOVE_POLICY_ALL_OR_NOTHING\020\000\022\033\n\027MOV" +
+      "E_POLICY_BEST_EFFORT\020\0012`\n\nNetworkXDS\022R\n\007" +
+      "Connect\022\036.network.v1alpha1.ProxyMessage\032" +
+      "#.network.v1alpha1.ControllerMessage(\0010\001" +
+      "2\271\003\n\016NetworkGateway\022`\n\rGetConnection\022&.n" +
+      "etwork.v1alpha1.GetConnectionRequest\032\'.n" +
+      "etwork.v1alpha1.GetConnectionResponse\022r\n" +
+      "\023GetPlayersForServer\022,.network.v1alpha1." +
+      "GetPlayersForServerRequest\032-.network.v1a" +
+      "lpha1.GetPlayersForServerResponse\022u\n\024Get" +
+      "PlayersForService\022-.network.v1alpha1.Get" +
+      "PlayersForServiceRequest\032..network.v1alp" +
+      "ha1.GetPlayersForServiceResponse\022Z\n\013Move" +
+      "Players\022$.network.v1alpha1.MovePlayersRe" +
+      "quest\032%.network.v1alpha1.MovePlayersResp" +
+      "onseBl\n-dev.minefleet.api.gateway.networ" +
+      "king.v1alpha1Z;github.com/minefleet/mine" +
+      "craft-gateway/api/network/v1alpha1b\006prot" +
+      "o3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -19832,6 +25789,42 @@ public final class Api extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_network_v1alpha1_GetPlayersForServiceResponse_descriptor,
         new java.lang.String[] { "Connections", });
+    internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor =
+      getDescriptor().getMessageType(22);
+    internal_static_network_v1alpha1_LabelSelectorRequirement_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_LabelSelectorRequirement_descriptor,
+        new java.lang.String[] { "Key", "Operator", "Values", });
+    internal_static_network_v1alpha1_LabelSelector_descriptor =
+      getDescriptor().getMessageType(23);
+    internal_static_network_v1alpha1_LabelSelector_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_LabelSelector_descriptor,
+        new java.lang.String[] { "MatchLabels", "MatchExpressions", });
+    internal_static_network_v1alpha1_LabelSelector_MatchLabelsEntry_descriptor =
+      internal_static_network_v1alpha1_LabelSelector_descriptor.getNestedType(0);
+    internal_static_network_v1alpha1_LabelSelector_MatchLabelsEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_LabelSelector_MatchLabelsEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_network_v1alpha1_MovePlayersRequest_descriptor =
+      getDescriptor().getMessageType(24);
+    internal_static_network_v1alpha1_MovePlayersRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_MovePlayersRequest_descriptor,
+        new java.lang.String[] { "GatewayNamespace", "GatewayName", "ListenerName", "Players", "RouteMode", "LabelSelector", "ServerName", "Policy", "WaitSeconds", "Target", });
+    internal_static_network_v1alpha1_PlayerMoveResult_descriptor =
+      getDescriptor().getMessageType(25);
+    internal_static_network_v1alpha1_PlayerMoveResult_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_PlayerMoveResult_descriptor,
+        new java.lang.String[] { "PlayerUuid", "ServerName", "Success", "Reason", });
+    internal_static_network_v1alpha1_MovePlayersResponse_descriptor =
+      getDescriptor().getMessageType(26);
+    internal_static_network_v1alpha1_MovePlayersResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_network_v1alpha1_MovePlayersResponse_descriptor,
+        new java.lang.String[] { "Results", });
     descriptor.resolveAllFeaturesImmutable();
     dev.minefleet.api.gateway.networking.v1alpha1.Types.getDescriptor();
   }

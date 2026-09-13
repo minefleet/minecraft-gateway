@@ -5,8 +5,8 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
 /**
  * <pre>
  * NetworkGateway lets external components (queues, matchmakers, gameserver
- * orchestrators) query where players currently are, without maintaining a
- * stream connection of their own.
+ * orchestrators) query where players currently are and move them, without
+ * maintaining a stream connection of their own.
  * </pre>
  */
 @io.grpc.stub.annotations.GrpcGenerated
@@ -110,6 +110,37 @@ public final class NetworkGatewayGrpc {
     return getGetPlayersForServiceMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest,
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse> getMovePlayersMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "MovePlayers",
+      requestType = dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.class,
+      responseType = dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest,
+      dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse> getMovePlayersMethod() {
+    io.grpc.MethodDescriptor<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest, dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse> getMovePlayersMethod;
+    if ((getMovePlayersMethod = NetworkGatewayGrpc.getMovePlayersMethod) == null) {
+      synchronized (NetworkGatewayGrpc.class) {
+        if ((getMovePlayersMethod = NetworkGatewayGrpc.getMovePlayersMethod) == null) {
+          NetworkGatewayGrpc.getMovePlayersMethod = getMovePlayersMethod =
+              io.grpc.MethodDescriptor.<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest, dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "MovePlayers"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new NetworkGatewayMethodDescriptorSupplier("MovePlayers"))
+              .build();
+        }
+      }
+    }
+    return getMovePlayersMethod;
+  }
+
   /**
    * Creates a new async stub that supports all call types for the service
    */
@@ -172,8 +203,8 @@ public final class NetworkGatewayGrpc {
   /**
    * <pre>
    * NetworkGateway lets external components (queues, matchmakers, gameserver
-   * orchestrators) query where players currently are, without maintaining a
-   * stream connection of their own.
+   * orchestrators) query where players currently are and move them, without
+   * maintaining a stream connection of their own.
    * </pre>
    */
   public interface AsyncService {
@@ -198,14 +229,26 @@ public final class NetworkGatewayGrpc {
         io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetPlayersForServiceResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetPlayersForServiceMethod(), responseObserver);
     }
+
+    /**
+     * <pre>
+     * MovePlayers connects players to a server and blocks until the proxies
+     * report the outcome. Moves already handed to a proxy are carried out even if
+     * the call is cut short by its deadline.
+     * </pre>
+     */
+    default void movePlayers(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest request,
+        io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getMovePlayersMethod(), responseObserver);
+    }
   }
 
   /**
    * Base class for the server implementation of the service NetworkGateway.
    * <pre>
    * NetworkGateway lets external components (queues, matchmakers, gameserver
-   * orchestrators) query where players currently are, without maintaining a
-   * stream connection of their own.
+   * orchestrators) query where players currently are and move them, without
+   * maintaining a stream connection of their own.
    * </pre>
    */
   public static abstract class NetworkGatewayImplBase
@@ -220,8 +263,8 @@ public final class NetworkGatewayGrpc {
    * A stub to allow clients to do asynchronous rpc calls to service NetworkGateway.
    * <pre>
    * NetworkGateway lets external components (queues, matchmakers, gameserver
-   * orchestrators) query where players currently are, without maintaining a
-   * stream connection of their own.
+   * orchestrators) query where players currently are and move them, without
+   * maintaining a stream connection of their own.
    * </pre>
    */
   public static final class NetworkGatewayStub
@@ -260,14 +303,27 @@ public final class NetworkGatewayGrpc {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getGetPlayersForServiceMethod(), getCallOptions()), request, responseObserver);
     }
+
+    /**
+     * <pre>
+     * MovePlayers connects players to a server and blocks until the proxies
+     * report the outcome. Moves already handed to a proxy are carried out even if
+     * the call is cut short by its deadline.
+     * </pre>
+     */
+    public void movePlayers(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest request,
+        io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getMovePlayersMethod(), getCallOptions()), request, responseObserver);
+    }
   }
 
   /**
    * A stub to allow clients to do synchronous rpc calls to service NetworkGateway.
    * <pre>
    * NetworkGateway lets external components (queues, matchmakers, gameserver
-   * orchestrators) query where players currently are, without maintaining a
-   * stream connection of their own.
+   * orchestrators) query where players currently are and move them, without
+   * maintaining a stream connection of their own.
    * </pre>
    */
   public static final class NetworkGatewayBlockingV2Stub
@@ -303,14 +359,26 @@ public final class NetworkGatewayGrpc {
       return io.grpc.stub.ClientCalls.blockingV2UnaryCall(
           getChannel(), getGetPlayersForServiceMethod(), getCallOptions(), request);
     }
+
+    /**
+     * <pre>
+     * MovePlayers connects players to a server and blocks until the proxies
+     * report the outcome. Moves already handed to a proxy are carried out even if
+     * the call is cut short by its deadline.
+     * </pre>
+     */
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse movePlayers(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest request) throws io.grpc.StatusException {
+      return io.grpc.stub.ClientCalls.blockingV2UnaryCall(
+          getChannel(), getMovePlayersMethod(), getCallOptions(), request);
+    }
   }
 
   /**
    * A stub to allow clients to do limited synchronous rpc calls to service NetworkGateway.
    * <pre>
    * NetworkGateway lets external components (queues, matchmakers, gameserver
-   * orchestrators) query where players currently are, without maintaining a
-   * stream connection of their own.
+   * orchestrators) query where players currently are and move them, without
+   * maintaining a stream connection of their own.
    * </pre>
    */
   public static final class NetworkGatewayBlockingStub
@@ -346,14 +414,26 @@ public final class NetworkGatewayGrpc {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getGetPlayersForServiceMethod(), getCallOptions(), request);
     }
+
+    /**
+     * <pre>
+     * MovePlayers connects players to a server and blocks until the proxies
+     * report the outcome. Moves already handed to a proxy are carried out even if
+     * the call is cut short by its deadline.
+     * </pre>
+     */
+    public dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse movePlayers(dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest request) {
+      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+          getChannel(), getMovePlayersMethod(), getCallOptions(), request);
+    }
   }
 
   /**
    * A stub to allow clients to do ListenableFuture-style rpc calls to service NetworkGateway.
    * <pre>
    * NetworkGateway lets external components (queues, matchmakers, gameserver
-   * orchestrators) query where players currently are, without maintaining a
-   * stream connection of their own.
+   * orchestrators) query where players currently are and move them, without
+   * maintaining a stream connection of their own.
    * </pre>
    */
   public static final class NetworkGatewayFutureStub
@@ -392,11 +472,25 @@ public final class NetworkGatewayGrpc {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getGetPlayersForServiceMethod(), getCallOptions()), request);
     }
+
+    /**
+     * <pre>
+     * MovePlayers connects players to a server and blocks until the proxies
+     * report the outcome. Moves already handed to a proxy are carried out even if
+     * the call is cut short by its deadline.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse> movePlayers(
+        dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getMovePlayersMethod(), getCallOptions()), request);
+    }
   }
 
   private static final int METHODID_GET_CONNECTION = 0;
   private static final int METHODID_GET_PLAYERS_FOR_SERVER = 1;
   private static final int METHODID_GET_PLAYERS_FOR_SERVICE = 2;
+  private static final int METHODID_MOVE_PLAYERS = 3;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -426,6 +520,10 @@ public final class NetworkGatewayGrpc {
         case METHODID_GET_PLAYERS_FOR_SERVICE:
           serviceImpl.getPlayersForService((dev.minefleet.api.gateway.networking.v1alpha1.Api.GetPlayersForServiceRequest) request,
               (io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.GetPlayersForServiceResponse>) responseObserver);
+          break;
+        case METHODID_MOVE_PLAYERS:
+          serviceImpl.movePlayers((dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest) request,
+              (io.grpc.stub.StreamObserver<dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -466,6 +564,13 @@ public final class NetworkGatewayGrpc {
               dev.minefleet.api.gateway.networking.v1alpha1.Api.GetPlayersForServiceRequest,
               dev.minefleet.api.gateway.networking.v1alpha1.Api.GetPlayersForServiceResponse>(
                 service, METHODID_GET_PLAYERS_FOR_SERVICE)))
+        .addMethod(
+          getMovePlayersMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersRequest,
+              dev.minefleet.api.gateway.networking.v1alpha1.Api.MovePlayersResponse>(
+                service, METHODID_MOVE_PLAYERS)))
         .build();
   }
 
@@ -517,6 +622,7 @@ public final class NetworkGatewayGrpc {
               .addMethod(getGetConnectionMethod())
               .addMethod(getGetPlayersForServerMethod())
               .addMethod(getGetPlayersForServiceMethod())
+              .addMethod(getMovePlayersMethod())
               .build();
         }
       }

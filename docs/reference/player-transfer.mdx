@@ -5,6 +5,10 @@ description: Reference for the PlayerTransfer CRD, which moves named players to 
 
 A `PlayerTransfer` moves a named set of players to a server. It is a one-shot command rather than standing policy: you create one, the controller carries it out, and it settles in a terminal phase. Use it from queue systems, matchmakers such as OpenMatch, or gameserver orchestrators such as Agones to move players through the Kubernetes API, without holding a gRPC connection to the controller.
 
+<Note>
+The `MovePlayers` RPC does the same thing imperatively — same targets, same policies — returning the outcome on the call instead of writing it to a resource. See [Moving Players](/guides/moving-players) for which to reach for.
+</Note>
+
 **API group:** `gateway.networking.minefleet.dev/v1alpha1`
 
 ## Example
